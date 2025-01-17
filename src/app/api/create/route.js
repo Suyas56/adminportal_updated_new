@@ -354,23 +354,32 @@ export async function POST(request) {
             )
             return NextResponse.json(supervisionResult)
 
-          case 'workshops_conferences':
-            const workshopResult = await query(
-              `INSERT INTO workshops_conferences(id, email, event_type, role, event_name, sponsored_by, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-              [
-                params.id,
-                params.email,
-                params.event_type,
-                params.role,
-                params.event_name,
-                params.sponsored_by,
-                params.start_date,
-                params.end_date,
-                params.participants_count
-              ]
-            )
-            return NextResponse.json(workshopResult)
-
+            case 'workshops_conferences':
+              // Debugging
+              console.log('params:', params);
+          
+              // Ensure start_date and end_date are formatted as 'YYYY-MM-DD' (if they exist)
+              const formattedStartDate = params.start_date ? new Date(params.start_date).toISOString().split('T')[0] : null;
+              const formattedEndDate = params.end_date ? new Date(params.end_date).toISOString().split('T')[0] : null;
+          
+              const workshopResult = await query(
+                  `INSERT INTO workshops_conferences(id, email, event_type, role, event_name, sponsored_by, start_date, end_date, participants_count) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                  [
+                      params.id,               
+                      params.email,           
+                      params.event_type,       
+                      params.role,             
+                      params.event_name,      
+                      params.sponsored_by,   
+                      formattedStartDate,      
+                      formattedEndDate,       
+                      params.participants_count 
+                  ]
+              );
+              
+              return NextResponse.json(workshopResult);
+          
           case 'institute_activities':
             const instituteResult = await query(
               `INSERT INTO institute_activities(id, email, role_position, start_date, end_date) VALUES (?, ?, ?, ?, ?)`,

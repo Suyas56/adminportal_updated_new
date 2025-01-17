@@ -59,10 +59,18 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'sponsored_projects',
                     ...content,
+                    // Example: Handle any date fields if they exist, assuming a `start_date` and `end_date`
+                    start_date: content.start_date
+                        ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                        : null,
+                    end_date: content.end_date
+                        ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                        : null,
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
-            })
+            });
+            
 
             if (!result.ok) throw new Error('Failed to create')
             

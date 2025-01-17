@@ -51,10 +51,16 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'textbooks',
                     ...content,
+                    // Assuming 'publish_date' and 'isbn' are fields, for example
+                    // Format any date fields if necessary (e.g., publish_date)
+                    publish_date: content.publish_date 
+                        ? new Date(content.publish_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                        : null,
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
-            })
+            });
+            
 
             if (!result.ok) throw new Error('Failed to create')
             

@@ -53,10 +53,15 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'startups',
                     ...content,
+                    // Ensure the date is in 'YYYY-MM-DD' format (without time)
+                    registration_date: content.registration_date
+                        ? new Date(content.registration_date).toISOString().split('T')[0] // This ensures only 'YYYY-MM-DD'
+                        : null,
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
-            })
+            });
+            
 
             if (!result.ok) throw new Error('Failed to create')
             
