@@ -4,12 +4,12 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-image'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
     const [content, setContent] = useState({
         title: '',
         openDate: '',

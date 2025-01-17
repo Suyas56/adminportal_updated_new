@@ -20,7 +20,7 @@ import {
 } from '@material-ui/icons'
 import React, { useState, useEffect } from 'react'
 import { DescriptionModal } from './common-props/description-modal'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { AddForm } from './news-props/add-form'
 import { EditForm } from './news-props/edit-form'
 import Filter from './common-props/filter'
@@ -144,7 +144,8 @@ TablePaginationActions.propTypes = {
 }
 
 const DataDisplay = (props) => {
-    const [session, loading] = useSession()
+    const {data:session,status}= useSession()
+    const loading = status === "loading";
     const classes = useStyles()
     const [details, setDetails] = useState(props.data)
     const [filterQuery, setFilterQuery] = useState(null)
@@ -175,7 +176,7 @@ const DataDisplay = (props) => {
 
     useEffect(() => {
         if (!filterQuery) {
-            fetch('/api/news/between', {
+            fetch('/api/news', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -184,6 +185,7 @@ const DataDisplay = (props) => {
                 body: JSON.stringify({
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"between"
                 }),
             })
                 .then((res) => res.json())
@@ -193,7 +195,7 @@ const DataDisplay = (props) => {
                 })
                 .catch((err) => console.log(err))
         } else {
-            fetch('/api/news/range', {
+            fetch('/api/news', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -203,6 +205,7 @@ const DataDisplay = (props) => {
                     ...filterQuery,
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"range"
                 }),
             })
                 .then((res) => res.json())
@@ -370,10 +373,9 @@ const DataDisplay = (props) => {
             <AddForm handleClose={handleCloseAddModal} modal={addModal} />
 
             <Grid container spacing={2} className={classes.root}>
-                {details.map((row) => {
-                    return <News detail={row} />
+                {details.map((row, index) => {
+                    return <News key={row.id || index} detail={row} />;
                 })}
-
                 {/* <Grid >
             <Paper xs={12} sm={9}>{detail.title}</Paper>
          </Grid> */}

@@ -20,7 +20,7 @@ import {
 import React, { useState } from 'react'
 import { AddForm } from './events-props/add-form'
 import { EditForm } from './events-props/edit-form'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import Filter from './common-props/filter'
 import PropTypes from 'prop-types'
 import FirstPageIcon from '@material-ui/icons/FirstPage'

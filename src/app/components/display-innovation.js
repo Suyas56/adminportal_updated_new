@@ -19,7 +19,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import { AddForm } from './innovation-props/add-form'
 import { EditForm } from './innovation-props/edit-form'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { DescriptionModal } from './common-props/description-modal'
 import Filter from './common-props/filter'
 import PropTypes from 'prop-types'
@@ -142,7 +142,7 @@ TablePaginationActions.propTypes = {
 }
 
 const DataDisplay = (props) => {
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
     const classes = useStyles()
     const [details, setDetails] = useState(props.data)
     const [filterQuery, setFilterQuery] = useState(null)
@@ -174,7 +174,7 @@ const DataDisplay = (props) => {
 
     useEffect(() => {
         if (!filterQuery) {
-            fetch('/api/innovation/between', {
+            fetch('/api/innovation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -183,6 +183,7 @@ const DataDisplay = (props) => {
                 body: JSON.stringify({
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"between"
                 }),
             })
                 .then((res) => res.json())
@@ -192,7 +193,7 @@ const DataDisplay = (props) => {
                 })
                 .catch((err) => console.log(err))
         } else {
-            fetch('/api/innovation/range', {
+            fetch('/api/innovation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -202,6 +203,7 @@ const DataDisplay = (props) => {
                     ...filterQuery,
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"range"
                 }),
             })
                 .then((res) => res.json())
@@ -377,31 +379,3 @@ const DataDisplay = (props) => {
 }
 
 export default DataDisplay
-
-// Extras
-// 	<Grid item xs={4} sm={2} lg={1}>
-// 								<Paper
-// 									className={classes.paper}
-// 									style={{ textAlign: `center` }}
-// 								>
-// 									{detail.isVisible ? (
-// 										<>
-// 											<Visibility className={classes.icon} />
-// 											{/* <i className="fa fa-eye" style={{ color: "action" }}></i> */}
-// 											<span>Visible</span>
-// 										</>
-// 									) : (
-// 										<>
-// 											{/* <i
-// 												className="fa fa-eye-slash"
-// 												style={{ color: "secondary" }}
-// 											></i> */}
-// 											<VisibilityOff
-// 												color="secondary"
-// 												className={classes.icon}
-// 											/>
-// 											<span>Archive</span>
-// 										</>
-// 									)}
-// 								</Paper>
-// 							</Grid >

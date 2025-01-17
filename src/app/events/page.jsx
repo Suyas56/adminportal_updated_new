@@ -1,15 +1,16 @@
+"use client"
 import Layout from '../components/layout'
 import styled from 'styled-components'
 import DataDisplay from '../components/display-events'
-import { useEntries } from '@/lib/swr-hook'
-import LoadAnimation from '@/components/loading'
-import { useSession } from 'next-auth/client'
-import { useRouter } from 'next/router'
+import LoadAnimation from '../components/loading'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import Loading from '../components/loading'
 import Sign from '../components/signin'
 import Unauthorise from '../components/unauthorise'
 import { useEffect, useState } from 'react'
-
+// import { getServerSession } from 'next-auth'
+// import { authOptions } from '../api/auth/[...nextauth]/route'
 const Wrap = styled.div`
     width: 90%;
     margin: auto;
@@ -18,6 +19,7 @@ const Wrap = styled.div`
 
 export default function Page() {
     // const { entries, isLoading } = useEntries('/api/events/all');
+    // const session = getServerSession(authOptions)
     const [isLoading, setIsLoading] = useState(true)
     const [entries, setEntries] = useState({})
     useEffect(() => {
@@ -39,10 +41,10 @@ export default function Page() {
             })
             .catch((err) => console.log(err))
     }, [])
-    const [session, loading] = useSession()
+    const {session,status} = useSession()
     const router = useRouter()
-
-    if (typeof window !== 'undefined' && loading) return <Loading />
+    
+    if (typeof window !== 'undefined' && status==="loading") return <Loading />
 
     if (session && (session.user.role === 1 || session.user.role === 2)) {
         return (

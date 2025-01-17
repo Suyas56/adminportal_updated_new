@@ -79,12 +79,14 @@ export async function POST(request) {
         break
 
       case 'between':
-        const { from: fromIndex, to: toIndex } = body
+        const { from: fromIndex, to: toIndex,type } = body
+        const diff=toIndex - fromIndex;
         results = await query(
           `SELECT * FROM news 
            ORDER BY openDate DESC 
-           LIMIT ?, ?`,
-          [fromIndex, toIndex - fromIndex]
+           LIMIT 0,15`
+          //  LIMIT ?, ?`,
+          // [fromIndex, diff]
         )
         break
 

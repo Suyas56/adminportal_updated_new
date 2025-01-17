@@ -5,7 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import { Delete, Link } from '@material-ui/icons'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useRef, useState } from 'react'
 import { dateformatter } from './../common-props/date-formatter'
 import { ConfirmDelete } from './confirm-delete'
@@ -16,7 +16,7 @@ import { AddAttachments } from './../common-props/add-attachment'
 export const EditForm = ({ data, handleClose, modal }) => {
     const limit = 1
     const deleteArray = useRef([])
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
     const [content, setContent] = useState({
         id: data.id,
         title: data.title,
