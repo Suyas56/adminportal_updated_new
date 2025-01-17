@@ -1,7 +1,7 @@
-import { Typography } from '@material-ui/core'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import { Typography } from '@mui/material'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import React from 'react'
 
 export const DescriptionModal = ({ handleClose, modal, data }) => {

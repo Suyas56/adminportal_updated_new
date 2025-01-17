@@ -1,9 +1,9 @@
+"use client"
 import Layout from '../components/layout'
 import styled from 'styled-components'
-import DataDisplay from '@/components/display-notices'
-import { useEntries } from '@/lib/swr-hook'
-import LoadAnimation from '@/components/loading'
-import { useSession } from 'next-auth/client'
+import DataDisplay from '../components/display-notices'
+import LoadAnimation from '../components/loading'
+import { useSession } from 'next-auth/react'
 import Loading from '../components/loading'
 import Sign from '../components/signin'
 import Unauthorise from '../components/unauthorise'
@@ -20,7 +20,7 @@ export default function Page() {
     const [isLoading, setIsLoading] = useState(true)
     const [entries, setEntries] = useState({})
     useEffect(() => {
-        fetch('/api/notice/between', {
+        fetch('/api/notice', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -29,6 +29,7 @@ export default function Page() {
             body: JSON.stringify({
                 from: 0,
                 to: 15,
+                type:"between"
             }),
         })
             .then((res) => res.json())
@@ -38,30 +39,28 @@ export default function Page() {
             })
             .catch((err) => console.log(err))
     }, [])
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
 
-    if (typeof window !== 'undefined' && loading) return <Loading />
+    if (typeof window !== 'undefined' && status==="loading") return <Loading />
 
-    if (
-        session &&
-        (session.user.role === 1 ||
-            session.user.role === 2 ||
-            session.user.role === 4)
-    ) {
+    if (session) {
         return (
-            <Layout>
-                <Wrap>
-                    {isLoading ? (
-                        <LoadAnimation />
-                    ) : (
-                        <DataDisplay data={entries} />
-                    )}
-                </Wrap>
-            </Layout>
+            <>
+                {session.user.role == "SUPER_ADMIN" ? (
+                    <Layout>
+                        <Wrap>
+                            {isLoading ? (
+                                <LoadAnimation />
+                            ) : (
+                                <DataDisplay data={entries} />
+                            )}
+                        </Wrap>
+                    </Layout>
+                ) : (
+                    <Unauthorise />
+                )}
+            </>
         )
-    }
-    if (session && session.user.role === 3) {
-        return <Unauthorise />
     }
     return <Sign />
 }

@@ -4,8 +4,8 @@ import {
     TablePagination,
     TableRow,
     Typography,
-} from '@material-ui/core'
-import Button from '@material-ui/core/Button'
+} from '@mui/material'
+import Button from '@mui/material/Button'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
@@ -20,7 +20,7 @@ import {
 } from '@material-ui/icons'
 import React, { useState, useEffect } from 'react'
 import { DescriptionModal } from './common-props/description-modal'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { AddForm } from './news-props/add-form'
 import { EditForm } from './news-props/edit-form'
 import Filter from './common-props/filter'
@@ -68,22 +68,22 @@ const useStyles1 = makeStyles((theme) => ({
 function TablePaginationActions(props) {
     const classes = useStyles1()
     const theme = useTheme()
-    const { count, page, rowsPerPage, onChangePage } = props
+    const { count, page, rowsPerPage, onPageChange } = props
 
     const handleFirstPageButtonClick = (event) => {
-        onChangePage(event, 0)
+        onPageChange(event, 0)
     }
 
     const handleBackButtonClick = (event) => {
-        onChangePage(event, page - 1)
+        onPageChange(event, page - 1)
     }
 
     const handleNextButtonClick = (event) => {
-        onChangePage(event, page + 1)
+        onPageChange(event, page + 1)
     }
 
     const handleLastPageButtonClick = (event) => {
-        onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+        onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
     }
 
     return (
@@ -138,13 +138,14 @@ function TablePaginationActions(props) {
 
 TablePaginationActions.propTypes = {
     count: PropTypes.number.isRequired,
-    onChangePage: PropTypes.func.isRequired,
+    onPageChange: PropTypes.func.isRequired,
     page: PropTypes.number.isRequired,
     rowsPerPage: PropTypes.number.isRequired,
 }
 
 const DataDisplay = (props) => {
-    const [session, loading] = useSession()
+    const {data:session,status}= useSession()
+    const loading = status === "loading";
     const classes = useStyles()
     const [details, setDetails] = useState(props.data)
     const [filterQuery, setFilterQuery] = useState(null)
@@ -175,7 +176,7 @@ const DataDisplay = (props) => {
 
     useEffect(() => {
         if (!filterQuery) {
-            fetch('/api/news/between', {
+            fetch('/api/news', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -184,6 +185,7 @@ const DataDisplay = (props) => {
                 body: JSON.stringify({
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"between"
                 }),
             })
                 .then((res) => res.json())
@@ -193,7 +195,7 @@ const DataDisplay = (props) => {
                 })
                 .catch((err) => console.log(err))
         } else {
-            fetch('/api/news/range', {
+            fetch('/api/news', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -203,6 +205,7 @@ const DataDisplay = (props) => {
                     ...filterQuery,
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"range"
                 }),
             })
                 .then((res) => res.json())
@@ -222,7 +225,7 @@ const DataDisplay = (props) => {
         // console.log(response.json());
     }, [page, rowsPerPage, filterQuery])
 
-    const News = ({ detail }) => {
+    const News = ({detail }) => {
         let openDate = new Date(detail.timestamp)
         let dd = openDate.getDate()
         let mm = openDate.getMonth() + 1
@@ -352,7 +355,7 @@ const DataDisplay = (props) => {
     }
 
     return (
-        <div>
+        <>
             <header>
                 <Typography variant="h4" style={{ margin: `15px 0` }}>
                     Recent News
@@ -370,13 +373,12 @@ const DataDisplay = (props) => {
             <AddForm handleClose={handleCloseAddModal} modal={addModal} />
 
             <Grid container spacing={2} className={classes.root}>
-                {details.map((row) => {
-                    return <News detail={row} />
-                })}
-
-                {/* <Grid >
-            <Paper xs={12} sm={9}>{detail.title}</Paper>
-         </Grid> */}
+                {/* {details.map((row, index) => {
+                    return <News key={row.id || index} detail={row} />;
+                })} */}
+                {(details && details.length > 0) ? details.map((row, index) => (
+                <News key={row.id || index} detail={row} />
+            )) : null}
             </Grid>
             <TableFooter>
                 <TableRow>
@@ -386,46 +388,19 @@ const DataDisplay = (props) => {
                         count={rowsPerPage * page + details.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
-                        SelectProps={{
+                        selectprops={{
                             inputProps: { 'aria-label': 'rows per page' },
                             native: true,
                         }}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
                         ActionsComponent={TablePaginationActions}
                     />
                 </TableRow>
             </TableFooter>
-        </div>
+        </>
     )
 }
 
 export default DataDisplay
 
-// Extreas
-// <Grid item xs={4} sm={2} lg={1}>
-// 								<Paper
-// 									className={classes.paper}
-// 									style={{ textAlign: `center` }}
-// 								>
-// 									{detail.isVisible ? (
-// 										<>
-// 											<Visibility className={classes.icon} />
-// 											{/* <i className="fa fa-eye" style={{ color: "action" }}></i> */}
-// 											<span>Visible</span>
-// 										</>
-// 									) : (
-// 										<>
-// 											{/* <i
-// 												className="fa fa-eye-slash"
-// 												style={{ color: "secondary" }}
-// 											></i> */}
-// 											<VisibilityOff
-// 												color="secondary"
-// 												className={classes.icon}
-// 											/>
-// 											<span>Archive</span>
-// 										</>
-// 									)}
-// 								</Paper>
-// 							</Grid>

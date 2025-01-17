@@ -1,11 +1,11 @@
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import TextField from '@mui/material/TextField'
 import { Delete, Link } from '@material-ui/icons'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useRef, useState } from 'react'
 import {
     AddAttachments,
@@ -16,7 +16,7 @@ import { ConfirmDelete } from './confirm-delete'
 
 export const EditForm = ({ data, handleClose, modal }) => {
     const deleteArray = useRef([])
-    const [session, loading] = useSession()
+    const {data:session,loading} = useSession()
     const [content, setContent] = useState({
         id: data.id,
         title: data.title,
@@ -104,13 +104,13 @@ export const EditForm = ({ data, handleClose, modal }) => {
         }
 
         console.log(finaldata)
-        let result = await fetch('/api/update/event', {
+        let result = await fetch('/api/update', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            method: 'POST',
-            body: JSON.stringify(finaldata),
+            method: 'PUT',
+            body: JSON.stringify({data:finaldata,type:"event"}),
         })
         result = await result.json()
         if (result instanceof Error) {
