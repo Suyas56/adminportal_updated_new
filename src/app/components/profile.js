@@ -1,16 +1,22 @@
 'use client'
 
-import { 
+import {
     Button,
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import {EducationManagement } from './profile/education'
+import { EducationManagement } from './profile/education'
 
 import { AddPic } from './profile/profilepic'
 import { AddCv } from './profile/addCv'
+import WorkshopConferenceManagement from './profile/workshops-conferences'
+import InstituteActivityManagement from './profile/institute-activities'
+import DepartmentActivityManagement from './profile/department-activities'
+import InternshipManagement from './profile/internships'
+import TeachingEngagementManagement from './profile/teaching-engagement'
+import ProjectSupervisionManagement from './profile/project-supervision'
 // import { AddWork } from './profile/work-experience'
 // import { AddJournalPaper } from './profile/journal-papers'
 // import { AddConferencePaper } from './profile/conference-papers'
@@ -187,68 +193,88 @@ export default function Profilepage({ details }) {
     }, [details])
 
     const handleModalOpen = (modalName) => {
-        setOpenModals(prev => ({...prev, [modalName]: true}))
+        setOpenModals(prev => ({ ...prev, [modalName]: true }))
     }
 
     const handleModalClose = (modalName) => {
-        setOpenModals(prev => ({...prev, [modalName]: false}))
+        setOpenModals(prev => ({ ...prev, [modalName]: false }))
     }
 
     if (status === "loading") return <div>Loading...</div>
     if (!session) return null
 
     return (
-                <Profile>
+        <Profile>
             {/* Profile Image Section */}
-                    <div className="faculty-img-row">
-                        <div className="faculty-img-wrap">
-                            <img
+            <div className="faculty-img-row">
+                <div className="faculty-img-wrap">
+                    <img
                         src={detail?.profile?.image || '/faculty.png'}
-                                alt="faculty"
-                            />
-                        </div>
+                        alt="faculty"
+                    />
+                </div>
                 <h2>{detail?.profile?.name}</h2>
                 <h3>{detail?.profile?.designation}</h3>
-                
+
                 {/* Profile Image & CV Upload Buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <Button
-                                color="primary"
-                                variant="contained"
+                    <Button
+                        color="primary"
+                        variant="contained"
                         onClick={() => handleModalOpen('profilePic')}
                         sx={{ mb: 2 }}
-                            >
-                                Upload Photo
-                            </Button>
-                            <AddPic
+                    >
+                        Upload Photo
+                    </Button>
+                    <AddPic
                         handleClose={() => handleModalClose('profilePic')}
                         modal={openModals.profilePic}
-                            />
-                    
-                            <Button
-                                color="primary"
-                                variant="contained"
+                    />
+
+                    <Button
+                        color="primary"
+                        variant="contained"
                         onClick={() => handleModalOpen('cv')}
                         sx={{ mb: 2 }}
-                            >
+                    >
                         {detail?.profile?.cv ? 'Update CV' : 'Upload CV'}
-                            </Button>
-                            <AddCv
+                    </Button>
+                    <AddCv
                         handleClose={() => handleModalClose('cv')}
                         modal={openModals.cv}
                     />
-                        </div>
-                    </div>
+                </div>
+            </div>
 
             {/* Education Section */}
             <div className="faculty-details-row">
                 <div className="fac-card">
                     <EducationManagement />
-                        </div>
-
+                </div>
+                <div className="fac-card">
+                    <WorkshopConferenceManagement/>
+                </div>
+                <div className="fac-card">
+                    <InstituteActivityManagement/>
+                </div>
+                <div className="fac-card">
+                    <DepartmentActivityManagement/>
+                </div>
+                <div className="fac-card">
+                    <InternshipManagement/>
+                </div>
+                <div className="fac-card">
+                <TeachingEngagementManagement/>
+                </div>
+                <div className="fac-card">
+                <ProjectSupervisionManagement/>
+                </div>
                 
+            
+            </div>
 
-                    </div>
-                </Profile>
+          
+
+        </Profile>
     )
 }

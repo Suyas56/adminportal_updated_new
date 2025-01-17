@@ -50,12 +50,20 @@ export const AddForm = ({ handleClose, modal }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'project_supervision',
-                    ...content,
-                    id: Date.now().toString(),
-                    email: session?.user?.email
+                  type: 'project_supervision',
+                  ...content,
+                  // Format start_date and end_date to 'YYYY-MM-DD' for DATE or 'YYYY-MM-DD HH:MM:SS' for DATETIME
+                  start_date: content.start_date
+                    ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                    : null,
+                  end_date: content.end_date
+                    ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                    : null,
+                  id: Date.now().toString(),
+                  email: session?.user?.email,
                 }),
-            })
+              });
+              
 
             if (!result.ok) throw new Error('Failed to create')
             
