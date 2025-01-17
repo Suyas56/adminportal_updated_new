@@ -78,19 +78,19 @@ export async function PUT(request) {
              type = ?
              WHERE id = ?`,
             [
-              params.title,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.venue,
-              params.doclink,
-              JSON.stringify(params.attachments),
-              JSON.stringify(params.main_attachment),
-              params.eventStartDate,
-              params.eventEndDate,
-              params.email,
-              params.type || 'general',
-              params.id
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.venue,
+              params.data.doclink,
+              JSON.stringify(params.data.attachments),
+              JSON.stringify(params.data.main_attachment),
+              params.data.eventStartDate,
+              params.data.eventEndDate,
+              params.data.email,
+              params.data.type || 'general',
+              params.data.id
             ]
           )
           return NextResponse.json(eventResult)

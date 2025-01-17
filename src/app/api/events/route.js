@@ -68,7 +68,7 @@ export async function POST(request) {
         results = await query(
           `SELECT * FROM events 
            ORDER BY openDate DESC 
-           LIMIT ?, ?`,
+           LIMIT 0, 15`, //hardcoded need to fix 
           [fromIndex, toIndex - fromIndex]
         )
         break
