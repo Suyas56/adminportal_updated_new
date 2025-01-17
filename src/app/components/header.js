@@ -124,7 +124,7 @@ export default function Header() {
 
   return (
     <StyledHeader>
-      <AppBar position="static">
+      <AppBar position="static" style={{backgroundColor:"#2563EB"}}>
         <Toolbar className="toolbar">
           <div className="logo-section">
             <IconButton
@@ -132,7 +132,7 @@ export default function Header() {
               onClick={toggleDrawer(true)}
               edge="start"
             >
-              <MenuIcon />
+              <MenuIcon style={{color:"white"}} />
             </IconButton>
             <Image 
               src="/logo.jpg" 
@@ -148,6 +148,7 @@ export default function Header() {
             <Button 
               color="inherit" 
               onClick={() => signOut()}
+              style={{color:"white"}}
             >
               Sign Out
             </Button>

@@ -84,9 +84,8 @@ export async function POST(request) {
         results = await query(
           `SELECT * FROM news 
            ORDER BY openDate DESC 
-           LIMIT 0,15`
-          //  LIMIT ?, ?`,
-          // [fromIndex, diff]
+           LIMIT ?, ?`,
+          [fromIndex, diff]
         )
         break
 

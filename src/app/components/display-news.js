@@ -225,7 +225,7 @@ const DataDisplay = (props) => {
         // console.log(response.json());
     }, [page, rowsPerPage, filterQuery])
 
-    const News = ({ key,detail }) => {
+    const News = ({detail }) => {
         let openDate = new Date(detail.timestamp)
         let dd = openDate.getDate()
         let mm = openDate.getMonth() + 1
@@ -388,7 +388,7 @@ const DataDisplay = (props) => {
                         count={rowsPerPage * page + details.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
-                        SelectProps={{
+                        selectprops={{
                             inputProps: { 'aria-label': 'rows per page' },
                             native: true,
                         }}

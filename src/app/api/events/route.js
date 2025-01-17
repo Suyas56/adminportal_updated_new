@@ -49,7 +49,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { type } = body
+    let { type,from,to } = body
     
     let results
     switch (type) {
@@ -68,8 +68,8 @@ export async function POST(request) {
         results = await query(
           `SELECT * FROM events 
            ORDER BY openDate DESC 
-           LIMIT 0, 15`, //hardcoded need to fix 
-          [fromIndex, toIndex - fromIndex]
+           LIMIT 0, 5`, //hardcoded need to fix 
+          [0, 5]
         )
         break
 

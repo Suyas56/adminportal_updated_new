@@ -90,8 +90,8 @@ export async function POST(request) {
         results = await query(
           `SELECT * FROM innovation 
            ORDER BY openDate DESC 
-           LIMIT 0,15`,
-          // [fromIndex, toIndex - fromIndex]
+           LIMIT ?,?`,
+          [fromIndex, toIndex - fromIndex]
         )
         break
 

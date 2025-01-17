@@ -421,7 +421,7 @@ const DataDisplay = (props) => {
                         count={details?.length || 0}
                         rowsPerPage={rowsPerPage}
                         page={page}
-                        SelectProps={{
+                        selectprops={{
                             inputProps: { 'aria-label': 'rows per page' },
                             native: true,
                         }}

@@ -349,8 +349,8 @@ const DataDisplay = (props) => {
             <AddForm handleClose={handleCloseAddModal} modal={addModal} />
 
             <Grid container spacing={2} className={classes.root}>
-                {details.map((row) => {
-                    return <Innovation detail={row} />
+                {details.map((row,index) => {
+                    return <Innovation key={row.id || index} detail={row} />
                 })}
             </Grid>
             <TableFooter>
@@ -361,7 +361,7 @@ const DataDisplay = (props) => {
                         count={rowsPerPage * page + details.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
-                        SelectProps={{
+                        selectprops={{
                             inputProps: { 'aria-label': 'rows per page' },
                             native: true,
                         }}

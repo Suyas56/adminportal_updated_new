@@ -95,7 +95,8 @@ export async function POST(request) {
       to,
       keyword = '',
     } = body
-    
+    from=parseInt(from)
+    to=parseInt(to)
     let results
     switch (type) {
       case 'range':
@@ -141,8 +142,8 @@ export async function POST(request) {
         results = await query(
           `SELECT * FROM notices 
            ORDER BY openDate DESC 
-           LIMIT 0, 15`,
-          [from, to - from]
+           LIMIT ?, ?`,
+          [from,to-from]
         )
         break
 
