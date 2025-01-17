@@ -24,6 +24,9 @@ import SponsoredProjectManagement from './profile/sponsored-projects'
 import ConsultancyProjectManagement from './profile/consultancy-projects'
 import IPRManagement from './profile/ipr'
 import StartupManagement from './profile/startups'
+import MembershipManagement from './profile/memberships.js'
+import PatentManagement from './profile/patents.js'
+import PhdCandidateManagement from './profile/phd-candidates.js'
 // import { AddWork } from './profile/work-experience'
 // import { AddJournalPaper } from './profile/journal-papers'
 // import { AddConferencePaper } from './profile/conference-papers'
@@ -297,9 +300,18 @@ export default function Profilepage({ details }) {
                 <div className="fac-card">
                 <StartupManagement/>
                 </div>
+                <div className="fac-card">
+                <MembershipManagement/>
+                </div>
+                <div className="fac-card">
+                <PatentManagement/>
+                </div>
+                <div className="fac-card">
+                <PhdCandidateManagement/>
+                </div>
                 
                 
-            
+
             </div>
 
           
