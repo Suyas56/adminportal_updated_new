@@ -130,13 +130,13 @@ export const EditForm = ({ data, handleClose, modal }) => {
         }
 
         console.log(finaldata)
-        let result = await fetch('/api/update/notice', {
+        let result = await fetch('/api/update', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            method: 'POST',
-            body: JSON.stringify(finaldata),
+            method: 'PUT',
+            body: JSON.stringify({data:finaldata,type:"notice"}),
         })
         result = await result.json()
         if (result instanceof Error) {

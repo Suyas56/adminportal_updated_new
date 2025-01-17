@@ -85,7 +85,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { 
+    let { 
       type,
       start_date,
       end_date,
@@ -93,9 +93,9 @@ export async function POST(request) {
       notice_type,
       from,
       to,
-      keyword = ''
+      keyword = '',
     } = body
-
+    
     let results
     switch (type) {
       case 'range':
@@ -141,7 +141,7 @@ export async function POST(request) {
         results = await query(
           `SELECT * FROM notices 
            ORDER BY openDate DESC 
-           LIMIT ?, ?`,
+           LIMIT 0, 15`,
           [from, to - from]
         )
         break

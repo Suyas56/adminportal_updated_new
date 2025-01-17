@@ -176,7 +176,7 @@ const DataDisplay = (props) => {
 
     useEffect(() => {
         if (!filterQuery) {
-            fetch('/api/notice/between', {
+            fetch('/api/notice?type=between', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -185,6 +185,7 @@ const DataDisplay = (props) => {
                 body: JSON.stringify({
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"between"
                 }),
             })
                 .then((res) => res.json())
@@ -194,7 +195,7 @@ const DataDisplay = (props) => {
                 })
                 .catch((err) => console.log(err))
         } else {
-            fetch('/api/notice/range', {
+            fetch('/api/notice', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -204,6 +205,7 @@ const DataDisplay = (props) => {
                     ...filterQuery,
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"range"
                 }),
             })
                 .then((res) => res.json())

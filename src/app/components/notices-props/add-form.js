@@ -111,13 +111,13 @@ export const AddForm = ({ handleClose, modal }) => {
         // data.attachments = JSON.stringify(data.attachments);
         console.log(data)
 
-        let result = await fetch('/api/create/notice', {
+        let result = await fetch('/api/create', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({data:data,type:"notice"}),
         })
         result = await result.json()
         if (result instanceof Error) {
@@ -142,7 +142,7 @@ export const AddForm = ({ handleClose, modal }) => {
                 console.log(result)
             }
         }
-
+setSubmitting(false)
         window.location.reload()
     }
 

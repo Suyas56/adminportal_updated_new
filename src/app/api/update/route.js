@@ -17,7 +17,7 @@ export async function PUT(request) {
 
     const { type, ...params } = await request.json()
 
-    // Notice updates - Super Admin, Academic Admin, and Department Admin access
+    // .data updates - Super Admin, Academic Admin, and Department Admin access
     if (
       session.user.role === 'SUPER_ADMIN' ||
       ((session.user.role === 'ACADEMIC_ADMIN' ||
@@ -27,33 +27,33 @@ export async function PUT(request) {
       if (type === 'notice') {
         const result = await query(
           `UPDATE notices SET 
-           title = ?,
-           updatedAt = ?,
-           openDate = ?,
-           closeDate = ?,
-           important = ?,
-           attachments = ?,
-           notice_link = ?,
-           isVisible = ?,
-           updatedBy = ?,
-           notice_type = ?,
-           department = ?
-           WHERE id = ?`,
+              title = ?,
+              updatedAt = ?,
+              openDate = ?,
+              closeDate = ?,
+              important = ?,
+              attachments = ?,
+              notice_link = ?,
+              isVisible = ?,
+              updatedBy = ?,
+              notice_type = ?,
+              department = ?
+          WHERE id = ?`,
           [
-            params.title,
-            new Date().getTime(),
-            params.openDate,
-            params.closeDate,
-            params.important,
-            JSON.stringify(params.attachments),
-            JSON.stringify(params.main_attachment),
-            params.isVisible,
-            params.email,
-            params.notice_type,
-            params.department,
-            params.id
+              params.data.title,
+              new Date().getTime(),
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.important || 0,
+              JSON.stringify(params.data.attachments),
+              params.data.notice_link || null,
+              params.data.isVisible || 0,
+              session.user.email,
+              params.data.notice_type || null,
+              params.data.department || null,
+              params.data.id
           ]
-        )
+      )      
         return NextResponse.json(result)
       }
     }

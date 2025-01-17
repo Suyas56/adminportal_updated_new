@@ -32,25 +32,27 @@ export async function POST(request) {
       }
 
       const noticeResult = await query(
-        `INSERT INTO notices(id, title, description, timestamp, openDate, closeDate, venue, doclink, attachments, event_link, email, eventStartDate, eventEndDate, updatedBy, updatedAt, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          params.id,
-          params.title,
-          params.description,
-          new Date().getTime(),
-          params.openDate,
-          params.closeDate,
-          params.venue,
-          params.doclink,
-          JSON.stringify(params.attachments),
-          JSON.stringify(params.main_attachment),
-          params.email,
-          params.eventStartDate,
-          params.eventEndDate,
-          session.user.email,
-          new Date().getTime(),
-          params.type
-        ]
+        `INSERT INTO notices(
+    id, title, timestamp, openDate, closeDate, important, isVisible, attachments, email, 
+    isDept, notice_link, notice_type, updatedBy, updatedAt, department
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    params.data.id,
+    params.data.title,
+    new Date().getTime(),
+    params.data.openDate,
+    params.data.closeDate,
+    params.data.important || 0,
+    params.data.isVisible || 0,
+    JSON.stringify(params.data.attachments),
+    params.data.email,
+    params.data.isDept || 0,
+    params.data.notice_link || null,
+    params.data.notice_type || null,
+    session.user.email,
+    new Date().getTime(),
+    params.data.department || null,
+  ]
       )
       return NextResponse.json(noticeResult)
     }
