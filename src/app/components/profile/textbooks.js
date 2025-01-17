@@ -51,8 +51,6 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'textbooks',
                     ...content,
-                    // Assuming 'publish_date' and 'isbn' are fields, for example
-                    // Format any date fields if necessary (e.g., publish_date)
                     publish_date: content.publish_date 
                         ? new Date(content.publish_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
                         : null,
@@ -67,6 +65,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -125,7 +124,9 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.year}
                         onChange={handleChange}
+                        helperText="Enter the year of publication in the format YYYY"
                     />
+                    
                     <TextField
                         margin="dense"
                         label="Scopus"
@@ -169,8 +170,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -187,6 +188,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -199,7 +201,6 @@ export const EditForm = ({ handleClose, modal, values }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Textbook</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
                     <TextField
                         margin="dense"
                         label="Book Title"
@@ -209,7 +210,67 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.title}
                         onChange={handleChange}
                     />
-                    {/* ... other fields same as AddForm ... */}
+                    <TextField
+                        margin="dense"
+                        label="Authors"
+                        name="authors"
+                        fullWidth
+                        required
+                        value={content.authors}
+                        onChange={handleChange}
+                        helperText="Enter author names separated by commas"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Publisher"
+                        name="publisher"
+                        fullWidth
+                        required
+                        value={content.publisher}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="ISBN"
+                        name="isbn"
+                        fullWidth
+                        required
+                        value={content.isbn}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Year"
+                        name="year"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.year}
+                        onChange={handleChange}
+                        InputProps={{
+                            inputProps: { 
+                                min: 1900,
+                                max: new Date().getFullYear()
+                            }
+                        }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Scopus Index"
+                        name="scopus"
+                        fullWidth
+                        value={content.scopus}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="DOI"
+                        name="doi"
+                        fullWidth
+                        value={content.doi}
+                        onChange={handleChange}
+                        helperText="Digital Object Identifier (if available)"
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -289,7 +350,7 @@ export default function TextbookManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Textbook
             </Button>

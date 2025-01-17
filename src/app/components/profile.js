@@ -235,7 +235,7 @@ export default function Profilepage({ details }) {
                         color="primary"
                         variant="contained"
                         onClick={() => handleModalOpen('profilePic')}
-                        sx={{ mb: 2 }}
+                        sx={{m: 2 }}
                     >
                         Upload Photo
                     </Button>
@@ -248,7 +248,7 @@ export default function Profilepage({ details }) {
                         color="primary"
                         variant="contained"
                         onClick={() => handleModalOpen('cv')}
-                        sx={{ mb: 2 }}
+                        sx={{m: 2 }}
                     >
                         {detail?.profile?.cv ? 'Update CV' : 'Upload CV'}
                     </Button>

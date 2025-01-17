@@ -25,6 +25,18 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import Loading from '../common/Loading'
+
+// Add formatDate helper function at the top
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+        return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+        console.error('Date parsing error:', error);
+        return '';
+    }
+};
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -75,6 +87,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -104,7 +117,13 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.qualification}
                         onChange={handleChange}
-                    />
+                        select
+                    >
+                        <MenuItem value="UG">UG</MenuItem>
+                        <MenuItem value="PG">PG</MenuItem>
+                        <MenuItem value="PhD">PhD</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                    </TextField>
                     <TextField
                         margin="dense"
                         label="Affiliation"
@@ -154,10 +173,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         fullWidth
                         required
                     >
-                        <MenuItem value="UG">UG</MenuItem>
-                        <MenuItem value="PG">PG</MenuItem>
-                        <MenuItem value="PhD">PhD</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
+                        <MenuItem value="UG">Internal Student</MenuItem>
+                        <MenuItem value="PG">External Student</MenuItem>
                     </Select>
                 </DialogContent>
                 <DialogActions>
@@ -177,7 +194,12 @@ export const AddForm = ({ handleClose, modal }) => {
 // Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession()
-    const [content, setContent] = useState(values)
+    // Parse dates when initializing content
+    const [content, setContent] = useState({
+        ...values,
+        start_date: values.start_date ? new Date(values.start_date) : null,
+        end_date: values.end_date ? new Date(values.end_date) : null
+    })
     const refreshData = useRefreshData(false)
     const [submitting, setSubmitting] = useState(false)
 
@@ -186,8 +208,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -196,6 +218,13 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'internships',
                     ...content,
+                    // Format dates before sending to API
+                    start_date: content.start_date 
+                        ? new Date(content.start_date).toISOString().split('T')[0]
+                        : null,
+                    end_date: content.end_date
+                        ? new Date(content.end_date).toISOString().split('T')[0]
+                        : null,
                     email: session?.user?.email
                 }),
             })
@@ -204,6 +233,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -216,7 +246,89 @@ export const EditForm = ({ handleClose, modal, values }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Internship</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
+                    <TextField
+                        margin="dense"
+                        label="Student Name"
+                        name="student_name"
+                        fullWidth
+                        required
+                        value={content.student_name}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Qualification"
+                        name="qualification"
+                        select
+                        fullWidth
+                        required
+                        value={content.qualification}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="UG">UG</MenuItem>
+                        <MenuItem value="PG">PG</MenuItem>
+                        <MenuItem value="PhD">PhD</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Affiliation"
+                        name="affiliation"
+                        fullWidth
+                        required
+                        value={content.affiliation}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Project Title"
+                        name="project_title"
+                        fullWidth
+                        required
+                        value={content.project_title}
+                        onChange={handleChange}
+                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Start Date"
+                            value={content.start_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    start_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                        <DatePicker
+                            label="End Date"
+                            value={content.end_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    end_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                    </LocalizationProvider>
+                    <TextField
+                        margin="dense"
+                        label="Student Type"
+                        name="student_type"
+                        select
+                        fullWidth
+                        required
+                        value={content.student_type}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="UG">Internal Student</MenuItem>
+                        <MenuItem value="PG">External Student</MenuItem>
+                    </TextField>
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -282,13 +394,14 @@ export default function InternshipManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+                window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }
         }
     }
 
-    if (loading) return <div>Loading...</div>
+    if (loading) return <Loading />
 
     return (
         <div>
@@ -296,7 +409,7 @@ export default function InternshipManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Internship
             </Button>
@@ -320,8 +433,10 @@ export default function InternshipManagement() {
                                 <TableCell>{internship.project_title}</TableCell>
                                 <TableCell>{internship.affiliation}</TableCell>
                                 <TableCell>
-                                    {new Date(internship.start_date).toLocaleDateString()} - 
-                                    {new Date(internship.end_date).toLocaleDateString()}
+                                    {formatDate(internship.start_date)}
+                                </TableCell>
+                                <TableCell>
+                                    {internship.end_date ? formatDate(internship.end_date) : 'Present'}
                                 </TableCell>
                                 <TableCell>{internship.student_type}</TableCell>
                                 <TableCell align="right">

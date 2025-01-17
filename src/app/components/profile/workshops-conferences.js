@@ -25,6 +25,9 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import Loading from '../common/Loading'
+import { Typography } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -88,6 +91,8 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            alert('Workshop/Conference added successfully')
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -195,7 +200,12 @@ export const AddForm = ({ handleClose, modal }) => {
 // Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession()
-    const [content, setContent] = useState(values)
+    // Parse dates when initializing content
+    const [content, setContent] = useState({
+        ...values,
+        start_date: values.start_date ? new Date(values.start_date) : null,
+        end_date: values.end_date ? new Date(values.end_date) : null
+    })
     const refreshData = useRefreshData(false)
     const [submitting, setSubmitting] = useState(false)
 
@@ -214,14 +224,22 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'workshops_conferences',
                     ...content,
+                    // Format dates before sending to API
+                    start_date: content.start_date 
+                        ? new Date(content.start_date).toISOString().split('T')[0]
+                        : null,
+                    end_date: content.end_date
+                        ? new Date(content.end_date).toISOString().split('T')[0]
+                        : null,
                     email: session?.user?.email
                 }),
             })
 
             if (!result.ok) throw new Error('Failed to update')
-
+            
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -234,7 +252,90 @@ export const EditForm = ({ handleClose, modal, values }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Workshop/Conference</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
+                    <TextField
+                        margin="dense"
+                        label="Event Type"
+                        name="event_type"
+                        select
+                        fullWidth
+                        required
+                        value={content.event_type}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="Workshop">Workshop</MenuItem>
+                        <MenuItem value="Conference">Conference</MenuItem>
+                        <MenuItem value="Seminar">Seminar</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Role"
+                        name="role"
+                        select
+                        fullWidth
+                        required
+                        value={content.role}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="Organizer">Organizer</MenuItem>
+                        <MenuItem value="Participant">Participant</MenuItem>
+                        <MenuItem value="Speaker">Speaker</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Event Name"
+                        name="event_name"
+                        fullWidth
+                        required
+                        value={content.event_name}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Sponsored By"
+                        name="sponsored_by"
+                        fullWidth
+                        value={content.sponsored_by}
+                        onChange={handleChange}
+                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Start Date"
+                            value={content.start_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    start_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                        <DatePicker
+                            label="End Date"
+                            value={content.end_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    end_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                    </LocalizationProvider>
+                    <TextField
+                        margin="dense"
+                        label="Number of Participants"
+                        name="participants_count"
+                        type="number"
+                        fullWidth
+                        value={content.participants_count}
+                        onChange={handleChange}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -250,6 +351,17 @@ export const EditForm = ({ handleClose, modal, values }) => {
     )
 }
 
+// Helper function to format dates
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+        return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+        console.error('Date parsing error:', error);
+        return '';
+    }
+};
+
 // Main Component
 export default function WorkshopConferenceManagement() {
     const { data: session } = useSession()
@@ -259,6 +371,11 @@ export default function WorkshopConferenceManagement() {
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [loading, setLoading] = useState(true)
     const refreshData = useRefreshData(false)
+    const [toast, setToast] = useState({
+        open: false,
+        severity: 'success',
+        message: ''
+    })
 
     // Fetch data
     React.useEffect(() => {
@@ -299,6 +416,12 @@ export default function WorkshopConferenceManagement() {
                 })
 
                 if (!response.ok) throw new Error('Failed to delete')
+                setToast({
+                    open: true,
+                    severity: 'success',
+                    message: 'Workshop/Conference deleted successfully!'
+                  })
+                window.location.reload()
                 refreshData()
             } catch (error) {
                 console.error('Error:', error)
@@ -306,18 +429,25 @@ export default function WorkshopConferenceManagement() {
         }
     }
 
-    if (loading) return <div>Loading...</div>
+    if (loading) return <div>
+        <Loading />
+    </div>
 
     return (
         <div>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
-            >
-                Add Workshop/Conference
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Workshop/Conference</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Workshop/Conference
+                </Button>
+            </div>
+            
+                
+          
 
             <TableContainer component={Paper}>
                 <Table>
@@ -338,8 +468,7 @@ export default function WorkshopConferenceManagement() {
                                 <TableCell>{event.event_type}</TableCell>
                                 <TableCell>{event.role}</TableCell>
                                 <TableCell>
-                                    {new Date(event.start_date).toLocaleDateString()} -
-                                    {new Date(event.end_date).toLocaleDateString()}
+                                    {formatDate(event.start_date)} - {formatDate(event.end_date)}
                                 </TableCell>
                                 <TableCell>{event.participants_count}</TableCell>
                                 <TableCell align="right">
@@ -363,7 +492,7 @@ export default function WorkshopConferenceManagement() {
                         {events?.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={6} align="center">
-                                    No events found
+                                    No workshops/conferences found
                                 </TableCell>
                             </TableRow>
                         )}

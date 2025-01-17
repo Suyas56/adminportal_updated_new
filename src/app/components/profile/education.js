@@ -24,7 +24,7 @@ import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-
+import Toast from '../common/Toast'
 export function EducationManagement() {
     const { data: session } = useSession()
     const [educations, setEducations] = useState([])
@@ -32,7 +32,7 @@ export function EducationManagement() {
     const [openEdit, setOpenEdit] = useState(false)
     const [selectedEducation, setSelectedEducation] = useState(null)
     const [loading, setLoading] = useState(true)
-
+ 
     // Fetch education data
     useEffect(() => {
         const fetchEducation = async () => {
@@ -70,6 +70,8 @@ export function EducationManagement() {
             if (!res.ok) throw new Error('Failed to delete')
 
             setEducations(prev => prev.filter(edu => edu.id !== id))
+          
+                window.location.reload()
         } catch (error) {
             console.error('Error deleting education:', error)
         }
@@ -167,6 +169,7 @@ export function AddEducation({ open, onClose, onSuccess }) {
         year: ''
     })
     const [submitting, setSubmitting] = useState(false)
+   
 
     const generateYearOptions = () => {
         const currentYear = new Date().getFullYear()
@@ -197,6 +200,8 @@ export function AddEducation({ open, onClose, onSuccess }) {
 
             const newEducation = await res.json()
             onSuccess(newEducation)
+            
+              window.location.reload()
         } catch (error) {
             console.error('Error adding education:', error)
         } finally {

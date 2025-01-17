@@ -1,3 +1,4 @@
+"use client"
 import {
     IconButton,
     TableFooter,
@@ -20,7 +21,7 @@ import {
 } from '@material-ui/icons'
 import React, { useState, useEffect } from 'react'
 import { DescriptionModal } from './common-props/description-modal'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { AddForm } from './news-props/add-form'
 import { EditForm } from './news-props/edit-form'
 import Filter from './common-props/filter'

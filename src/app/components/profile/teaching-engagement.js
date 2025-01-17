@@ -23,6 +23,17 @@ import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 
+// Add formatDate helper function at the top
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+        return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+        console.error('Date parsing error:', error);
+        return '';
+    }
+};
+
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -77,6 +88,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -210,7 +222,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.years_offered}
                         onChange={handleChange}
-                        helperText="e.g., 2020-2023"
+                        helperText="e.g., 2020-2023 *strictly in the format YYYY-YYYY otherwise no computation will be done"
                     />
                 </DialogContent>
                 <DialogActions>
@@ -230,7 +242,12 @@ export const AddForm = ({ handleClose, modal }) => {
 // Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession()
-    const [content, setContent] = useState(values)
+    // Parse dates when initializing content
+    const [content, setContent] = useState({
+        ...values,
+        start_date: values.start_date ? new Date(values.start_date) : null,
+        end_date: values.end_date ? new Date(values.end_date) : null
+    })
     const refreshData = useRefreshData(false)
     const [submitting, setSubmitting] = useState(false)
 
@@ -239,8 +256,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -249,6 +266,13 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'teaching_engagement',
                     ...content,
+                    // Format dates before sending to API
+                    start_date: content.start_date 
+                        ? new Date(content.start_date).toISOString().split('T')[0]
+                        : null,
+                    end_date: content.end_date
+                        ? new Date(content.end_date).toISOString().split('T')[0]
+                        : null,
                     email: session?.user?.email
                 }),
             })
@@ -257,6 +281,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -269,7 +294,131 @@ export const EditForm = ({ handleClose, modal, values }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Teaching Engagement</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
+                    <TextField
+                        margin="dense"
+                        label="Semester"
+                        name="semester"
+                        fullWidth
+                        required
+                        value={content.semester}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Level"
+                        name="level"
+                        select
+                        fullWidth
+                        required
+                        value={content.level}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="UG">UG</MenuItem>
+                        <MenuItem value="PG">PG</MenuItem>
+                        <MenuItem value="PhD">PhD</MenuItem>
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Course Number"
+                        name="course_number"
+                        fullWidth
+                        required
+                        value={content.course_number}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Course Title"
+                        name="course_title"
+                        fullWidth
+                        required
+                        value={content.course_title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Course Type"
+                        name="course_type"
+                        select
+                        fullWidth
+                        required
+                        value={content.course_type}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="Theory">Theory</MenuItem>
+                        <MenuItem value="Lab">Lab</MenuItem>
+                        <MenuItem value="Both">Both</MenuItem>
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Student Count"
+                        name="student_count"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.student_count}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Lectures"
+                        name="lectures"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.lectures}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Tutorials"
+                        name="tutorials"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.tutorials}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Practicals"
+                        name="practicals"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.practicals}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Total Theory"
+                        name="total_theory"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.total_theory}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Lab Hours"
+                        name="lab_hours"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.lab_hours}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Years Offered"
+                        name="years_offered"
+                        fullWidth
+                        required
+                        value={content.years_offered}
+                        onChange={handleChange}
+                        helperText="e.g., 2020-2023 *strictly in the format YYYY-YYYY otherwise no computation will be done"
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -349,7 +498,7 @@ export default function TeachingEngagementManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Course
             </Button>

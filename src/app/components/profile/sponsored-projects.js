@@ -15,7 +15,8 @@ import {
   TableRow,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  InputAdornment
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -205,8 +206,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -223,6 +224,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -231,11 +233,17 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     return (
-        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+        <Dialog 
+            open={modal} 
+            onClose={handleClose} 
+            maxWidth="md" 
+            fullWidth
+            disableBackdropClick
+            disableEscapeKeyDown
+        >
             <form onSubmit={handleSubmit}>
-                <DialogTitle>Edit Project</DialogTitle>
+                <DialogTitle>Edit Sponsored Project</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
                     <TextField
                         margin="dense"
                         label="Project Title"
@@ -245,9 +253,95 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.project_title}
                         onChange={handleChange}
                     />
-                    {/* ... other fields same as AddForm ... */}
+                    <TextField
+                        margin="dense"
+                        label="Funding Agency"
+                        name="funding_agency"
+                        fullWidth
+                        required
+                        value={content.funding_agency}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Financial Outlay"
+                        name="financial_outlay"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.financial_outlay}
+                        onChange={handleChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                        }}
+                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Start Date"
+                            value={content.start_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    start_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                        <DatePicker
+                            label="End Date"
+                            value={content.end_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    end_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                    </LocalizationProvider>
+                    <TextField
+                        margin="dense"
+                        label="Duration (months)"
+                        name="period_months"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.period_months}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Co-Investigators"
+                        name="investigators"
+                        fullWidth
+                        multiline
+                        rows={2}
+                        value={content.investigators}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas"
+                    />
+                    <InputLabel id="status">Project Status</InputLabel>
+                    <Select
+                        labelId="status"
+                        name="status"
+                        value={content.status}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="Ongoing">Ongoing</MenuItem>
+                        <MenuItem value="Completed">Completed</MenuItem>
+                        <MenuItem value="Terminated">Terminated</MenuItem>
+                    </Select>
                 </DialogContent>
                 <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancel
+                    </Button>
                     <Button
                         type="submit"
                         color="primary"
@@ -320,14 +414,14 @@ export default function SponsoredProjectManagement() {
     if (loading) return <div>Loading...</div>
 
     return (
-        <div>
+        <div className="">
             <Button 
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
-                Add Project
+                Add Sponsored Project
             </Button>
 
             <TableContainer component={Paper}>

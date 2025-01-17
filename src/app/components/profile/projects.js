@@ -69,6 +69,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -242,8 +243,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -262,6 +263,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -270,11 +272,16 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     return (
-        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+        <Dialog 
+            open={modal} 
+            onClose={handleClose} 
+            maxWidth="md" 
+            fullWidth
+            disableBackdropClick
+            disableEscapeKeyDown
+        >
             <form onSubmit={handleSubmit}>
-                <DialogTitle sx={{ fontSize: '2rem' }}>
-                    Edit Project
-                </DialogTitle>
+                <DialogTitle>Edit Project</DialogTitle>
                 <DialogContent>
                     <TextField
                         margin="dense"
@@ -308,9 +315,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
-                            }
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    start_date: newValue
+                                }))
+                            }}
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -352,6 +362,9 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     </Select>
                 </DialogContent>
                 <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancel
+                    </Button>
                     <Button
                         type="submit"
                         color="primary"
@@ -417,6 +430,7 @@ export default function ProjectManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+                window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }
@@ -433,7 +447,7 @@ export default function ProjectManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Project
             </Button>

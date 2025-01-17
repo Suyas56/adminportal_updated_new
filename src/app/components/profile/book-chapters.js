@@ -67,6 +67,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -187,8 +188,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -205,6 +206,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -217,7 +219,16 @@ export const EditForm = ({ handleClose, modal, values }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Book Chapter</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
+                    <TextField
+                        margin="dense"
+                        label="Authors"
+                        name="authors"
+                        fullWidth
+                        required
+                        value={content.authors}
+                        onChange={handleChange}
+                        helperText="Enter author names separated by commas"
+                    />
                     <TextField
                         margin="dense"
                         label="Chapter Title"
@@ -227,7 +238,77 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.chapter_title}
                         onChange={handleChange}
                     />
-                    {/* ... other fields same as AddForm ... */}
+                    <TextField
+                        margin="dense"
+                        label="Book Title"
+                        name="book_title"
+                        fullWidth
+                        required
+                        value={content.book_title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Pages"
+                        name="pages"
+                        fullWidth
+                        required
+                        value={content.pages}
+                        onChange={handleChange}
+                        helperText="e.g., 123-145"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Publisher"
+                        name="publisher"
+                        fullWidth
+                        required
+                        value={content.publisher}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="ISBN"
+                        name="isbn"
+                        fullWidth
+                        required
+                        value={content.isbn}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Year"
+                        name="year"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.year}
+                        onChange={handleChange}
+                        InputProps={{
+                            inputProps: { 
+                                min: 1900,
+                                max: new Date().getFullYear()
+                            }
+                        }}
+                        helperText="Enter the year of publication in the format YYYY"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Scopus Index"
+                        name="scopus"
+                        fullWidth
+                        value={content.scopus}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="DOI"
+                        name="doi"
+                        fullWidth
+                        value={content.doi}
+                        onChange={handleChange}
+                        helperText="Digital Object Identifier (if available)"
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -307,7 +388,7 @@ export default function BookChapterManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Book Chapter
             </Button>

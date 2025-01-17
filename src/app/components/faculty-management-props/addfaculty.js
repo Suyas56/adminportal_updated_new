@@ -13,6 +13,7 @@ import {
 import { useState } from 'react'
 import { ROLES } from '@/lib/roles'
 import { depList } from '@/lib/const'
+import Toast from '@/app/components/common/Toast'
 
 export function AddFaculty({ open, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false)
@@ -22,6 +23,11 @@ export function AddFaculty({ open, onClose, onSuccess }) {
     department: '',
     designation: '',
     role: ''
+  })
+  const [toast, setToast] = useState({
+    open: false,
+    severity: 'success',
+    message: ''
   })
 
   const handleSubmit = async (e) => {
@@ -54,6 +60,12 @@ export function AddFaculty({ open, onClose, onSuccess }) {
         is_retired: false,
         retirement_date: null
       })
+      setToast({
+        open: true,
+        severity: 'success',
+        message: 'Faculty added successfully!'
+      })
+      window.location.reload()
     } catch (error) {
       console.error('Error adding faculty:', error)
       alert('Failed to add faculty')

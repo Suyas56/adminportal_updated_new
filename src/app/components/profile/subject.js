@@ -28,6 +28,8 @@ import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DatePickerField from '@/app/components/common/DatePickerField'
+import Loading from '../common/Loading'
+import Toast from '../common/Toast'
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -112,7 +114,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         value={content.start}
                         onChange={handleChange}
                         fullWidth
-                        sx={{ mb: 2 }}
+                        sx={{m: 2 }}
                     >
                         <MenuItem value="Spring">Spring</MenuItem>
                         <MenuItem value="Summer">Summer</MenuItem>
@@ -211,7 +213,7 @@ export const EditSubject = ({ handleClose, modal, values }) => {
                         value={content.start}
                         onChange={handleChange}
                         fullWidth
-                        sx={{ mb: 2 }}
+                        sx={{m: 2 }}
                     >
                         <MenuItem value="Spring">Spring</MenuItem>
                         <MenuItem value="Summer">Summer</MenuItem>
@@ -300,6 +302,24 @@ export default function SubjectManagement() {
     const [selectedSubject, setSelectedSubject] = useState(null)
     const [loading, setLoading] = useState(true)
     const refreshData = useRefreshData(false)
+    const [toast, setToast] = useState({
+        open: false,
+        severity: 'success',
+        message: ''
+    })
+
+    const handleCloseToast = (event, reason) => {
+        if (reason === 'clickaway') return
+        setToast(prev => ({ ...prev, open: false }))
+    }
+
+    const showToast = (message, severity = 'success') => {
+        setToast({
+            open: true,
+            severity,
+            message
+        })
+    }
 
     // Fetch subjects on component mount
     React.useEffect(() => {
@@ -331,27 +351,25 @@ export default function SubjectManagement() {
             try {
                 const response = await fetch('/api/delete', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        type: 'teaching_engagement',
+                        type: 'subjects',
                         id,
                         email: session?.user?.email
                     }),
                 })
                 
                 if (!response.ok) throw new Error('Failed to delete')
+                showToast('Subject deleted successfully!')
                 refreshData()
             } catch (error) {
-                console.error('Error deleting subject:', error)
+                console.error('Error:', error)
+                showToast('Failed to delete subject', 'error')
             }
         }
     }
 
-    if (loading) {
-        return <div>Loading...</div>
-    }
+    if (loading) return <Loading />
 
     return (
         <div>
@@ -359,7 +377,7 @@ export default function SubjectManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Subject
             </Button>
@@ -385,6 +403,13 @@ export default function SubjectManagement() {
                     values={selectedSubject}
                 />
             )}
+
+            <Toast 
+                open={toast.open}
+                handleClose={handleCloseToast}
+                severity={toast.severity}
+                message={toast.message}
+            />
         </div>
     )
 } 

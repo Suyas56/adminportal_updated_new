@@ -1,3 +1,4 @@
+"use client"
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -5,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import { Delete, Link } from '@material-ui/icons'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useRef, useState } from 'react'
 import { dateformatter } from './../common-props/date-formatter'
 import { ConfirmDelete } from './confirm-delete'

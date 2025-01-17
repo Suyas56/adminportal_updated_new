@@ -70,6 +70,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -115,7 +116,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         rows={3}
                         value={content.student_details}
                         onChange={handleChange}
-                        helperText="Enter student names, roll numbers, etc."
+                        helperText="Enter student names-rollNumbers, etc. in the format Name1-RollNumber1, Name2-Roll Number2, etc."
                     />
                     <TextField
                         margin="dense"
@@ -124,7 +125,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         fullWidth
                         value={content.internal_supervisors}
                         onChange={handleChange}
-                        helperText="Enter names separated by commas"
+                        helperText="Enter names separated by commas Name1, Name2, etc."
                     />
                     <TextField
                         margin="dense"
@@ -133,7 +134,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         fullWidth
                         value={content.external_supervisors}
                         onChange={handleChange}
-                        helperText="Enter names separated by commas"
+                        helperText="Enter names separated by commas Name1, Name2, etc."
                     />
                 </DialogContent>
                 <DialogActions>
@@ -162,8 +163,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -180,6 +181,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -192,7 +194,59 @@ export const EditForm = ({ handleClose, modal, values }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Project Supervision</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
+                    <InputLabel id="category">Project Category</InputLabel>
+                    <Select
+                        labelId="category"
+                        name="category"
+                        value={content.category}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="BTech">B.Tech</MenuItem>
+                        <MenuItem value="MTech">M.Tech</MenuItem>
+                        <MenuItem value="PhD">PhD</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                    </Select>
+                    <TextField
+                        margin="dense"
+                        label="Project Title"
+                        name="project_title"
+                        fullWidth
+                        required
+                        value={content.project_title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Student Details"
+                        name="student_details"
+                        fullWidth
+                        required
+                        multiline
+                        rows={3}
+                        value={content.student_details}
+                        onChange={handleChange}
+                        helperText="Enter student names-rollNumbers, etc. in the format Name1-RollNumber1, Name2-Roll Number2, etc."
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Internal Supervisors"
+                        name="internal_supervisors"
+                        fullWidth
+                        value={content.internal_supervisors}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas Name1, Name2, etc."
+                    />
+                    <TextField
+                        margin="dense"
+                        label="External Supervisors"
+                        name="external_supervisors"
+                        fullWidth
+                        value={content.external_supervisors}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas Name1, Name2, etc."
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -272,7 +326,7 @@ export default function ProjectSupervisionManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Project Supervision
             </Button>

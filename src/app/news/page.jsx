@@ -1,9 +1,9 @@
-import Layout from '@/components/layout'
-import { useEntries } from '@/lib/swr-hook'
-import LoadAnimation from '@/components/loading'
+"use client"
+import Layout from '../components/layout'
+import LoadAnimation from '../components/loading'
 import styled from 'styled-components'
-import DataDisplay from '@/components/display-news'
-import { useSession } from 'next-auth/client'
+import DataDisplay from '../components/display-news'
+import { useSession } from 'next-auth/react'
 import Loading from '../components/loading'
 import Sign from '../components/signin'
 import Unauthorise from '../components/unauthorise'
@@ -38,14 +38,14 @@ export default function Page() {
             })
             .catch((err) => console.log(err))
     }, [])
-    const [session, loading] = useSession()
+    const { data: session, loading } = useSession()
 
     if (typeof window !== 'undefined' && loading) return <Loading />
 
     if (session) {
         return (
             <>
-                {session.user.role == 1 ? (
+                {session.user.role == 'SUPER_ADMIN' ? (
                     <Layout>
                         <Wrap>
                             {isLoading ? (

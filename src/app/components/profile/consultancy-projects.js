@@ -15,7 +15,8 @@ import {
   TableRow,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  InputAdornment
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -25,6 +26,9 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { Typography } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -34,6 +38,7 @@ export const AddForm = ({ handleClose, modal }) => {
         funding_agency: '',
         financial_outlay: '',
         start_date: null,
+        end_date: null,
         period_months: '',
         investigators: '',
         status: 'Ongoing'
@@ -47,8 +52,8 @@ export const AddForm = ({ handleClose, modal }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/create', {
@@ -57,24 +62,23 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'consultancy_projects',
                     ...content,
-                    // Example: Handle any date fields if they exist, assuming `start_date` and `end_date`
-                    start_date: content.start_date
-                        ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                    start_date: content.start_date 
+                        ? new Date(content.start_date).toISOString().split('T')[0]
                         : null,
                     end_date: content.end_date
-                        ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                        ? new Date(content.end_date).toISOString().split('T')[0]
                         : null,
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
-            });
-            
+            })
 
             if (!result.ok) throw new Error('Failed to create')
             
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -119,9 +123,25 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
-                            }
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    start_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                        <DatePicker
+                            label="End Date"
+                            value={content.end_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    end_date: newValue
+                                }))
+                            }}
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -177,7 +197,11 @@ export const AddForm = ({ handleClose, modal }) => {
 // Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession()
-    const [content, setContent] = useState(values)
+    const [content, setContent] = useState({
+        ...values,
+        start_date: values.start_date ? new Date(values.start_date) : null,
+        end_date: values.end_date ? new Date(values.end_date) : null
+    })
     const refreshData = useRefreshData(false)
     const [submitting, setSubmitting] = useState(false)
 
@@ -186,8 +210,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -196,6 +220,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'consultancy_projects',
                     ...content,
+                    start_date: content.start_date 
+                        ? new Date(content.start_date).toISOString().split('T')[0]
+                        : null,
+                    end_date: content.end_date
+                        ? new Date(content.end_date).toISOString().split('T')[0]
+                        : null,
                     email: session?.user?.email
                 }),
             })
@@ -204,6 +234,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -212,11 +243,17 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     return (
-        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+        <Dialog 
+            open={modal} 
+            onClose={handleClose} 
+            maxWidth="md" 
+            fullWidth
+            disableBackdropClick
+            disableEscapeKeyDown
+        >
             <form onSubmit={handleSubmit}>
-                <DialogTitle>Edit Project</DialogTitle>
+                <DialogTitle>Edit Consultancy Project</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
                     <TextField
                         margin="dense"
                         label="Project Title"
@@ -226,9 +263,83 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.project_title}
                         onChange={handleChange}
                     />
-                    {/* ... other fields same as AddForm ... */}
+                    <TextField
+                        margin="dense"
+                        label="Funding Agency"
+                        name="funding_agency"
+                        fullWidth
+                        required
+                        value={content.funding_agency}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Financial Outlay"
+                        name="financial_outlay"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.financial_outlay}
+                        onChange={handleChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                        }}
+                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Start Date"
+                            value={content.start_date}
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    start_date: newValue
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                        
+                    </LocalizationProvider>
+                    <TextField
+                        margin="dense"
+                        label="Duration (months)"
+                        name="period_months"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.period_months}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Co-Investigators"
+                        name="investigators"
+                        fullWidth
+                        multiline
+                        rows={2}
+                        value={content.investigators}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas"
+                    />
+                    <InputLabel id="status">Project Status</InputLabel>
+                    <Select
+                        labelId="status"
+                        name="status"
+                        value={content.status}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="Ongoing">Ongoing</MenuItem>
+                        <MenuItem value="Completed">Completed</MenuItem>
+                        <MenuItem value="Terminated">Terminated</MenuItem>
+                    </Select>
                 </DialogContent>
                 <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancel
+                    </Button>
                     <Button
                         type="submit"
                         color="primary"
@@ -302,14 +413,17 @@ export default function ConsultancyProjectManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
-            >
-                Add Consultancy Project
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Consultancy Project</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Consultancy Project
+                </Button>
+            </div>
+            
 
             <TableContainer component={Paper}>
                 <Table>

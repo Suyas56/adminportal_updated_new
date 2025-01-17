@@ -22,6 +22,18 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import Loading from '../common/Loading'
+
+// Add formatDate helper function at the top
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+        return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+        console.error('Date parsing error:', error);
+        return '';
+    }
+};
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -68,6 +80,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -131,7 +144,12 @@ export const AddForm = ({ handleClose, modal }) => {
 // Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession()
-    const [content, setContent] = useState(values)
+    // Parse dates when initializing content
+    const [content, setContent] = useState({
+        ...values,
+        start_date: values.start_date ? new Date(values.start_date) : null,
+        end_date: values.end_date ? new Date(values.end_date) : null
+    })
     const refreshData = useRefreshData(false)
     const [submitting, setSubmitting] = useState(false)
 
@@ -140,8 +158,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -150,6 +168,13 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'department_activities',
                     ...content,
+                    // Format dates before sending to API
+                    start_date: content.start_date 
+                        ? new Date(content.start_date).toISOString().split('T')[0]
+                        : null,
+                    end_date: content.end_date
+                        ? new Date(content.end_date).toISOString().split('T')[0]
+                        : null,
                     email: session?.user?.email
                 }),
             })
@@ -158,6 +183,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -185,9 +211,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
-                            }
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    start_date: newValue
+                                }))
+                            }}
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -195,9 +224,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <DatePicker
                             label="End Date"
                             value={content.end_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end_date: newValue})
-                            }
+                            onChange={(newValue) => {
+                                setContent(prev => ({
+                                    ...prev,
+                                    end_date: newValue
+                                }))
+                            }}
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -274,7 +306,7 @@ export default function DepartmentActivityManagement() {
         }
     }
 
-    if (loading) return <div>Loading...</div>
+    if (loading) return <Loading />
 
     return (
         <div>
@@ -282,7 +314,7 @@ export default function DepartmentActivityManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Department Activity
             </Button>
@@ -302,10 +334,10 @@ export default function DepartmentActivityManagement() {
                             <TableRow key={activity.id}>
                                 <TableCell>{activity.activity_description}</TableCell>
                                 <TableCell>
-                                    {new Date(activity.start_date).toLocaleDateString()}
+                                    {formatDate(activity.start_date)}
                                 </TableCell>
                                 <TableCell>
-                                    {activity.end_date ? new Date(activity.end_date).toLocaleDateString() : 'Present'}
+                                    {activity.end_date ? formatDate(activity.end_date) : 'Present'}
                                 </TableCell>
                                 <TableCell align="right">
                                     <IconButton 

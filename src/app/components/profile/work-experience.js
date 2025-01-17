@@ -25,6 +25,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { format } from 'date-fns'
+import Loading from '../common/Loading'
+import Toast from '../common/Toast'
 
 // Add Form Component
 export function AddWork({ handleClose, modal }) {
@@ -277,5 +279,31 @@ export function WorkExpRow({ data, onEdit, onDelete }) {
                 </IconButton>
             </TableCell>
         </TableRow>
+    )
+}
+
+export function WorkExperience() {
+    const [toast, setToast] = useState({
+        open: false,
+        severity: 'success',
+        message: ''
+    })
+
+    const handleCloseToast = (event, reason) => {
+        if (reason === 'clickaway') return
+        setToast(prev => ({ ...prev, open: false }))
+    }
+
+    if (loading) return <Loading />
+
+    return (
+        <div>
+            <Toast 
+                open={toast.open}
+                handleClose={handleCloseToast}
+                severity={toast.severity}
+                message={toast.message}
+            />
+        </div>
     )
 } 

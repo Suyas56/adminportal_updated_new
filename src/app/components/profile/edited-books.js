@@ -19,6 +19,7 @@ import React, { useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import Loading from '../common/Loading'
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -51,7 +52,7 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'edited_books',
                     ...content,
-                    // Example: Format publish_date if it exists
+                    
                     publish_date: content.publish_date
                         ? new Date(content.publish_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
                         : null,
@@ -66,6 +67,7 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -186,6 +188,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             
             handleClose()
             refreshData()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
@@ -332,7 +335,7 @@ export default function EditedBookManagement() {
         }
     }
 
-    if (loading) return <div>Loading...</div>
+    if (loading) return <Loading />
 
     return (
         <div>
@@ -340,7 +343,7 @@ export default function EditedBookManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Edited Book
             </Button>

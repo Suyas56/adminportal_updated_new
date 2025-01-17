@@ -1,3 +1,5 @@
+'use client'
+
 import { 
   Button,
   Dialog,
@@ -22,198 +24,18 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import Toast from '../common/Toast'
 
-// Add Form Component
-export const AddForm = ({ handleClose, modal }) => {
-    const { data: session } = useSession()
-    const initialState = {
-        role_position: '',
-        start_date: null,
-        end_date: null
+// Add the formatDate helper function at the top
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+        return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+        console.error('Date parsing error:', error);
+        return '';
     }
-    const [content, setContent] = useState(initialState)
-    const refreshData = useRefreshData(false)
-    const [submitting, setSubmitting] = useState(false)
-
-    const handleChange = (e) => {
-        setContent({ ...content, [e.target.name]: e.target.value })
-    }
-
-    const handleSubmit = async (e) => {
-        setSubmitting(true)
-        e.preventDefault()
-
-        try {
-            const result = await fetch('/api/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  type: 'institute_activities',
-                  ...content,
-                  // Format start_date and end_date to 'YYYY-MM-DD' for DATE or 'YYYY-MM-DD HH:MM:SS' for DATETIME
-                  start_date: content.start_date 
-                    ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                    : null,
-                  end_date: content.end_date 
-                    ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                    : null,
-                  id: Date.now().toString(),
-                  email: session?.user?.email,
-                }),
-              });
-              
-
-            if (!result.ok) throw new Error('Failed to create')
-            
-            handleClose()
-            refreshData()
-            setContent(initialState)
-        } catch (error) {
-            console.error('Error:', error)
-        } finally {
-            setSubmitting(false)
-        }
-    }
-
-    return (
-        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
-            <form onSubmit={handleSubmit}>
-                <DialogTitle>Add Institute Activity</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Role/Position"
-                        name="role_position"
-                        fullWidth
-                        required
-                        value={content.role_position}
-                        onChange={handleChange}
-                    />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            label="Start Date"
-                            value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
-                        />
-                        <DatePicker
-                            label="End Date"
-                            value={content.end_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end_date: newValue})
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
-                        />
-                    </LocalizationProvider>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        type="submit"
-                        color="primary"
-                        disabled={submitting}
-                    >
-                        {submitting ? 'Submitting...' : 'Submit'}
-                    </Button>
-                </DialogActions>
-            </form>
-        </Dialog>
-    )
-}
-
-// Edit Form Component
-export const EditForm = ({ handleClose, modal, values }) => {
-    const { data: session } = useSession()
-    const [content, setContent] = useState(values)
-    const refreshData = useRefreshData(false)
-    const [submitting, setSubmitting] = useState(false)
-
-    const handleChange = (e) => {
-        setContent({ ...content, [e.target.name]: e.target.value })
-    }
-
-    const handleSubmit = async (e) => {
-        setSubmitting(true)
-        e.preventDefault()
-
-        try {
-            const result = await fetch('/api/update', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'institute_activities',
-                    ...content,
-                    email: session?.user?.email
-                }),
-            })
-
-            if (!result.ok) throw new Error('Failed to update')
-            
-            handleClose()
-            refreshData()
-        } catch (error) {
-            console.error('Error:', error)
-        } finally {
-            setSubmitting(false)
-        }
-    }
-
-    return (
-        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
-            <form onSubmit={handleSubmit}>
-                <DialogTitle>Edit Institute Activity</DialogTitle>
-                <DialogContent>
-                    {/* Same form fields as AddForm */}
-                    <TextField
-                        margin="dense"
-                        label="Role/Position"
-                        name="role_position"
-                        fullWidth
-                        required
-                        value={content.role_position}
-                        onChange={handleChange}
-                    />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            label="Start Date"
-                            value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
-                        />
-                        <DatePicker
-                            label="End Date"
-                            value={content.end_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end_date: newValue})
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
-                        />
-                    </LocalizationProvider>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        type="submit"
-                        color="primary"
-                        disabled={submitting}
-                    >
-                        {submitting ? 'Saving...' : 'Save'}
-                    </Button>
-                </DialogActions>
-            </form>
-        </Dialog>
-    )
-}
+};
 
 // Main Component
 export default function InstituteActivityManagement() {
@@ -223,7 +45,25 @@ export default function InstituteActivityManagement() {
     const [openEdit, setOpenEdit] = useState(false)
     const [selectedActivity, setSelectedActivity] = useState(null)
     const [loading, setLoading] = useState(true)
-    const refreshData = useRefreshData(false)
+    const refreshData = useRefreshData(true)
+    const [toast, setToast] = useState({
+        open: false,
+        severity: 'success',
+        message: ''
+    })
+
+    const handleCloseToast = (event, reason) => {
+        if (reason === 'clickaway') return
+        setToast(prev => ({ ...prev, open: false }))
+    }
+
+    const showToast = (message, severity = 'success') => {
+        setToast({
+            open: true,
+            severity,
+            message
+        })
+    }
 
     // Fetch data
     React.useEffect(() => {
@@ -264,14 +104,226 @@ export default function InstituteActivityManagement() {
                 })
                 
                 if (!response.ok) throw new Error('Failed to delete')
+                showToast('Institute activity deleted successfully!')
                 refreshData()
             } catch (error) {
                 console.error('Error:', error)
+                showToast('Failed to delete institute activity', 'error')
             }
         }
     }
 
     if (loading) return <div>Loading...</div>
+
+    // Add Form Component
+    const AddForm = ({ handleClose, modal }) => {
+        const initialState = {
+            role_position: '',
+            start_date: null,
+            end_date: null
+        }
+        const [content, setContent] = useState(initialState)
+        const refreshData = useRefreshData(false)
+        const [submitting, setSubmitting] = useState(false)
+
+        const handleChange = (e) => {
+            setContent({ ...content, [e.target.name]: e.target.value })
+        }
+
+        const handleSubmit = async (e) => {
+            setSubmitting(true)
+            e.preventDefault()
+
+            try {
+                const result = await fetch('/api/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'institute_activities',
+                        ...content,
+                        start_date: content.start_date 
+                            ? new Date(content.start_date).toISOString().split('T')[0]
+                            : null,
+                        end_date: content.end_date 
+                            ? new Date(content.end_date).toISOString().split('T')[0]
+                            : null,
+                        id: Date.now().toString(),
+                        email: session?.user?.email,
+                    }),
+                })
+
+                if (!result.ok) throw new Error('Failed to create')
+                
+                handleClose()
+                setContent(initialState)
+                showToast('Institute activity added successfully!')
+                refreshData()
+            } catch (error) {
+                console.error('Error:', error)
+                showToast('Failed to add institute activity', 'error')
+            } finally {
+                setSubmitting(false)
+            }
+        }
+
+        return (
+            <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+                <form onSubmit={handleSubmit}>
+                    <DialogTitle>Add Institute Activity</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            margin="dense"
+                            label="Role/Position"
+                            name="role_position"
+                            fullWidth
+                            required
+                            value={content.role_position}
+                            onChange={handleChange}
+                        />
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
+                                label="Start Date"
+                                value={content.start_date}
+                                onChange={(newValue) => 
+                                    setContent({ ...content, start_date: newValue})
+                                }
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" />
+                                )}
+                            />
+                            <DatePicker
+                                label="End Date"
+                                value={content.end_date}
+                                onChange={(newValue) => 
+                                    setContent({ ...content, end_date: newValue})
+                                }
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" />
+                                )}
+                            />
+                        </LocalizationProvider>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            disabled={submitting}
+                        >
+                            {submitting ? 'Submitting...' : 'Submit'}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+        )
+    }
+
+    // Edit Form Component
+    const EditForm = ({ handleClose, modal, values }) => {
+        // Parse dates when initializing content
+        const [content, setContent] = useState({
+            ...values,
+            start_date: values.start_date ? new Date(values.start_date) : null,
+            end_date: values.end_date ? new Date(values.end_date) : null
+        })
+        const refreshData = useRefreshData(false)
+        const [submitting, setSubmitting] = useState(false)
+
+        const handleChange = (e) => {
+            setContent({ ...content, [e.target.name]: e.target.value })
+        }
+
+        const handleSubmit = async (e) => {
+            e.preventDefault()
+            setSubmitting(true)
+
+            try {
+                const result = await fetch('/api/update', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'institute_activities',
+                        ...content,
+                        // Format dates before sending to API
+                        start_date: content.start_date 
+                            ? new Date(content.start_date).toISOString().split('T')[0]
+                            : null,
+                        end_date: content.end_date
+                            ? new Date(content.end_date).toISOString().split('T')[0]
+                            : null,
+                        email: session?.user?.email
+                    }),
+                })
+
+                if (!result.ok) throw new Error('Failed to update')
+                
+                handleClose()
+                showToast('Institute activity updated successfully!')
+                refreshData()
+                window.location.reload()
+            } catch (error) {
+                console.error('Error:', error)
+                showToast('Failed to update institute activity', 'error')
+            } finally {
+                setSubmitting(false)
+            }
+        }
+
+        return (
+            <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+                <form onSubmit={handleSubmit}>
+                    <DialogTitle>Edit Institute Activity</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            margin="dense"
+                            label="Role/Position"
+                            name="role_position"
+                            fullWidth
+                            required
+                            value={content.role_position}
+                            onChange={handleChange}
+                        />
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
+                                label="Start Date"
+                                value={content.start_date}
+                                onChange={(newValue) => {
+                                    setContent(prev => ({
+                                        ...prev,
+                                        start_date: newValue
+                                    }))
+                                }}
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" />
+                                )}
+                            />
+                            <DatePicker
+                                label="End Date"
+                                value={content.end_date}
+                                onChange={(newValue) => {
+                                    setContent(prev => ({
+                                        ...prev,
+                                        end_date: newValue
+                                    }))
+                                }}
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" />
+                                )}
+                            />
+                        </LocalizationProvider>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            disabled={submitting}
+                        >
+                            {submitting ? 'Saving...' : 'Save'}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+        )
+    }
 
     return (
         <div>
@@ -279,7 +331,7 @@ export default function InstituteActivityManagement() {
                 variant="contained" 
                 color="primary" 
                 onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
+                sx={{m: 2 }}
             >
                 Add Institute Activity
             </Button>
@@ -299,10 +351,10 @@ export default function InstituteActivityManagement() {
                             <TableRow key={activity.id}>
                                 <TableCell>{activity.role_position}</TableCell>
                                 <TableCell>
-                                    {new Date(activity.start_date).toLocaleDateString()}
+                                    {formatDate(activity.start_date)}
                                 </TableCell>
                                 <TableCell>
-                                    {activity.end_date ? new Date(activity.end_date).toLocaleDateString() : 'Present'}
+                                    {activity.end_date ? formatDate(activity.end_date) : 'Present'}
                                 </TableCell>
                                 <TableCell align="right">
                                     <IconButton 
@@ -348,6 +400,12 @@ export default function InstituteActivityManagement() {
                     values={selectedActivity}
                 />
             )}
+            <Toast 
+                open={toast.open}
+                handleClose={handleCloseToast}
+                severity={toast.severity}
+                message={toast.message}
+            />
         </div>
     )
 } 
