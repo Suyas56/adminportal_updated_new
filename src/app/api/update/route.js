@@ -108,15 +108,15 @@ export async function PUT(request) {
              updatedBy = ?
              WHERE id = ?`,
             [
-              params.title,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.description,
-              JSON.stringify(params.image),
-              params.author,
-              params.email,
-              params.id
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.description,
+              JSON.stringify(params.data.image),
+              params.data.author,
+              params.data.email,
+              params.data.id
             ]
           )
           return NextResponse.json(innovationResult)

@@ -96,21 +96,21 @@ export async function POST(request) {
           const eventResult = await query(
             `INSERT INTO events(id, title, timestamp, openDate, closeDate, venue, doclink, attachments, event_link, email, eventStartDate, eventEndDate, updatedBy, updatedAt, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              params.id,
-              params.title,
+              params.data.id,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.venue,
-              params.doclink,
-              JSON.stringify(params.attachments),
-              JSON.stringify(params.main_attachment),
-              params.email,
-              params.eventStartDate,
-              params.eventEndDate,
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.venue,
+              params.data.doclink,
+              JSON.stringify(params.data.attachments),
+              JSON.stringify(params.data.main_attachment),
+              params.data.email,
+              params.data.eventStartDate,
+              params.data.eventEndDate,
               session.user.email,
               new Date().getTime(),
-              params.type || 'general'
+              params.data.type || 'general'
               ]
           )
           return NextResponse.json(eventResult)
@@ -119,15 +119,15 @@ export async function POST(request) {
           const innovationResult = await query(
             `INSERT INTO innovation(id, title, timestamp, openDate, closeDate, description, image, author, email, updatedBy, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              params.id,
-              params.title,
+              params.data.id,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.description,
-              JSON.stringify(params.image),
-              params.author,
-              params.email,
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.description,
+              JSON.stringify(params.data.image),
+              params.data.author,
+              params.data.email,
               session.user.email,
               new Date().getTime()
             ]

@@ -97,7 +97,7 @@ export const AddForm = ({ handleClose, modal }) => {
         if (result instanceof Error) {
             console.log('Error Occurred');
             console.log(result);
-            // window.location.reload();
+            window.location.reload();
         }
 
         // Broadcast after event is created
@@ -118,7 +118,7 @@ export const AddForm = ({ handleClose, modal }) => {
             }
         }
 
-        // window.location.reload();
+        window.location.reload();
     };
 
     return (
