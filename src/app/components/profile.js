@@ -17,6 +17,13 @@ import DepartmentActivityManagement from './profile/department-activities'
 import InternshipManagement from './profile/internships'
 import TeachingEngagementManagement from './profile/teaching-engagement'
 import ProjectSupervisionManagement from './profile/project-supervision'
+import TextbookManagement from './profile/textbooks'
+import EditedBookManagement from './profile/edited-books'
+import BookChapterManagement from './profile/book-chapters'
+import SponsoredProjectManagement from './profile/sponsored-projects'
+import ConsultancyProjectManagement from './profile/consultancy-projects'
+import IPRManagement from './profile/ipr'
+import StartupManagement from './profile/startups'
 // import { AddWork } from './profile/work-experience'
 // import { AddJournalPaper } from './profile/journal-papers'
 // import { AddConferencePaper } from './profile/conference-papers'
@@ -269,6 +276,28 @@ export default function Profilepage({ details }) {
                 <div className="fac-card">
                 <ProjectSupervisionManagement/>
                 </div>
+                <div className="fac-card">
+                <TextbookManagement/>
+                </div>
+                <div className="fac-card">
+                <EditedBookManagement/>
+                </div>
+                <div className="fac-card">
+                <BookChapterManagement/>
+                </div>
+                <div className="fac-card">
+                <SponsoredProjectManagement/>
+                </div>
+                <div className="fac-card">
+                <ConsultancyProjectManagement/>
+                </div>
+                <div className="fac-card">
+                <IPRManagement/>
+                </div>
+                <div className="fac-card">
+                <StartupManagement/>
+                </div>
+                
                 
             
             </div>

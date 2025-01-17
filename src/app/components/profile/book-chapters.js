@@ -53,11 +53,15 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'book_chapters',
                     ...content,
+                    // Example: Handle date fields if they exist (assuming there's a publish_date field)
+                    publish_date: content.publish_date
+                        ? new Date(content.publish_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                        : null,
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
-            })
-
+            });
+            
             if (!result.ok) throw new Error('Failed to create')
             
             handleClose()
