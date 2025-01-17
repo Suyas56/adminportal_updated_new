@@ -88,13 +88,13 @@ export const AddForm = ({ handleClose, modal }) => {
 
         console.log(data)
 
-        let result = await fetch('/api/create/news', {
+        let result = await fetch('/api/create', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({data:data,type:"news"}),
         })
         result = await result.json()
         if (result instanceof Error) {
@@ -119,8 +119,8 @@ export const AddForm = ({ handleClose, modal }) => {
                 console.log(result)
             }
         }
-
-        window.location.reload()
+setSubmitting(false)
+        // window.location.reload()
     }
 
     return (

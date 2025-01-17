@@ -138,16 +138,16 @@ export async function POST(request) {
           const newsResult = await query(
             `INSERT INTO news(id, title, timestamp, openDate, closeDate, description, image, attachments, author, email, updatedBy, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              params.id,
-              params.title,
+              params.data.id,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.description,
-              JSON.stringify(params.image),
-              JSON.stringify(params.add_attach),
-              params.author,
-              params.email,
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.description,
+              JSON.stringify(params.data.image),
+              JSON.stringify(params.data.add_attach),
+              params.data.author,
+              params.data.email,
               session.user.email,
               new Date().getTime()
             ]

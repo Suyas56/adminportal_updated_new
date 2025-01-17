@@ -128,7 +128,6 @@ export async function PUT(request) {
              updatedAt = ?,
              openDate = ?,
              closeDate = ?,
-             venue = ?,
              image = ?,
              description = ?,
              attachments = ?,
@@ -136,17 +135,16 @@ export async function PUT(request) {
              updatedBy = ?
              WHERE id = ?`,
             [
-              params.title,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.venue,
-              JSON.stringify(params.image),
-              params.description,
-              JSON.stringify(params.attachments),
-              params.author,
-              params.email,
-              params.id
+              params.data.openDate,
+              params.data.closeDate,
+              JSON.stringify(params.data.image),
+              params.data.description,
+              JSON.stringify(params.data.add_attach),
+              params.data.author,
+              params.data.email,
+              params.data.id
             ]
           )
           return NextResponse.json(newsResult)

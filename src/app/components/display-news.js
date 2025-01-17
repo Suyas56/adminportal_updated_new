@@ -225,7 +225,7 @@ const DataDisplay = (props) => {
         // console.log(response.json());
     }, [page, rowsPerPage, filterQuery])
 
-    const News = ({ detail }) => {
+    const News = ({ key,detail }) => {
         let openDate = new Date(detail.timestamp)
         let dd = openDate.getDate()
         let mm = openDate.getMonth() + 1
@@ -355,7 +355,7 @@ const DataDisplay = (props) => {
     }
 
     return (
-        <div>
+        <>
             <header>
                 <Typography variant="h4" style={{ margin: `15px 0` }}>
                     Recent News
@@ -373,9 +373,12 @@ const DataDisplay = (props) => {
             <AddForm handleClose={handleCloseAddModal} modal={addModal} />
 
             <Grid container spacing={2} className={classes.root}>
-                {details.map((row, index) => {
+                {/* {details.map((row, index) => {
                     return <News key={row.id || index} detail={row} />;
-                })}
+                })} */}
+                {(details && details.length > 0) ? details.map((row, index) => (
+                <News key={row.id || index} detail={row} />
+            )) : null}
             </Grid>
             <TableFooter>
                 <TableRow>
@@ -395,7 +398,7 @@ const DataDisplay = (props) => {
                     />
                 </TableRow>
             </TableFooter>
-        </div>
+        </>
     )
 }
 

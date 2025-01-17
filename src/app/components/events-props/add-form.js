@@ -85,19 +85,19 @@ export const AddForm = ({ handleClose, modal }) => {
         }
 
         // Submit data to the API
-        let result = await fetch('/api/create/event', {
+        let result = await fetch('/api/create', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({data:data,type:"event"}),
         });
         result = await result.json();
         if (result instanceof Error) {
             console.log('Error Occurred');
             console.log(result);
-            window.location.reload();
+            // window.location.reload();
         }
 
         // Broadcast after event is created
@@ -118,7 +118,7 @@ export const AddForm = ({ handleClose, modal }) => {
             }
         }
 
-        window.location.reload();
+        // window.location.reload();
     };
 
     return (

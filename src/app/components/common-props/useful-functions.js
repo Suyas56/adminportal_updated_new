@@ -2,7 +2,7 @@ export const fileUploader = async (attachment) => {
     let file = new FormData()
     file.append('files', attachment.url)
     // console.log(file.get("files"));
-    let viewLink = await fetch('/api/gdrive/uploadfiles', {
+    let viewLink = await fetch('/api/gdrive', {
         method: 'POST',
         body: file,
     })
