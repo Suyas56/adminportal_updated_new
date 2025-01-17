@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
 import { Delete } from '@material-ui/icons'
-import { FormControlLabel, Checkbox } from '@material-ui/core'
-import { randomBytes } from 'crypto'
+import { FormControlLabel, Checkbox } from '@mui/material'
 
 export const AddAttachments = ({ attachments, setAttachments, limit }) => {
     function handleChange(i, event) {

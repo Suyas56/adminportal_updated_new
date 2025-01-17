@@ -1,11 +1,11 @@
 import {
     IconButton,
     TableFooter,
-    TablePagination,
     TableRow,
     Typography,
-} from '@material-ui/core'
-import Button from '@material-ui/core/Button'
+} from '@mui/material'
+import { TablePagination } from '@mui/base/TablePagination';
+import Button from '@mui/material/Button';
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
@@ -66,22 +66,22 @@ const useStyles1 = makeStyles((theme) => ({
 function TablePaginationActions(props) {
     const classes = useStyles1()
     const theme = useTheme()
-    const { count, page, rowsPerPage, onChangePage } = props
+    const { count, page, rowsPerPage, onPageChange } = props
 
     const handleFirstPageButtonClick = (event) => {
-        onChangePage(event, 0)
+        onPageChange(event, 0)
     }
 
     const handleBackButtonClick = (event) => {
-        onChangePage(event, page - 1)
+        onPageChange(event, page - 1)
     }
 
     const handleNextButtonClick = (event) => {
-        onChangePage(event, page + 1)
+        onPageChange(event, page + 1)
     }
 
     const handleLastPageButtonClick = (event) => {
-        onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+        onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
     }
 
     return (
@@ -166,7 +166,7 @@ const DataDisplay = (props) => {
 
     const [addModal, setAddModal] = useState(false)
     const addModalOpen = () => {
-        setAddModal(true)
+        setAddModal(!addModal)
     }
     const handleCloseAddModal = () => {
         setAddModal(false)
@@ -331,7 +331,7 @@ const DataDisplay = (props) => {
     }
 
     return (
-        <div>
+        <>
             <header>
                 <Typography variant="h4" style={{ margin: `15px 0` }}>
                     Recent Innovations
@@ -352,9 +352,6 @@ const DataDisplay = (props) => {
                 {details.map((row) => {
                     return <Innovation detail={row} />
                 })}
-                {/* <Grid >
-            <Paper xs={12} sm={9}>{detail.title}</Paper>
-         </Grid> */}
             </Grid>
             <TableFooter>
                 <TableRow>
@@ -368,13 +365,13 @@ const DataDisplay = (props) => {
                             inputProps: { 'aria-label': 'rows per page' },
                             native: true,
                         }}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
                         ActionsComponent={TablePaginationActions}
                     />
                 </TableRow>
             </TableFooter>
-        </div>
+        </>
     )
 }
 

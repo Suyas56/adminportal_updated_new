@@ -1,25 +1,25 @@
-import { Checkbox, FormControlLabel } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
+import { Checkbox, FormControlLabel } from '@mui/material'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import TextField from '@mui/material/TextField'
 import { MainAttachment } from './../common-props/main-attachment'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-attachment'
 import { fileUploader } from './../common-props/useful-functions'
-import { FormControl } from '@material-ui/core'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
-import Input from '@material-ui/core/Input'
+import { FormControl } from '@mui/material'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import Input from '@mui/material/Input'
 import { administrationList } from '@/lib/const'
 import { BroadcastMail } from './../common-props/send-broadcast-mail'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
     const [content, setContent] = useState({
         title: '',
         openDate: '',

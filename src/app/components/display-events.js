@@ -4,10 +4,10 @@ import {
     TablePagination,
     TableRow,
     Typography,
-} from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
+} from '@mui/material'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import {
     Edit,
@@ -67,22 +67,22 @@ const useStyles1 = makeStyles((theme) => ({
 function TablePaginationActions(props) {
     const classes = useStyles1()
     const theme = useTheme()
-    const { count, page, rowsPerPage, onChangePage } = props
+    const { count, page, rowsPerPage, onPageChange } = props
 
     const handleFirstPageButtonClick = (event) => {
-        onChangePage(event, 0)
+        onPageChange(event, 0)
     }
 
     const handleBackButtonClick = (event) => {
-        onChangePage(event, page - 1)
+        onPageChange(event, page - 1)
     }
 
     const handleNextButtonClick = (event) => {
-        onChangePage(event, page + 1)
+        onPageChange(event, page + 1)
     }
 
     const handleLastPageButtonClick = (event) => {
-        onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+        onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
     }
 
     return (
@@ -137,13 +137,13 @@ function TablePaginationActions(props) {
 
 TablePaginationActions.propTypes = {
     count: PropTypes.number.isRequired,
-    onChangePage: PropTypes.func.isRequired,
+    onPageChange: PropTypes.func.isRequired,
     page: PropTypes.number.isRequired,
     rowsPerPage: PropTypes.number.isRequired,
 }
 
 const DataDisplay = (props) => {
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
     const classes = useStyles()
     const [details, setDetails] = useState(props.entries)
     const [filterQuery, setFilterQuery] = useState(null)
@@ -167,7 +167,7 @@ const DataDisplay = (props) => {
 
     useEffect(() => {
         if (!filterQuery) {
-            fetch('/api/events/between', {
+            fetch('/api/events', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -176,6 +176,7 @@ const DataDisplay = (props) => {
                 body: JSON.stringify({
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"between"
                 }),
             })
                 .then((res) => res.json())
@@ -185,7 +186,7 @@ const DataDisplay = (props) => {
                 })
                 .catch((err) => console.log(err))
         } else {
-            fetch('/api/events/range', {
+            fetch('/api/events', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -195,6 +196,7 @@ const DataDisplay = (props) => {
                     ...filterQuery,
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"range"
                 }),
             })
                 .then((res) => res.json())
@@ -370,23 +372,9 @@ const DataDisplay = (props) => {
             <AddForm handleClose={handleCloseAddModal} modal={addModal} />
 
             <Grid container spacing={2} className={classes.root}>
-                {details.map((row) => {
-                    return <Event detail={row} />
-                })}
-
-                {/* {(rowsPerPage > 0
-							? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-							: rows
-						).map((row) => {
-							return <Event detail={row} />;
-				})} */}
-
-                {/* {details.map((detail) => {
-					return <Event detail={detail} />;
-				})} */}
-                {/* <Grid >
-            <Paper xs={12} sm={9}>{detail.title}</Paper>
-         </Grid> */}
+            {(details && details.length > 0) ? details.map((row, index) => (
+                <Event key={index} detail={row} />
+            )) : null}
             </Grid>
 
             <TableFooter>
@@ -394,19 +382,20 @@ const DataDisplay = (props) => {
                     <TablePagination
                         rowsPerPageOptions={[15, 25, 50, 100]}
                         colSpan={7}
-                        count={rowsPerPage * page + details.length}
+                        count={details?.length || 0}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         SelectProps={{
                             inputProps: { 'aria-label': 'rows per page' },
                             native: true,
                         }}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
                         ActionsComponent={TablePaginationActions}
                     />
                 </TableRow>
             </TableFooter>
+
         </div>
     )
 }

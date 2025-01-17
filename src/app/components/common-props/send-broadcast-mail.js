@@ -1,5 +1,5 @@
-import TextField from '@material-ui/core/TextField'
-import { Checkbox, FormControlLabel } from '@material-ui/core'
+import TextField from '@mui/material/TextField'
+import { Checkbox, FormControlLabel } from '@mui/material'
 import React from 'react'
 
 export const BroadcastMail = ({ broadcastMail, setBroadcastMail }) => {

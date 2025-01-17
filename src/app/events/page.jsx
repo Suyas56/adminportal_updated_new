@@ -23,7 +23,7 @@ export default function Page() {
     const [isLoading, setIsLoading] = useState(true)
     const [entries, setEntries] = useState({})
     useEffect(() => {
-        fetch('/api/events/between', {
+        fetch('/api/events', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -32,6 +32,7 @@ export default function Page() {
             body: JSON.stringify({
                 from: 0,
                 to: 15,
+                type:"between"
             }),
         })
             .then((res) => res.json())
@@ -41,26 +42,29 @@ export default function Page() {
             })
             .catch((err) => console.log(err))
     }, [])
-    const {session,status} = useSession()
+    const {data:session,status} = useSession()
     const router = useRouter()
     
     if (typeof window !== 'undefined' && status==="loading") return <Loading />
 
-    if (session && (session.user.role === 1 || session.user.role === 2)) {
+    if (session) {
         return (
-            <Layout>
-                <Wrap>
-                    {isLoading ? (
-                        <LoadAnimation />
-                    ) : (
-                        <DataDisplay entries={entries} />
-                    )}
-                </Wrap>
-            </Layout>
+            <>
+                {session.user.role == "SUPER_ADMIN" ? (
+                    <Layout>
+                        <Wrap>
+                            {isLoading ? (
+                                <LoadAnimation />
+                            ) : (
+                                <DataDisplay data={entries} />
+                            )}
+                        </Wrap>
+                    </Layout>
+                ) : (
+                    <Unauthorise />
+                )}
+            </>
         )
-    }
-    if (session && session.user.role === 3) {
-        return <Unauthorise />
     }
     return <Sign />
 }

@@ -1,19 +1,19 @@
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import { MainAttachment } from './../common-props/main-attachment';
-import TextField from '@material-ui/core/TextField';
+import TextField from '@mui/material/TextField';
 import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import { AddAttachments } from './../common-props/add-attachment';
 import { fileUploader } from './../common-props/useful-functions';
 import { BroadcastMail } from './../common-props/send-broadcast-mail';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 export const AddForm = ({ handleClose, modal }) => {
     const {data:session,loading} = useSession();
@@ -124,7 +124,7 @@ export const AddForm = ({ handleClose, modal }) => {
     return (
         <Dialog open={modal} onClose={handleClose}>
             <form onSubmit={handleSubmit}>
-                <DialogTitle disableTypography style={{ fontSize: `2rem` }}>
+                <DialogTitle style={{ fontSize: `2rem` }}>
                     Add Event
                 </DialogTitle>
                 <DialogContent>
