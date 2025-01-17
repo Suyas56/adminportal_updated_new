@@ -1,21 +1,21 @@
-import { 
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  InputLabel
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    IconButton,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Select,
+    MenuItem,
+    InputLabel
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -51,19 +51,40 @@ export const AddForm = ({ handleClose, modal }) => {
         e.preventDefault()
 
         try {
+            console.log('Sending data:', {
+                type: 'workshops_conferences',
+                ...content,
+                start_date: content.start_date
+                    ? new Date(content.start_date).toISOString().split('T')[0]
+                    : null,
+                end_date: content.end_date
+                    ? new Date(content.end_date).toISOString().split('T')[0]
+                    : null,
+                id: Date.now().toString(),
+                email: session?.user?.email,
+            });
+            
             const result = await fetch('/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'workshops_conferences',
-                    ...content,
-                    id: Date.now().toString(),
-                    email: session?.user?.email
+                  type: 'workshops_conferences',
+                  ...content,
+                  // Format start_date and end_date to 'YYYY-MM-DD' for DATE or 'YYYY-MM-DD HH:MM:SS' for DATETIME
+                  start_date: content.start_date 
+                    ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                    : null,
+                  end_date: content.end_date 
+                    ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                    : null,
+                  id: Date.now().toString(),
+                  email: session?.user?.email,
                 }),
-            })
+              });
+              
 
             if (!result.ok) throw new Error('Failed to create')
-            
+
             handleClose()
             refreshData()
             setContent(initialState)
@@ -128,8 +149,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
+                            onChange={(newValue) =>
+                                setContent({ ...content, start_date: newValue })
                             }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
@@ -138,8 +159,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="End Date"
                             value={content.end_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end_date: newValue})
+                            onChange={(newValue) =>
+                                setContent({ ...content, end_date: newValue })
                             }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
@@ -198,7 +219,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             })
 
             if (!result.ok) throw new Error('Failed to update')
-            
+
             handleClose()
             refreshData()
         } catch (error) {
@@ -276,7 +297,7 @@ export default function WorkshopConferenceManagement() {
                         email: session?.user?.email
                     }),
                 })
-                
+
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
             } catch (error) {
@@ -289,9 +310,9 @@ export default function WorkshopConferenceManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
+            <Button
+                variant="contained"
+                color="primary"
                 onClick={() => setOpenAdd(true)}
                 sx={{ mb: 2 }}
             >
@@ -317,19 +338,19 @@ export default function WorkshopConferenceManagement() {
                                 <TableCell>{event.event_type}</TableCell>
                                 <TableCell>{event.role}</TableCell>
                                 <TableCell>
-                                    {new Date(event.start_date).toLocaleDateString()} - 
+                                    {new Date(event.start_date).toLocaleDateString()} -
                                     {new Date(event.end_date).toLocaleDateString()}
                                 </TableCell>
                                 <TableCell>{event.participants_count}</TableCell>
                                 <TableCell align="right">
-                                    <IconButton 
+                                    <IconButton
                                         onClick={() => handleEdit(event)}
                                         color="primary"
                                         size="small"
                                     >
                                         <EditIcon />
                                     </IconButton>
-                                    <IconButton 
+                                    <IconButton
                                         onClick={() => handleDelete(event.id)}
                                         color="error"
                                         size="small"
@@ -350,7 +371,7 @@ export default function WorkshopConferenceManagement() {
                 </Table>
             </TableContainer>
 
-            <AddForm 
+            <AddForm
                 modal={openAdd}
                 handleClose={() => setOpenAdd(false)}
             />

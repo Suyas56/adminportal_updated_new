@@ -58,11 +58,20 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'ipr',
                     ...content,
+                    // Example: Handle date fields if present (e.g., creation_date, expiry_date)
+                    creation_date: content.creation_date
+                        ? new Date(content.creation_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                        : null,
+                    expiry_date: content.expiry_date
+                        ? new Date(content.expiry_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                        : null,
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
-            })
-
+            });
+            
+            
+            
             if (!result.ok) throw new Error('Failed to create')
             
             handleClose()
