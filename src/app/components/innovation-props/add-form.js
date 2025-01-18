@@ -1,15 +1,15 @@
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
-import { useSession } from 'next-auth/client'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import TextField from '@mui/material/TextField'
+import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments } from './../common-props/add-image'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
     const [content, setContent] = useState({
         title: '',
         openDate: '',
@@ -68,13 +68,13 @@ export const AddForm = ({ handleClose, modal }) => {
         }
         // data.attachments = JSON.stringify(data.attachments);
 
-        let result = await fetch('/api/create/innovation', {
+        let result = await fetch('/api/create', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({data:data,type:"innovation"}),
         })
         result = await result.json()
         if (result instanceof Error) {
@@ -93,7 +93,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         handleSubmit(e)
                     }}
                 >
-                    <DialogTitle disableTypography style={{ fontSize: `2rem` }}>
+                    <DialogTitle  style={{ fontSize: `2rem` }}>
                         Add Innovations
                     </DialogTitle>
                     <DialogContent>
@@ -156,9 +156,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             setAttachments={setAttachments}
                             limit={2}
                         />
-                        {/* <a href={data.attachments} target="_blank">
-							<FontAwesomeIcon icon={faExternalLinkAlt} />
-						</a> */}
+                      
                     </DialogContent>
                     <DialogActions>
                         <Button

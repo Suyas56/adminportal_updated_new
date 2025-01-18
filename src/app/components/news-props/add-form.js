@@ -1,10 +1,9 @@
-"use client"
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import TextField from '@mui/material/TextField'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { AddAttachments as AddImage } from './../common-props/add-image'
@@ -13,7 +12,8 @@ import { fileUploader } from './../common-props/useful-functions'
 import { BroadcastMail } from './../common-props/send-broadcast-mail'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const [session, loading] = useSession()
+    const { data: session, status } = useSession();
+    const loading = status === "loading";
     const [content, setContent] = useState({
         title: '',
         openDate: '',
@@ -88,13 +88,13 @@ export const AddForm = ({ handleClose, modal }) => {
 
         console.log(data)
 
-        let result = await fetch('/api/create/news', {
+        let result = await fetch('/api/create', {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify({data:data,type:"news"}),
         })
         result = await result.json()
         if (result instanceof Error) {
@@ -119,8 +119,8 @@ export const AddForm = ({ handleClose, modal }) => {
                 console.log(result)
             }
         }
-
-        window.location.reload()
+setSubmitting(false)
+        // window.location.reload()
     }
 
     return (
@@ -131,7 +131,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         handleSubmit(e)
                     }}
                 >
-                    <DialogTitle disableTypography style={{ fontSize: `2rem` }}>
+                    <DialogTitle style={{ fontSize: `2rem` }}>
                         Add News
                     </DialogTitle>
                     <DialogContent>

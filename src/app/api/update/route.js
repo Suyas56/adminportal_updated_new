@@ -17,7 +17,7 @@ export async function PUT(request) {
 
     const { type, ...params } = await request.json()
 
-    // Notice updates - Super Admin, Academic Admin, and Department Admin access
+    // .data updates - Super Admin, Academic Admin, and Department Admin access
     if (
       session.user.role === 'SUPER_ADMIN' ||
       ((session.user.role === 'ACADEMIC_ADMIN' ||
@@ -27,33 +27,33 @@ export async function PUT(request) {
       if (type === 'notice') {
         const result = await query(
           `UPDATE notices SET 
-           title = ?,
-           updatedAt = ?,
-           openDate = ?,
-           closeDate = ?,
-           important = ?,
-           attachments = ?,
-           notice_link = ?,
-           isVisible = ?,
-           updatedBy = ?,
-           notice_type = ?,
-           department = ?
-           WHERE id = ?`,
+              title = ?,
+              updatedAt = ?,
+              openDate = ?,
+              closeDate = ?,
+              important = ?,
+              attachments = ?,
+              notice_link = ?,
+              isVisible = ?,
+              updatedBy = ?,
+              notice_type = ?,
+              department = ?
+          WHERE id = ?`,
           [
-            params.title,
-            new Date().getTime(),
-            params.openDate,
-            params.closeDate,
-            params.important,
-            JSON.stringify(params.attachments),
-            JSON.stringify(params.main_attachment),
-            params.isVisible,
-            params.email,
-            params.notice_type,
-            params.department,
-            params.id
+              params.data.title,
+              new Date().getTime(),
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.important || 0,
+              JSON.stringify(params.data.attachments),
+              params.data.notice_link || null,
+              params.data.isVisible || 0,
+              session.user.email,
+              params.data.notice_type || null,
+              params.data.department || null,
+              params.data.id
           ]
-        )
+      )      
         return NextResponse.json(result)
       }
     }
@@ -78,19 +78,19 @@ export async function PUT(request) {
              type = ?
              WHERE id = ?`,
             [
-              params.title,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.venue,
-              params.doclink,
-              JSON.stringify(params.attachments),
-              JSON.stringify(params.main_attachment),
-              params.eventStartDate,
-              params.eventEndDate,
-              params.email,
-              params.type || 'general',
-              params.id
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.venue,
+              params.data.doclink,
+              JSON.stringify(params.data.attachments),
+              JSON.stringify(params.data.main_attachment),
+              params.data.eventStartDate,
+              params.data.eventEndDate,
+              params.data.email,
+              params.data.type || 'general',
+              params.data.id
             ]
           )
           return NextResponse.json(eventResult)
@@ -108,15 +108,15 @@ export async function PUT(request) {
              updatedBy = ?
              WHERE id = ?`,
             [
-              params.title,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.description,
-              JSON.stringify(params.image),
-              params.author,
-              params.email,
-              params.id
+              params.data.openDate,
+              params.data.closeDate,
+              params.data.description,
+              JSON.stringify(params.data.image),
+              params.data.author,
+              params.data.email,
+              params.data.id
             ]
           )
           return NextResponse.json(innovationResult)
@@ -128,7 +128,6 @@ export async function PUT(request) {
              updatedAt = ?,
              openDate = ?,
              closeDate = ?,
-             venue = ?,
              image = ?,
              description = ?,
              attachments = ?,
@@ -136,17 +135,16 @@ export async function PUT(request) {
              updatedBy = ?
              WHERE id = ?`,
             [
-              params.title,
+              params.data.title,
               new Date().getTime(),
-              params.openDate,
-              params.closeDate,
-              params.venue,
-              JSON.stringify(params.image),
-              params.description,
-              JSON.stringify(params.attachments),
-              params.author,
-              params.email,
-              params.id
+              params.data.openDate,
+              params.data.closeDate,
+              JSON.stringify(params.data.image),
+              params.data.description,
+              JSON.stringify(params.data.add_attach),
+              params.data.author,
+              params.data.email,
+              params.data.id
             ]
           )
           return NextResponse.json(newsResult)

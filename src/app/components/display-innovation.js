@@ -1,11 +1,11 @@
 import {
     IconButton,
     TableFooter,
-    TablePagination,
     TableRow,
     Typography,
-} from '@material-ui/core'
-import Button from '@material-ui/core/Button'
+} from '@mui/material'
+import { TablePagination } from '@mui/base/TablePagination';
+import Button from '@mui/material/Button';
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
@@ -19,7 +19,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import { AddForm } from './innovation-props/add-form'
 import { EditForm } from './innovation-props/edit-form'
-import { useSession } from 'next-auth/client'
+import { useSession } from 'next-auth/react'
 import { DescriptionModal } from './common-props/description-modal'
 import Filter from './common-props/filter'
 import PropTypes from 'prop-types'
@@ -66,22 +66,22 @@ const useStyles1 = makeStyles((theme) => ({
 function TablePaginationActions(props) {
     const classes = useStyles1()
     const theme = useTheme()
-    const { count, page, rowsPerPage, onChangePage } = props
+    const { count, page, rowsPerPage, onPageChange } = props
 
     const handleFirstPageButtonClick = (event) => {
-        onChangePage(event, 0)
+        onPageChange(event, 0)
     }
 
     const handleBackButtonClick = (event) => {
-        onChangePage(event, page - 1)
+        onPageChange(event, page - 1)
     }
 
     const handleNextButtonClick = (event) => {
-        onChangePage(event, page + 1)
+        onPageChange(event, page + 1)
     }
 
     const handleLastPageButtonClick = (event) => {
-        onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+        onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
     }
 
     return (
@@ -142,7 +142,7 @@ TablePaginationActions.propTypes = {
 }
 
 const DataDisplay = (props) => {
-    const [session, loading] = useSession()
+    const {data:session,status} = useSession()
     const classes = useStyles()
     const [details, setDetails] = useState(props.data)
     const [filterQuery, setFilterQuery] = useState(null)
@@ -166,7 +166,7 @@ const DataDisplay = (props) => {
 
     const [addModal, setAddModal] = useState(false)
     const addModalOpen = () => {
-        setAddModal(true)
+        setAddModal(!addModal)
     }
     const handleCloseAddModal = () => {
         setAddModal(false)
@@ -174,7 +174,7 @@ const DataDisplay = (props) => {
 
     useEffect(() => {
         if (!filterQuery) {
-            fetch('/api/innovation/between', {
+            fetch('/api/innovation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -183,6 +183,7 @@ const DataDisplay = (props) => {
                 body: JSON.stringify({
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"between"
                 }),
             })
                 .then((res) => res.json())
@@ -192,7 +193,7 @@ const DataDisplay = (props) => {
                 })
                 .catch((err) => console.log(err))
         } else {
-            fetch('/api/innovation/range', {
+            fetch('/api/innovation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -202,6 +203,7 @@ const DataDisplay = (props) => {
                     ...filterQuery,
                     from: page * rowsPerPage,
                     to: page * rowsPerPage + rowsPerPage,
+                    type:"range"
                 }),
             })
                 .then((res) => res.json())
@@ -329,7 +331,7 @@ const DataDisplay = (props) => {
     }
 
     return (
-        <div>
+        <>
             <header>
                 <Typography variant="h4" style={{ margin: `15px 0` }}>
                     Recent Innovations
@@ -347,12 +349,9 @@ const DataDisplay = (props) => {
             <AddForm handleClose={handleCloseAddModal} modal={addModal} />
 
             <Grid container spacing={2} className={classes.root}>
-                {details.map((row) => {
-                    return <Innovation detail={row} />
+                {details.map((row,index) => {
+                    return <Innovation key={row.id || index} detail={row} />
                 })}
-                {/* <Grid >
-            <Paper xs={12} sm={9}>{detail.title}</Paper>
-         </Grid> */}
             </Grid>
             <TableFooter>
                 <TableRow>
@@ -362,46 +361,18 @@ const DataDisplay = (props) => {
                         count={rowsPerPage * page + details.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
-                        SelectProps={{
+                        selectprops={{
                             inputProps: { 'aria-label': 'rows per page' },
                             native: true,
                         }}
-                        onChangePage={handleChangePage}
-                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
                         ActionsComponent={TablePaginationActions}
                     />
                 </TableRow>
             </TableFooter>
-        </div>
+        </>
     )
 }
 
 export default DataDisplay
-
-// Extras
-// 	<Grid item xs={4} sm={2} lg={1}>
-// 								<Paper
-// 									className={classes.paper}
-// 									style={{ textAlign: `center` }}
-// 								>
-// 									{detail.isVisible ? (
-// 										<>
-// 											<Visibility className={classes.icon} />
-// 											{/* <i className="fa fa-eye" style={{ color: "action" }}></i> */}
-// 											<span>Visible</span>
-// 										</>
-// 									) : (
-// 										<>
-// 											{/* <i
-// 												className="fa fa-eye-slash"
-// 												style={{ color: "secondary" }}
-// 											></i> */}
-// 											<VisibilityOff
-// 												color="secondary"
-// 												className={classes.icon}
-// 											/>
-// 											<span>Archive</span>
-// 										</>
-// 									)}
-// 								</Paper>
-// 							</Grid >

@@ -84,11 +84,13 @@ export async function POST(request) {
         break
 
       case 'between':
-        const { from: fromIndex, to: toIndex } = body
+        let { from: fromIndex, to: toIndex } = body
+        fromIndex = parseInt(fromIndex, 10);
+        toIndex = parseInt(toIndex, 10);
         results = await query(
           `SELECT * FROM innovation 
            ORDER BY openDate DESC 
-           LIMIT ?, ?`,
+           LIMIT ?,?`,
           [fromIndex, toIndex - fromIndex]
         )
         break
