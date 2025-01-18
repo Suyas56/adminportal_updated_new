@@ -1,84 +1,76 @@
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import React from 'react'
+import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogTitle 
+} from '@mui/material'
+import React, { useState } from 'react'
 
 export const ConfirmDelete = ({
     handleClose,
     modal,
-    id,
-    attachments,
-    add_attach,
-    delArray,
+    id
 }) => {
+    const [isDeleting, setIsDeleting] = useState(false)
+
     const deleteEvent = async () => {
-        const deleteArray = [...delArray]
-
-        if (attachments.length) {
-            for (let i = 0; i < attachments.length; i++) {
-                const element = attachments[i]
-                if (element.url) deleteArray.push(element.url.split('/')[5])
-            }
-        }
-
-        if (add_attach.length) {
-            for (let i = 0; i < add_attach.length; i++) {
-                const element = add_attach[i]
-                if (element.url && element.url.split('/')[5])
-                    deleteArray.push(element.url.split('/')[5])
-            }
-        }
-
-        if (deleteArray.length) {
-            let result = await fetch('/api/gdrive/deletefiles', {
-                method: 'DELETE',
+        try {
+            setIsDeleting(true)
+            const result = await fetch('/api/delete', {
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(deleteArray),
-            })
-            result = await result.json()
-            if (result instanceof Error) {
-                console.log('Error Occured')
+                body: JSON.stringify({
+                    id: id, 
+                    type: 'news'
+                }),
+            });
+
+            if (!result.ok) {
+                throw new Error('Failed to delete news');
             }
-            console.log(result)
-        }
 
-        let result = await fetch('/api/delete/news', {
-            method: 'DELETE',
-            body: id.toString(),
-        })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            console.log(result)
+            window.location.reload();
+        } catch (error) {
+            console.error('Error deleting news:', error);
+            alert('Failed to delete news. Please try again.');
+        } finally {
+            setIsDeleting(false)
         }
-        console.log(result)
-
-        window.location.reload()
     }
 
     return (
-        <div>
-            <Dialog open={modal} onClose={handleClose}>
-                <DialogTitle id="alert-dialog-title">
-                    {'Do you want to Delete This News ?'}
-                </DialogTitle>
+        <Dialog 
+            open={modal} 
+            onClose={handleClose}
+            PaperProps={{
+                style: {
+                    padding: '1rem'
+                }
+            }}
+        >
+            <DialogTitle>
+                Do you want to Delete This News?
+            </DialogTitle>
 
-                <DialogActions>
-                    <Button
-                        variant="contained"
-                        onClick={() => deleteEvent()}
-                        color="secondary"
-                    >
-                        Delete
-                    </Button>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+            <DialogActions>
+                <Button
+                    variant="contained"
+                    onClick={deleteEvent}
+                    color="error"
+                    disabled={isDeleting}
+                >
+                    {isDeleting ? 'Deleting...' : 'Delete'}
+                </Button>
+                <Button 
+                    onClick={handleClose} 
+                    color="primary"
+                    variant="outlined"
+                >
+                    Cancel
+                </Button>
+            </DialogActions>
+        </Dialog>
     )
 }

@@ -1,26 +1,47 @@
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import { Delete } from '@material-ui/icons'
-import React from 'react'
+import { Button, IconButton, CircularProgress } from '@mui/material'
+import { Delete } from '@mui/icons-material'
+import React, { useState } from 'react'
 
-export const AddAttachments = ({
+export const AddPic = ({
     attachments,
     setAttachments,
-    attachmentTypes,
+    attachmentTypes = "image/*",
+    onUploadComplete
 }) => {
-    // const [attachments, setAttachments] = useState([{ value: "", file: "" }]);
+    const [uploading, setUploading] = useState(false)
 
-    function handleChange(i, event) {
+    async function handleChangeFile(i, event) {
+        const file = event.target.files[0]
+        if (!file) return
+
+        setUploading(true)
         const values = [...attachments]
-        values[i].caption = event.target.value
-        setAttachments(values)
-    }
-    function handleChangeFile(i, event) {
-        const values = [...attachments]
-        values[i].url = event.target.files[0]
         values[i].value = event.target.value
-        // console.log(event);
-        setAttachments(values)
+
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response.ok) throw new Error('Upload failed')
+
+            const data = await response.json()
+            values[i].url = data.url
+            setAttachments(values)
+            
+            if (onUploadComplete) {
+                onUploadComplete(data.url)
+            }
+        } catch (error) {
+            console.error('Upload error:', error)
+            alert('Failed to upload file')
+        } finally {
+            setUploading(false)
+        }
     }
 
     function handleRemove(i) {
@@ -30,39 +51,40 @@ export const AddAttachments = ({
     }
 
     return (
-        <>
-            {attachments.map((attachment, idx) => {
-                return (
-                    <React.Fragment key={`${attachment}-${idx}`}>
-                        <TextField
+        <div style={{ marginTop: '1rem' }}>
+            {attachments.map((attachment, idx) => (
+                <div key={`${attachment}-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <Button
+                        variant="outlined"
+                        component="label"
+                        size="small"
+                        disabled={uploading}
+                    >
+                        {uploading ? <CircularProgress size={20} /> : 'Choose File'}
+                        <input
                             type="file"
-                            name="url"
-                            value={attachment.value}
-                            style={{ margin: `8px` }}
-                            inputProps={{ accept: `${attachmentTypes}` }}
-                            onChange={(e) => {
-                                handleChangeFile(idx, e)
-                            }}
+                            hidden
+                            accept={attachmentTypes}
+                            onChange={(e) => handleChangeFile(idx, e)}
                         />
+                    </Button>
+                    
+                    {attachment.value && (
+                        <span style={{ marginLeft: '8px', fontSize: '0.875rem' }}>
+                            {attachment.value.split('\\').pop()}
+                        </span>
+                    )}
 
-                        <Button
-                            type="button"
-                            onClick={() => {
-                                handleRemove(idx)
-                            }}
-                            style={{
-                                display: `inline-block`,
-                                fontSize: `1.5rem`,
-                            }}
-                        >
-                            <Delete color="secondary" />{' '}
-                        </Button>
-                    </React.Fragment>
-                )
-            })}
-            {/* <button type="button" onClick={() => console.log(attachments)}>
-				Status
-			</button> */}
-        </>
+                    <IconButton
+                        onClick={() => handleRemove(idx)}
+                        color="error"
+                        size="small"
+                        disabled={uploading}
+                    >
+                        <Delete />
+                    </IconButton>
+                </div>
+            ))}
+        </div>
     )
 }

@@ -270,8 +270,11 @@ const DataDisplay = (props) => {
                                 </span>
                             )}
 
-                            {detail.attachments &&
-                                detail.attachments.map((attachment, idx) => {
+                            {detail.attachments && 
+                                (typeof detail.attachments === 'string' ? 
+                                    JSON.parse(detail.attachments) : 
+                                    detail.attachments
+                                ).map((attachment, idx) => {
                                     return (
                                         <span
                                             key={idx}
@@ -290,7 +293,8 @@ const DataDisplay = (props) => {
                                             </a>
                                         </span>
                                     )
-                                })}
+                                })
+                            }
                             <span
                                 style={{
                                     display: `inline-flex`,

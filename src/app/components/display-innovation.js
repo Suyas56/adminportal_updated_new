@@ -25,6 +25,7 @@ import Filter from './common-props/filter'
 import PropTypes from 'prop-types'
 import FirstPageIcon from '@material-ui/icons/FirstPage'
 import LastPageIcon from '@material-ui/icons/LastPage'
+import Link from '@mui/material/Link'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -257,28 +258,43 @@ const DataDisplay = (props) => {
                     >
                         <span className={classes.truncate}>{detail.title}</span>
                         <div className={classes.attached}>
-                            {detail.image &&
-                                detail.image.map((img, idx) => {
-                                    return (
+                            {detail.image && (() => {
+                                try {
+                                    const images = typeof detail.image === 'string' ? 
+                                        JSON.parse(detail.image) : 
+                                        detail.image;
+                                        
+                                    return images.map((img, idx) => (
                                         <span
                                             key={idx}
                                             style={{
-                                                display: `inline-flex`,
-                                                margin: `5px 0 `,
+                                                marginRight: '10px',
+                                                display: 'inline-flex',
+                                                alignItems: 'center'
                                             }}
                                         >
-                                            <Flag />
-                                            <a
+                                            <a 
                                                 href={img.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
+                                                style={{
+                                                    color: '#1976d2',
+                                                    textDecoration: 'none',
+                                                    display: 'flex',
+                                                    alignItems: 'center'
+                                                }}
                                             >
+                                                <Link style={{ marginRight: '5px' }} />
                                                 {img.caption}
                                             </a>
                                         </span>
-                                    )
-                                })}
-                        </div>{' '}
+                                    ));
+                                } catch (e) {
+                                    console.error('Error parsing image data:', e);
+                                    return null;
+                                }
+                            })()}
+                        </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                             <div>Uploaded By : {detail.email} </div>
                             <div>Updated By: {detail.updatedBy} </div>

@@ -1,223 +1,166 @@
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import TextField from '@mui/material/TextField'
+import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField
+} from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
-import { AddAttachments as AddImage } from './../common-props/add-image'
 import { AddAttachments } from './../common-props/add-attachment'
-import { fileUploader } from './../common-props/useful-functions'
-import { BroadcastMail } from './../common-props/send-broadcast-mail'
+import { handleNewAttachments } from './../common-props/add-attachment'
+import { AddAttachments as AddImages } from './../common-props/add-image'
+import { handleNewImages } from './../common-props/add-image'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const { data: session, status } = useSession();
-    const loading = status === "loading";
+    const { data: session } = useSession()
+    const [submitting, setSubmitting] = useState(false)
     const [content, setContent] = useState({
         title: '',
+        description: '',
         openDate: '',
         closeDate: '',
-        description: '',
-    })
-    const [submitting, setSubmitting] = useState(false)
-
-    const [broadcastMail, setBroadcastMail] = useState({
-        broadcast: false,
-        mail: 'divyap.ug19.cs@nitp.ac.in', //"students@nitp.ac.in"
     })
 
-    const [attachments, setAttachments] = useState([])
-    const [add_attach, setAdd_attach] = useState([])
+    // Match edit-form structure exactly
+    const [image, setImage] = useState([])
+    const [new_attach, setNew_attach] = useState([])
 
     const handleChange = (e) => {
         setContent({ ...content, [e.target.name]: e.target.value })
-        //console.log(content)
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
-        let open = new Date(content.openDate)
-        let close = new Date(content.closeDate)
-        open = open.getTime()
-        close = close.getTime()
-        let now = Date.now()
+        setSubmitting(true)
 
-        let data = {
-            ...content,
-            id: now,
-            openDate: open,
-            closeDate: close,
-            timestamp: now,
-            email: session.user.email,
-            author: session.user.name,
-            image: [...attachments],
-            add_attach: [...add_attach],
-        }
-        for (let i = 0; i < data.image.length; i++) {
-            delete data.image[i].value
-            // console.log(data.image[i]);
-
-            if (data.image[i].typeLink == false && data.image[i].url) {
-                delete data.image[i].typeLink
-
-                data.image[i].url = await fileUploader(data.image[i])
-            } else {
-                delete data.image[i].typeLink
-                console.log('NOT A FILE')
+        try {
+            // Handle new attachments - match edit-form exactly
+            let new_add_attach = []
+            if (new_attach.length) {
+                new_add_attach = await handleNewAttachments(new_attach)
             }
-        }
 
-        for (let i = 0; i < data.add_attach.length; i++) {
-            delete data.add_attach[i].value
-            // console.log(data.add_attach[i]);
+            // Handle new images
+            const uploadedImages = await handleNewImages(image)
 
-            if (
-                data.add_attach[i].typeLink == false &&
-                data.add_attach[i].url
-            ) {
-                delete data.add_attach[i].typeLink
-
-                data.add_attach[i].url = await fileUploader(data.add_attach[i])
-            } else {
-                delete data.add_attach[i].typeLink
-                console.log('NOT A FILE')
+            // Prepare final data - match edit-form structure
+            const finaldata = {
+                id: Date.now(),
+                title: content.title,
+                description: content.description,
+                openDate: new Date(content.openDate).getTime(),
+                closeDate: new Date(content.closeDate).getTime(),
+                timestamp: Date.now(),
+                email: session.user.email,
+                author: session.user.name,
+                image: uploadedImages,
+                add_attach: new_add_attach, // Match the edit-form structure
             }
-        }
 
-        console.log(data)
-
-        let result = await fetch('/api/create', {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify({data:data,type:"news"}),
-        })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            console.log(result)
-        }
-
-        // Broadcast after news is created
-        if (broadcastMail.broadcast) {
-            let data = {
-                type: 'news',
-                email: broadcastMail.mail,
-                news: 'result',
-            }
-            let result = await fetch('/api/broadcast', {
+            // Send to API
+            const result = await fetch('/api/create', {
                 method: 'POST',
-                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    data: finaldata,
+                    type: "news"
+                }),
             })
-            result = await result.json()
-            if (result instanceof Error) {
-                alert('Event created but an error occured while sending mail')
-                console.log(result)
+
+            if (!result.ok) {
+                throw new Error('Failed to create news')
             }
+
+            window.location.reload()
+        } catch (error) {
+            console.error('Error creating news:', error)
+            alert('Failed to create news. Please try again.')
+        } finally {
+            setSubmitting(false)
         }
-setSubmitting(false)
-        // window.location.reload()
     }
 
     return (
-        <>
-            <Dialog open={modal} onClose={handleClose}>
-                <form
-                    onSubmit={(e) => {
-                        handleSubmit(e)
-                    }}
-                >
-                    <DialogTitle style={{ fontSize: `2rem` }}>
-                        Add News
-                    </DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            margin="dense"
-                            id="label"
-                            label="Title"
-                            name="title"
-                            type="text"
-                            required
-                            fullWidth
-                            placeholder="Title"
-                            onChange={(e) => handleChange(e)}
-                            value={content.title}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="desc"
-                            label="Description"
-                            type="text"
-                            fullWidth
-                            placeholder={'Description'}
-                            name="description"
-                            required
-                            onChange={(e) => handleChange(e)}
-                            value={content.description}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="openDate"
-                            label="Open Date"
-                            name="openDate"
-                            type="date"
-                            required
-                            value={content.openDate}
-                            onChange={(e) => handleChange(e)}
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-                        <TextField
-                            id="closeDate"
-                            label="Close Date"
-                            name="closeDate"
-                            margin="dense"
-                            required
-                            type="date"
-                            onChange={(e) => handleChange(e)}
-                            value={content.closeDate}
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle>Add News</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Title"
+                        name="title"
+                        type="text"
+                        required
+                        fullWidth
+                        value={content.title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Description"
+                        name="description"
+                        type="text"
+                        required
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={content.description}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Open Date"
+                        name="openDate"
+                        type="date"
+                        required
+                        fullWidth
+                        value={content.openDate}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Close Date"
+                        name="closeDate"
+                        type="date"
+                        required
+                        fullWidth
+                        value={content.closeDate}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
 
-                        <BroadcastMail
-                            broadcastMail={broadcastMail}
-                            setBroadcastMail={setBroadcastMail}
-                        />
+                    <AddImages
+                        attachments={image}
+                        setAttachments={setImage}
+                    />
 
-                        <h2>Attachments</h2>
-                        <AddImage
-                            attachments={attachments}
-                            setAttachments={setAttachments}
-                            limit={1}
-                        />
-                        <AddAttachments
-                            attachments={add_attach}
-                            setAttachments={setAdd_attach}
-                        />
-                        {/* <a href={data.attachments} target="_blank">
-							<FontAwesomeIcon icon={faExternalLinkAlt} />
-						</a> */}
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            type="submit"
-                            color="primary"
-                            disabled={submitting}
-                        >
-                            {submitting ? 'Submitting' : 'Submit'}
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
-        </>
+                    <AddAttachments
+                        attachments={new_attach}
+                        setAttachments={setNew_attach}
+                    />
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button 
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Creating...' : 'Create'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
     )
 }

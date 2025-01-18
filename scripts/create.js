@@ -15,6 +15,7 @@ const db = mysql({
         password: process.env.MYSQL_PASSWORD,
         port: process.env.MYSQL_PORT,
     },
+    
 })
 
 async function query(q) {
@@ -29,6 +30,7 @@ async function query(q) {
 
 // Create "entries" table if doesn't exist
 async function migrate() {
+    console.log('migration started')
     //Create notices table
     await query(`CREATE TABLE IF NOT EXISTS notices (
       id bigint NOT NULL,
@@ -69,7 +71,7 @@ async function migrate() {
 
 //Create innovation table
     await query(`create table if not exists innovation (
-                id bigint NOT NULL,
+                id bigint NOT NULL AUTO_INCREMENT ,
                 title varchar(1000),
                 timestamp bigint,
                 openDate bigint,
@@ -80,7 +82,7 @@ async function migrate() {
                 email varchar(50) NOT NULL,
                 updatedBy varchar(50),
                 updatedAt bigint,
-                PRIMARY KEY (email)
+                PRIMARY KEY (id)
             )`).catch((e) => console.log(e))
 
 //Create faculty_image table

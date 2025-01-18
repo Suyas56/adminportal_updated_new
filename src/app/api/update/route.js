@@ -3,6 +3,7 @@ import { query } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { ROLES } from '@/lib/roles'
 import { authOptions } from '../auth/[...nextauth]/route' 
+import { convertToThumbnailUrl } from '@/lib/utils'
 
 export async function PUT(request) {
   try {
@@ -16,6 +17,53 @@ export async function PUT(request) {
     }
 
     const { type, ...params } = await request.json()
+
+    // Handle profile updates
+    if (type === 'profile') {
+      // Check permissions
+      if (session.user.email !== params.email && session.user.role !== 'SUPER_ADMIN') {
+        return NextResponse.json(
+          { message: 'Not authorized' },
+          { status: 403 }
+        )
+      }
+
+      let queryParts = []
+      let updateValues = []
+
+      // Handle all possible profile fields
+      const fields = [
+          'image',
+          'cv',
+          'name',
+          'designation',
+          'research_interest',
+          'ext_no',
+          'linkedin',
+          'google_scholar',
+          'personal_webpage',
+          'scopus',
+          'vidwan',
+          'orcid'
+      ]
+
+      fields.forEach(field => {
+          if (params[field] !== undefined) {
+              queryParts.push(`${field} = ?`)
+              updateValues.push(params[field])
+          }
+      })
+
+      // Add email as the last parameter
+      updateValues.push(params.email)
+
+      const result = await query(
+          `UPDATE user SET ${queryParts.join(', ')} WHERE email = ?`,
+          updateValues
+      )
+
+      return NextResponse.json(result)
+    }
 
     // .data updates - Super Admin, Academic Admin, and Department Admin access
     if (
@@ -635,6 +683,11 @@ export async function PUT(request) {
             [params.certification, params.institution, params.passing_year, params.id, params.email]
           )
           return NextResponse.json(educationResult)
+
+        
+
+          
+
       }
     }
 

@@ -1,74 +1,76 @@
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import React from 'react'
+import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogTitle 
+} from '@mui/material'
+import React, { useState } from 'react'
 
 export const ConfirmDelete = ({
     handleClose,
     modal,
-    id,
-    attachments,
-    delArray,
+    id
 }) => {
-    const deleteEvent = async () => {
-        const deleteArray = [...delArray]
+    const [isDeleting, setIsDeleting] = useState(false)
 
-        if (attachments.length) {
-            for (let i = 0; i < attachments.length; i++) {
-                const element = attachments[i]
-                if (element.url && element.url.split('/')[5])
-                    deleteArray.push(element.url.split('/')[5])
-            }
-        }
-        if (deleteArray.length) {
-            let result = await fetch('/api/gdrive/deletefiles', {
-                method: 'DELETE',
+    const deleteInnovation = async () => {
+        try {
+            setIsDeleting(true)
+            const result = await fetch('/api/delete', {
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(deleteArray),
-            })
-            result = await result.json()
-            if (result instanceof Error) {
-                console.log('Error Occured')
-            }
-            console.log(result)
-        }
-        let result = await fetch('/api/delete/innovation', {
-            method: 'DELETE',
-            body: id.toString(),
-        })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            console.log(result)
-        }
-        console.log(result)
+                body: JSON.stringify({
+                    id: id, 
+                    type: "innovation"
+                }),
+            });
 
-        window.location.reload()
+            if (!result.ok) {
+                throw new Error('Failed to delete innovation');
+            }
+
+            window.location.reload();
+        } catch (error) {
+            console.error('Error deleting innovation:', error);
+            alert('Failed to delete innovation. Please try again.');
+        } finally {
+            setIsDeleting(false)
+        }
     }
 
     return (
-        <div>
-            <Dialog open={modal} onClose={handleClose}>
-                <DialogTitle id="alert-dialog-title">
-                    {'Do you want to Delete This Innovation ?'}
-                </DialogTitle>
+        <Dialog 
+            open={modal} 
+            onClose={handleClose}
+            PaperProps={{
+                style: {
+                    padding: '1rem'
+                }
+            }}
+        >
+            <DialogTitle>
+                Do you want to Delete This Innovation?
+            </DialogTitle>
 
-                <DialogActions>
-                    <Button
-                        variant="contained"
-                        onClick={() => deleteEvent()}
-                        color="secondary"
-                    >
-                        Delete
-                    </Button>
-                    <Button onClick={handleClose} color="primary" autoFocus>
-                        Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+            <DialogActions>
+                <Button
+                    variant="contained"
+                    onClick={deleteInnovation}
+                    color="error"
+                    disabled={isDeleting}
+                >
+                    {isDeleting ? 'Deleting...' : 'Delete'}
+                </Button>
+                <Button 
+                    onClick={handleClose} 
+                    color="primary"
+                    variant="outlined"
+                >
+                    Cancel
+                </Button>
+            </DialogActions>
+        </Dialog>
     )
 }

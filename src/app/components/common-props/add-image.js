@@ -1,28 +1,40 @@
-import { Checkbox, FormControlLabel } from '@mui/material'
+import React, { useMemo } from 'react'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import { Delete } from '@material-ui/icons'
-import React from 'react'
+import { FormControlLabel, Checkbox } from '@mui/material'
 
 export const AddAttachments = ({ attachments, setAttachments, limit }) => {
-    // const [attachments, setAttachments] = useState([{ value: "", file: "" }]);
-
     function handleChange(i, event) {
         const values = [...attachments]
         values[i].caption = event.target.value
         setAttachments(values)
     }
+
     function handleChangeFile(i, event) {
         const values = [...attachments]
         values[i].url = event.target.files[0]
         values[i].value = event.target.value
-        // console.log(event);
+        values[i].typeLink = false
+        setAttachments(values)
+    }
+
+    function handleChangeLink(i, event) {
+        const values = [...attachments]
+        values[i].url = event.target.value
+        values[i].value = event.target.value
         setAttachments(values)
     }
 
     function handleAdd() {
         const values = [...attachments]
-        values.push({ caption: '', url: '', value: '', typeLink: false })
+        values.push({
+            id: Date.now(),
+            caption: '',
+            url: undefined,
+            value: undefined,
+            typeLink: false
+        })
         setAttachments(values)
     }
 
@@ -32,95 +44,103 @@ export const AddAttachments = ({ attachments, setAttachments, limit }) => {
         setAttachments(values)
     }
 
-    function handleType(i) {
+    function handleTypeLink(i) {
         const values = [...attachments]
         values[i].typeLink = !values[i].typeLink
+        values[i].url = undefined
+        values[i].value = undefined
         setAttachments(values)
     }
 
-    function handleLink(i, event) {
-        const values = [...attachments]
-        values[i].url = event.target.value
-        setAttachments(values)
-    }
+    const DisplayAttachments = useMemo(() => {
+        return attachments.map((field, idx) => {
+            return (
+                <div key={field.id} style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <TextField
+                        label={`Image ${idx + 1}`}
+                        type="text"
+                        value={field.caption || ''}
+                        onChange={(e) => handleChange(idx, e)}
+                        fullWidth
+                        margin="dense"
+                    />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={field.typeLink || false}
+                                onChange={() => handleTypeLink(idx)}
+                            />
+                        }
+                        label="Link"
+                    />
+                    <TextField
+                        type={field.typeLink ? "text" : "file"}
+                        onChange={(e) => field.typeLink ? handleChangeLink(idx, e) : handleChangeFile(idx, e)}
+                        value={field.value || ''}
+                        fullWidth
+                        margin="dense"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        inputProps={field.typeLink ? {} : {
+                            accept: 'image/*'
+                        }}
+                    />
+                    <Delete
+                        onClick={() => handleRemove(idx)}
+                        style={{
+                            cursor: 'pointer',
+                            color: '#d32f2f',
+                            marginTop: '20px'
+                        }}
+                    />
+                </div>
+            )
+        })
+    }, [attachments])
 
     return (
-        <div style={{ marginTop: `8px` }}>
+        <div style={{ marginTop: '8px' }}>
             <Button
                 variant="contained"
                 color="primary"
                 type="button"
                 onClick={() => handleAdd()}
-                disabled={
-                    limit ? (attachments.length < limit ? false : true) : false
-                }
+                disabled={limit ? (attachments.length < limit ? false : true) : false}
             >
-                + Title Thumbnail Image
+                + Add Images
             </Button>
-            {attachments.map((attachment, idx) => {
-                return (
-                    <div key={`${attachment}-${idx}`}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={attachment.typeLink}
-                                    onChange={() => handleType(idx)}
-                                    name="typeLink"
-                                    color="primary"
-                                />
-                            }
-                            style={{ width: `20%` }}
-                            label="Link"
-                        />
-                        <TextField
-                            placeholder="SubTitle"
-                            name="caption"
-                            value={attachment.caption}
-                            fullWidth
-                            onChange={(e) => handleChange(idx, e)}
-                            style={{ margin: `8px`, display: 'inline' }}
-                        />
-                        <div style={{ display: 'flex' }}>
-                            {attachment.typeLink ? (
-                                <TextField
-                                    placeholder="File Link"
-                                    name="url"
-                                    value={attachment.url}
-                                    onChange={(e) => handleLink(idx, e)}
-                                    style={{ margin: `8px`, width: `90%` }}
-                                />
-                            ) : (
-                                <TextField
-                                    type="file"
-                                    name="url"
-                                    value={attachment.value}
-                                    style={{ margin: `8px` }}
-                                    onChange={(e) => {
-                                        handleChangeFile(idx, e)
-                                    }}
-                                    inputProps={{ accept: 'image/*' }}
-                                />
-                            )}
-
-                            <Button
-                                type="button"
-                                onClick={() => {
-                                    handleRemove(idx)
-                                }}
-                                style={{
-                                    display: `inline-block`,
-                                    fontSize: `1.5rem`,
-                                }}
-                            >
-                                <Delete color="secondary" />{' '}
-                            </Button>
-                        </div>
-                    </div>
-                )
-            })}
-            {/* <button type="button" onClick={() => console.log(attachments)}>
-				Status
-			</button> */}
+            {DisplayAttachments}
         </div>
     )
 }
+
+export const handleNewImages = async (new_images) => {
+    for (let i = 0; i < new_images.length; i++) {
+        delete new_images[i].value;
+
+        if (new_images[i].typeLink === false && new_images[i].url) {
+            let file = new FormData();
+            file.append('file', new_images[i].url);
+
+            try {
+                let response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: file,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Image upload failed');
+                }
+
+                let data = await response.json();
+                new_images[i].url = data.url;
+            } catch (error) {
+                console.error('Image upload error:', error);
+                new_images[i].url = '';
+            }
+        }
+    }
+
+    return new_images;
+};

@@ -2,6 +2,7 @@
 
 import {
     Button,
+    Box
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
@@ -9,7 +10,7 @@ import styled from 'styled-components'
 
 import { EducationManagement } from './profile/education'
 
-import { AddPic } from './profile/profilepic'
+import { AddProfilePic } from './profile/profilepic'
 import { AddCv } from './profile/addCv'
 import WorkshopConferenceManagement from './profile/workshops-conferences'
 import InstituteActivityManagement from './profile/institute-activities'
@@ -29,23 +30,8 @@ import PatentManagement from './profile/patents.js'
 import PhdCandidateManagement from './profile/phd-candidates.js'
 import JournalPaperManagement from './profile/journal-papers.js'
 import ConferencePaperManagement from './profile/conference-papers.js'
-
-// import { AddWork } from './profile/work-experience'
-// import { AddJournalPaper } from './profile/journal-papers'
-// import { AddConferencePaper } from './profile/conference-papers'
-// import { AddTextbook } from './profile/textbooks'
-// import { AddEditedBook } from './profile/edited-books'
-// import { AddBookChapter } from './profile/book-chapters'
-// import { AddSponsoredProject } from './profile/sponsored-projects'
-// import { AddConsultancyProject } from './profile/consultancy-projects'
-// import { AddIpr } from './profile/ipr'
-// import { AddStartup } from './profile/startups'
-// import { AddInternship } from './profile/internships'
-// import { AddWorkshopConference } from './profile/workshops-conferences'
-// import { AddInstituteActivity } from './profile/institute-activities'
-// import { AddDepartmentActivity } from './profile/department-activities'
-// import { AddTeachingEngagement } from './profile/teaching-engagement'
-// import { AddProjectSupervision } from './profile/project-supervision'
+import Loading from './loading'
+import { EditProfile } from './profile/edit-profile'
 
 const Profile = styled.div`
     font-family: 'Source Sans Pro';
@@ -195,6 +181,9 @@ export default function Profilepage({ details }) {
         departmentActivity: false,
         teachingEngagement: false,
         projectSupervision: false,
+        profilePic: false,
+        cv: false,
+        editProfile: false,
         // ... other modal states
     })
 
@@ -206,125 +195,191 @@ export default function Profilepage({ details }) {
     }, [details])
 
     const handleModalOpen = (modalName) => {
-        setOpenModals(prev => ({ ...prev, [modalName]: true }))
+        setOpenModals(prev => ({
+            ...prev,
+            [modalName]: true
+        }))
     }
 
     const handleModalClose = (modalName) => {
-        setOpenModals(prev => ({ ...prev, [modalName]: false }))
+        setOpenModals(prev => ({
+            ...prev,
+            [modalName]: false
+        }))
     }
 
-    if (status === "loading") return <div>Loading...</div>
+    if (status === "loading") return <Loading />
     if (!session) return null
 
     return (
-        <Profile>
+                <Profile>
             {/* Profile Image Section */}
-            <div className="faculty-img-row">
-                <div className="faculty-img-wrap">
-                    <img
+                    <div className="faculty-img-row">
+                        <div className="faculty-img-wrap">
+                            <img
                         src={detail?.profile?.image || '/faculty.png'}
-                        alt="faculty"
-                    />
-                </div>
+                                alt="faculty"
+                                style={{ 
+                                    width: '200px', 
+                                    height: '200px',
+                                    objectFit: 'cover',
+                                    borderRadius: '50%'
+                                }}
+                                onError={(e) => {
+                                    e.target.onerror = null
+                                    e.target.src = '/faculty.png'
+                                }}
+                            />
+                        </div>
                 <h2>{detail?.profile?.name}</h2>
                 <h3>{detail?.profile?.designation}</h3>
 
                 {/* Profile Image & CV Upload Buttons */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Button
-                        color="primary"
-                        variant="contained"
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <Button
+                                color="primary"
+                                variant="contained"
                         onClick={() => handleModalOpen('profilePic')}
-                        sx={{m: 2 }}
-                    >
-                        Upload Photo
-                    </Button>
-                    <AddPic
+                            >
+                                {detail?.profile?.image ? 'Update Photo' : 'Upload Photo'}
+                            </Button>
+                            <AddProfilePic
                         handleClose={() => handleModalClose('profilePic')}
                         modal={openModals.profilePic}
-                    />
+                            />
 
-                    <Button
-                        color="primary"
-                        variant="contained"
+                            <Button
+                                color="primary"
+                                variant="contained"
                         onClick={() => handleModalOpen('cv')}
                         sx={{m: 2 }}
-                    >
+                            >
                         {detail?.profile?.cv ? 'Update CV' : 'Upload CV'}
-                    </Button>
-                    <AddCv
+                            </Button>
+                            <AddCv
                         handleClose={() => handleModalClose('cv')}
                         modal={openModals.cv}
                     />
-                </div>
-            </div>
-
-            {/* Education Section */}
+                                            </div>
+                                        </div>
+                                        
+            
             <div className="faculty-details-row">
+            <div className="fac-card">
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+                        <div>
+                            <h2 style={{marginTop: '10px'}}>Profile Details</h2>
+                            <div style={{ marginTop: '20px' }}>
+                                <h4>Research Interest:</h4>
+                                <p>{detail?.profile?.research_interest}</p>
+                                
+                                <h4 style={{marginTop: '10px'}}>Contact:</h4>
+                                <p>Email: {detail?.profile?.email}</p>
+                                <p>Phone: {detail?.profile?.ext_no}</p>
+                                
+                                <h4 style={{marginTop: '10px'}}>Social Media & Academic Links:</h4>
+                                {detail?.profile?.linkedin && (
+                                    <p>LinkedIn: <a href={detail.profile.linkedin} target="_blank" rel="noopener noreferrer">{detail.profile.linkedin}</a></p>
+                                )}
+                                {detail?.profile?.google_scholar && (
+                                    <p>Google Scholar: <a href={detail.profile.google_scholar} target="_blank" rel="noopener noreferrer">View Profile</a></p>
+                                )}
+                                {detail?.profile?.personal_webpage && (
+                                    <p>Personal Webpage: <a href={detail.profile.personal_webpage} target="_blank" rel="noopener noreferrer">Visit Website</a></p>
+                                )}
+                                {detail?.profile?.scopus && (
+                                    <p>Scopus: <a href={detail.profile.scopus} target="_blank" rel="noopener noreferrer">View Profile</a></p>
+                                )}
+                                {detail?.profile?.vidwan && (
+                                    <p>Vidwan: <a href={detail.profile.vidwan} target="_blank" rel="noopener noreferrer">View Profile</a></p>
+                                )}
+                                {detail?.profile?.orcid && (
+                                    <p>ORCID: <a href={detail.profile.orcid} target="_blank" rel="noopener noreferrer">{detail.profile.orcid}</a></p>
+                                )}
+                            </div>
+                        </div>
+                        <Button
+                            variant="contained"
+                            onClick={() => handleModalOpen('editProfile')}
+                            sx={{ m: 2 }}
+                        >
+                            + Edit Details
+                        </Button>
+                    </Box>
+                    <EditProfile
+                        handleClose={() => handleModalClose('editProfile')}
+                        modal={openModals.editProfile}
+                        currentProfile={detail?.profile}
+                    />
+                </div>
+
+
                 <div className="fac-card">
                     <EducationManagement />
-                </div>
+                                    </div>
                 <div className="fac-card">
                     <WorkshopConferenceManagement/>
-                </div>
+                                </div>
                 <div className="fac-card">
                     <InstituteActivityManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                     <DepartmentActivityManagement/>
-                </div>
+                    </div>
                 <div className="fac-card">
                     <InternshipManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                 <TeachingEngagementManagement/>
-                </div>
+                            </div>
                 <div className="fac-card">
                 <ProjectSupervisionManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                 <TextbookManagement/>
-                </div>
+                            </div>
                 <div className="fac-card">
                 <EditedBookManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                 <BookChapterManagement/>
-                </div>
+                            </div>
                 <div className="fac-card">
                 <SponsoredProjectManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                 <ConsultancyProjectManagement/>
-                </div>
+                            </div>
                 <div className="fac-card">
                 <IPRManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                 <StartupManagement/>
-                </div>
+                            </div>
                 <div className="fac-card">
                 <MembershipManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                 <PatentManagement/>
-                </div>
+                            </div>
                 <div className="fac-card">
                 <PhdCandidateManagement/>
-                </div>
+                        </div>
                 <div className="fac-card">
                 <JournalPaperManagement/>
-                </div>
+                            </div>
                 <div className="fac-card">
                 <ConferencePaperManagement/>
-                </div>
+                        </div>
+
                 
 
 
-            </div>
+
+                        </div>
 
           
 
-        </Profile>
+                </Profile>
     )
 }

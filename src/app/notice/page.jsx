@@ -16,51 +16,61 @@ const Wrap = styled.div`
 `
 
 export default function Page() {
-    // const { entries, isLoading } = useEntries('/api/events/all');
     const [isLoading, setIsLoading] = useState(true)
-    const [entries, setEntries] = useState({})
+    const [entries, setEntries] = useState([])
+    const { data: session, status } = useSession()
+
     useEffect(() => {
-        fetch('/api/notice', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            body: JSON.stringify({
-                from: 0,
-                to: 15,
-                type:"between"
-            }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setEntries(data)
-                setIsLoading(false)
+        if (status === 'authenticated') {
+            fetch('/api/notice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    from: 0,
+                    to: 15,
+                    type: "between"
+                }),
             })
-            .catch((err) => console.log(err))
-    }, [])
-    const {data:session,status} = useSession()
+                .then((res) => res.json())
+                .then((data) => {
+                    setEntries(data)
+                    setIsLoading(false)
+                })
+                .catch((err) => {
+                    console.error(err)
+                    setIsLoading(false)
+                })
+        }
+    }, [status])
 
-    if (typeof window !== 'undefined' && status==="loading") return <Loading />
+    // Handle loading state
+    if (status === 'loading') {
+        return <Loading />
+    }
 
-    if (session) {
+    // Handle unauthenticated state
+    if (status === 'unauthenticated') {
+        return <Sign />
+    }
+
+    // Handle authenticated state
+    if (session?.user?.role === "SUPER_ADMIN") {
         return (
-            <>
-                {session.user.role == "SUPER_ADMIN" ? (
-                    <Layout>
-                        <Wrap>
-                            {isLoading ? (
-                                <LoadAnimation />
-                            ) : (
-                                <DataDisplay data={entries} />
-                            )}
-                        </Wrap>
-                    </Layout>
-                ) : (
-                    <Unauthorise />
-                )}
-            </>
+            <Layout>
+                <Wrap>
+                    {isLoading ? (
+                        <LoadAnimation />
+                    ) : (
+                        <DataDisplay data={entries} />
+                    )}
+                </Wrap>
+            </Layout>
         )
     }
-    return <Sign />
+
+    // Handle unauthorized role
+    return <Unauthorise />
 }

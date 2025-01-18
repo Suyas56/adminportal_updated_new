@@ -1,10 +1,13 @@
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import TextField from '@mui/material/TextField'
-import { Delete, Link } from '@material-ui/icons'
+import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    IconButton
+} from '@mui/material'
+import { Delete, Link } from '@mui/icons-material'
 import { useSession } from 'next-auth/react'
 import React, { useRef, useState } from 'react'
 import { dateformatter } from './../common-props/date-formatter'
@@ -12,6 +15,7 @@ import { ConfirmDelete } from './confirm-delete'
 import { handleNewAttachments } from './../common-props/add-attachment'
 import { AddAttachments as AddImages } from './../common-props/add-image'
 import { AddAttachments } from './../common-props/add-attachment'
+import { handleNewImages } from './../common-props/add-image'
 
 export const EditForm = ({ data, handleClose, modal }) => {
     const limit = 1
@@ -32,10 +36,14 @@ export const EditForm = ({ data, handleClose, modal }) => {
         setVerifyDelete(false)
     }
 
-    const [image, setImage] = useState(data.image)
+    const [image, setImage] = useState(
+        Array.isArray(data.image) ? data.image : []
+    )
     const [newImages, setNewImages] = useState([])
 
-    const [add_attach, setAdd_attach] = useState(data.attachments || [])
+    const [add_attach, setAdd_attach] = useState(
+        Array.isArray(data.attachments) ? data.attachments : []
+    )
     const [new_attach, setNew_attach] = useState([])
 
     const handleChange = (e) => {
@@ -46,252 +54,221 @@ export const EditForm = ({ data, handleClose, modal }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSubmitting(true)
-        let open = new Date(content.openDate)
-        let close = new Date(content.closeDate)
-        open = open.getTime()
-        close = close.getTime()
-        let now = Date.now()
-        let new_image = [...newImages]
-        new_image = await handleNewAttachments(new_image)
-        let new_add_attach = await handleNewAttachments(new_attach)
 
-        let finaldata = {
-            ...content,
-            openDate: open,
-            closeDate: close,
-            timestamp: now,
-            email: session.user.email,
-            author: session.user.name,
-            image: [...image, ...new_image],
-            add_attach: [...add_attach, ...new_add_attach],
-        }
+        try {
+           
+            // Handle new attachments
+            let new_add_attach = []
+            if (new_attach.length) {
+                new_add_attach = await handleNewAttachments(new_attach)
+            }
 
-        if (deleteArray.current.length) {
-            let result = await fetch('/api/gdrive/deletefiles', {
-                method: 'DELETE',
+            // Handle new images
+            const uploadedImages = await handleNewImages(image);
+
+            // Prepare final data
+            const finaldata = {
+                ...content,
+                openDate: new Date(content.openDate).getTime(),
+                closeDate: new Date(content.closeDate).getTime(),
+                timestamp: Date.now(),
+                email: session.user.email,
+                author: session.user.name,
+                image: uploadedImages,
+                add_attach: [...add_attach, ...new_add_attach],
+            }
+
+            // Update the news
+            const result = await fetch('/api/update', {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(deleteArray.current),
+                body: JSON.stringify({
+                    data: finaldata,
+                    type: "news"
+                }),
             })
-            result = await result.json()
-            if (result instanceof Error) {
-                console.log('Error Occured')
-            }
-            console.log(result)
-        }
 
-        console.log(finaldata)
-        let result = await fetch('/api/update', {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            method: 'PUT',
-            body: JSON.stringify({data:finaldata,type:"news"}),
-        })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            console.log(result)
+            if (!result.ok) {
+                throw new Error('Failed to update news')
+            }
+
+            window.location.reload()
+        } catch (error) {
+            console.error('Error updating news:', error)
+            // You might want to show an error message to the user here
+        } finally {
+            setSubmitting(false)
         }
-        console.log(result)
-        window.location.reload()
-        setSubmitting(false)
     }
 
     return (
-        <>
-            <Dialog open={modal} onClose={handleClose}>
-                <form onSubmit={(e) => handleSubmit(e)}>
-                    <DialogTitle
-                        disableTypography
-                        style={{ fontSize: `2rem`, position: 'relative' }}
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle
+                    disableTypography
+                    style={{ fontSize: `2rem`, position: 'relative' }}
+                >
+                    Edit News
+                    <i
+                        style={{
+                            position: `absolute`,
+                            right: `15px`,
+                            cursor: `pointer`,
+                        }}
                     >
-                        Edit News
-                        <i
-                            style={{
-                                position: `absolute`,
-                                right: `15px`,
-                                cursor: `pointer`,
-                            }}
-                        >
-                            <Delete
-                                type="button"
-                                onClick={() => setVerifyDelete(true)}
-                                style={{ height: `2rem`, width: `auto` }}
-                                color="secondary"
-                            />
-                        </i>
-                    </DialogTitle>
-                    <ConfirmDelete
-                        modal={verifyDelete}
-                        handleClose={handleDelete}
-                        id={content.id}
-                        attachments={image}
-                        add_attach={add_attach}
-                        delArray={deleteArray.current}
+                        <Delete
+                            type="button"
+                            onClick={() => setVerifyDelete(true)}
+                            style={{ height: `2rem`, width: `auto` }}
+                            color="secondary"
+                        />
+                    </i>
+                </DialogTitle>
+                <ConfirmDelete
+                    modal={verifyDelete}
+                    handleClose={handleDelete}
+                    id={content.id}
+                />
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        id="label"
+                        label="Title"
+                        name="title"
+                        type="text"
+                        required
+                        fullWidth
+                        placeholder="Title"
+                        onChange={(e) => handleChange(e)}
+                        value={content.title}
                     />
-                    <DialogContent>
-                        <TextField
-                            margin="dense"
-                            id="label"
-                            label="Title"
-                            name="title"
-                            type="text"
-                            required
-                            fullWidth
-                            placeholder="Title"
-                            onChange={(e) => handleChange(e)}
-                            value={content.title}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="desc"
-                            label="Description"
-                            type="text"
-                            fullWidth
-                            placeholder={'Description'}
-                            name="description"
-                            required
-                            onChange={(e) => handleChange(e)}
-                            value={content.description}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="openDate"
-                            label="Open Date"
-                            name="openDate"
-                            type="date"
-                            required
-                            value={content.openDate}
-                            onChange={(e) => handleChange(e)}
-                            fullWidth
-                        />
-                        <TextField
-                            id="closeDate"
-                            label="Close Date"
-                            name="closeDate"
-                            margin="dense"
-                            required
-                            type="date"
-                            onChange={(e) => handleChange(e)}
-                            value={content.closeDate}
-                            fullWidth
-                        />
+                    <TextField
+                        margin="dense"
+                        id="desc"
+                        label="Description"
+                        type="text"
+                        fullWidth
+                        placeholder={'Description'}
+                        name="description"
+                        required
+                        onChange={(e) => handleChange(e)}
+                        value={content.description}
+                    />
+                    <TextField
+                        margin="dense"
+                        id="openDate"
+                        label="Open Date"
+                        name="openDate"
+                        type="date"
+                        required
+                        value={content.openDate}
+                        onChange={(e) => handleChange(e)}
+                        fullWidth
+                    />
+                    <TextField
+                        id="closeDate"
+                        label="Close Date"
+                        name="closeDate"
+                        margin="dense"
+                        required
+                        type="date"
+                        onChange={(e) => handleChange(e)}
+                        value={content.closeDate}
+                        fullWidth
+                    />
 
-                        <DisplayImages
-                            deleteArray={deleteArray}
-                            image={image}
-                            setImage={setImage}
-                        />
-                        <DisplayAdditionalAttach
-                            deleteArray={deleteArray}
-                            add_attach={add_attach}
-                            setAdd_attach={setAdd_attach}
-                        />
+                    
+                    <DisplayAdditionalAttach
+                        add_attach={add_attach}
+                        setAdd_attach={setAdd_attach}
+                        deleteArray={deleteArray}
+                    />
+                   
+                    
+                    <AddAttachments
+                        attachments={new_attach}
+                        setAttachments={setNew_attach}
+                    />
+                </DialogContent>
 
-                        {limit > image.length && (
-                            <AddImages
-                                limit={limit - image.length}
-                                attachments={newImages}
-                                setAttachments={setNewImages}
-                            />
-                        )}
-                        <AddAttachments
-                            attachments={new_attach}
-                            setAttachments={setNew_attach}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            type="submit"
-                            color="primary"
-                            disabled={submitting}
-                        >
-                            {submitting ? 'Submitting' : 'Submit'}
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
-        </>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button 
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Saving...' : 'Save'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
     )
 }
 
 const DisplayImages = ({ image, setImage, deleteArray }) => {
-    const handleAttachments = (e, idx) => {
-        let attach = [...image]
-        attach[idx].caption = e.target.value
-        setImage(attach)
-    }
-    const deleteAttachment = (idx) => {
-        deleteArray.current.push(image[idx].url.split('/')[5])
-        console.log(deleteArray.current)
-        let atch = [...image]
-        atch.splice(idx, 1)
-        setImage(atch)
+    const handleRemove = (idx, fileId) => {
+        const values = [...image]
+        if (fileId) {
+            deleteArray.current.push(fileId)
+        }
+        values.splice(idx, 1)
+        setImage(values)
     }
 
     return (
-        <>
-            {image && (
-                <>
-                    <h2>Images</h2>
-                    {image.map((img, idx) => {
-                        return (
-                            <div key={idx}>
-                                <TextField
-                                    id="attachments"
-                                    margin="dense"
-                                    type="text"
-                                    value={img.caption}
-                                    onChange={(e) => handleAttachments(e, idx)}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                />
-                                <a href={img.url} target="_blank" rel="noreferrer">
-                                    <Link />
-                                </a>
-                                <i
-                                    style={{
-                                        position: `absolute`,
-                                        right: `15px`,
-                                        cursor: `pointer`,
-                                    }}
-                                >
-                                    <Delete
-                                        type="button"
-                                        onClick={() => deleteAttachment(idx)}
-                                        style={{
-                                            height: `2rem`,
-                                            width: `auto`,
-                                        }}
-                                        color="secondary"
-                                    />
-                                </i>
-                            </div>
-                        )
-                    })}
-                </>
-            )}
-        </>
+        <div>
+            {image.map((file, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+                    <TextField
+                        label={`Image ${idx + 1}`}
+                        value={file.caption || ''}
+                        disabled
+                        fullWidth
+                    />
+                    {file.url && (
+                        <a 
+                            href={file.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ 
+                                display: 'flex', 
+                                alignItems: 'center' 
+                            }}
+                        >
+                            <Link style={{ marginRight: '5px' }} />
+                            View
+                        </a>
+                    )}
+                    <Delete
+                        onClick={() => handleRemove(idx, file.id)}
+                        style={{
+                            cursor: 'pointer',
+                            color: '#d32f2f'
+                        }}
+                    />
+                </div>
+            ))}
+        </div>
     )
 }
 
-const DisplayAdditionalAttach = ({
-    add_attach,
-    setAdd_attach,
-    deleteArray,
-}) => {
+const DisplayAdditionalAttach = ({ add_attach, setAdd_attach, deleteArray }) => {
     const handleAttachments = (e, idx) => {
         let attach = [...add_attach]
         attach[idx].caption = e.target.value
         setAdd_attach(attach)
     }
+
     const deleteAttachment = (idx) => {
-        deleteArray.current.push(add_attach[idx].url.split('/')[5])
-        console.log(deleteArray.current)
+        // Only add to deleteArray if the attachment has a URL with a file ID
+        if (add_attach[idx].url && add_attach[idx].url.includes('drive.google.com')) {
+            const fileId = add_attach[idx].url.split('/')[5]
+            deleteArray.current.push(fileId)
+        }
         let atch = [...add_attach]
         atch.splice(idx, 1)
         setAdd_attach(atch)
@@ -299,49 +276,48 @@ const DisplayAdditionalAttach = ({
 
     return (
         <>
-            {add_attach.length > 0 && (
+            {add_attach && add_attach.length > 0 && (
                 <>
                     <h2>Additional Attachments</h2>
-                    {add_attach.map((img, idx) => {
-                        return (
-                            <div key={idx}>
-                                <TextField
-                                    id="attachments"
-                                    margin="dense"
-                                    type="text"
-                                    value={img.caption}
-                                    onChange={(e) => handleAttachments(e, idx)}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                />
-                                <a
-                                    href={img.url}
-                                    target="_blank"
+                    {add_attach.map((attachment, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                            <TextField
+                                id={`attachment-${idx}`}
+                                margin="dense"
+                                type="text"
+                                value={attachment.caption || ''}
+                                onChange={(e) => handleAttachments(e, idx)}
+                                fullWidth
+                                label={`Attachment ${idx + 1}`}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+                            {attachment.url && (
+                                <a 
+                                    href={attachment.url} 
+                                    target="_blank" 
                                     rel="noopener noreferrer"
-                                >
-                                    <Link />
-                                </a>
-                                <i
-                                    style={{
-                                        position: `absolute`,
-                                        right: `15px`,
-                                        cursor: `pointer`,
+                                    style={{ 
+                                        color: '#1976d2',
+                                        textDecoration: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center' 
                                     }}
                                 >
-                                    <Delete
-                                        type="button"
-                                        onClick={() => deleteAttachment(idx)}
-                                        style={{
-                                            height: `2rem`,
-                                            width: `auto`,
-                                        }}
-                                        color="secondary"
-                                    />
-                                </i>
-                            </div>
-                        )
-                    })}
+                                    <Link style={{ marginRight: '5px' }} />
+                                    View
+                                </a>
+                            )}
+                            <Delete
+                                onClick={() => deleteAttachment(idx)}
+                                style={{
+                                    cursor: 'pointer',
+                                    color: '#d32f2f'
+                                }}
+                            />
+                        </div>
+                    ))}
                 </>
             )}
         </>

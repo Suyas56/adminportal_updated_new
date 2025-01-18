@@ -1,22 +1,24 @@
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import { MainAttachment } from './../common-props/main-attachment';
-import TextField from '@mui/material/TextField';
-import { useSession } from 'next-auth/react';
-import React, { useState } from 'react';
-import { AddAttachments } from './../common-props/add-attachment';
-import { fileUploader } from './../common-props/useful-functions';
-import { BroadcastMail } from './../common-props/send-broadcast-mail';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
+} from '@mui/material'
+import { useSession } from 'next-auth/react'
+import React, { useState } from 'react'
+import { AddAttachments } from './../common-props/add-attachment'
+import { handleNewAttachments } from './../common-props/add-attachment'
+
 
 export const AddForm = ({ handleClose, modal }) => {
-    const {data:session,loading} = useSession();
+    const { data: session } = useSession()
+    const [submitting, setSubmitting] = useState(false)
     const [content, setContent] = useState({
         title: '',
         openDate: '',
@@ -25,206 +27,163 @@ export const AddForm = ({ handleClose, modal }) => {
         doclink: '',
         eventStartDate: '',
         eventEndDate: '',
-        type: 'general', // New field for type
-    });
-    const [submitting, setSubmitting] = useState(false);
+        type: 'general',
+    })
 
-    const [attachments, setAttachments] = useState([]);
-    const [mainAttachment, setMainAttachment] = useState({
-        caption: '',
-        url: '',
-        value: '',
-        typeLink: false,
-    });
-
-    const [broadcastMail, setBroadcastMail] = useState({
-        broadcast: false,
-        mail: 'students@nitp.ac.in',
-    });
+    const [new_attach, setNew_attach] = useState([])
+   
 
     const handleChange = (e) => {
-        setContent({ ...content, [e.target.name]: e.target.value });
-    };
+        setContent({ ...content, [e.target.name]: e.target.value })
+    }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true);
-        e.preventDefault();
-        
-        // Convert dates to timestamps
-        const open = new Date(content.openDate).getTime();
-        const close = new Date(content.closeDate).getTime();
-        const eventStart = new Date(content.eventStartDate).getTime();
-        const eventEnd = new Date(content.eventEndDate).getTime();
-        const now = Date.now();
+        e.preventDefault()
+        setSubmitting(true)
 
-        let data = {
-            ...content,
-            id: now,
-            openDate: open,
-            closeDate: close,
-            eventStartDate: eventStart,
-            eventEndDate: eventEnd,
-            timestamp: now,
-            email: session.user.email,
-            main_attachment: mainAttachment,
-            author: session.user.name,
-            attachments: [...attachments],
-        };
-
-        for (let i = 0; i < data.attachments.length; i++) {
-            delete data.attachments[i].value;
-            if (!data.attachments[i].typeLink && data.attachments[i].url) {
-                delete data.attachments[i].typeLink;
-                data.attachments[i].url = await fileUploader(data.attachments[i]);
+        try {
+            let attachments = []
+            if (new_attach.length) {
+                const processedAttachments = await handleNewAttachments(new_attach)
+                attachments = processedAttachments.map(attachment => ({
+                    id: Date.now() + Math.random(),
+                    caption: attachment.caption,
+                    url: attachment.url,
+                    typeLink: attachment.typeLink
+                }))
             }
-        }
 
-        delete data.main_attachment.value;
-        if (!data.main_attachment.typeLink) {
-            data.main_attachment.url = await fileUploader(data.main_attachment);
-        }
+            const finaldata = {
+                id: Date.now(),
+                title: content.title,
+                openDate: new Date(content.openDate).getTime(),
+                closeDate: new Date(content.closeDate).getTime(),
+                eventStartDate: new Date(content.eventStartDate).getTime(),
+                eventEndDate: new Date(content.eventEndDate).getTime(),
+                venue: content.venue,
+                doclink: content.doclink,
+                type: content.type,
+                timestamp: Date.now(),
+                email: session.user.email,
+                author: session.user.name,
+                event_link: null,
+                attachments: JSON.stringify(attachments)
+            }
 
-        // Submit data to the API
-        let result = await fetch('/api/create', {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify({data:data,type:"event"}),
-        });
-        result = await result.json();
-        if (result instanceof Error) {
-            console.log('Error Occurred');
-            console.log(result);
-            window.location.reload();
-        }
-
-        // Broadcast after event is created
-        if (broadcastMail.broadcast) {
-            let data = {
-                type: 'event',
-                email: broadcastMail.mail,
-                event: 'result',
-            };
-            let result = await fetch('/api/broadcast', {
+            const result = await fetch('/api/create', {
                 method: 'POST',
-                body: JSON.stringify(data),
-            });
-            result = await result.json();
-            if (result instanceof Error) {
-                alert('Event created but an error occurred while sending mail');
-                console.log(result);
-            }
-        }
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    data: finaldata,
+                    type: "event"
+                }),
+            })
 
-        window.location.reload();
-    };
+            if (!result.ok) {
+                throw new Error('Failed to create event')
+            }
+
+            window.location.reload()
+        } catch (error) {
+            console.error('Error creating event:', error)
+            alert('Failed to create event. Please try again.')
+        } finally {
+            setSubmitting(false)
+        }
+    }
 
     return (
-        <Dialog open={modal} onClose={handleClose}>
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
-                <DialogTitle style={{ fontSize: `2rem` }}>
-                    Add Event
-                </DialogTitle>
+                <DialogTitle>Create New Event</DialogTitle>
                 <DialogContent>
                     <TextField
                         margin="dense"
-                        id="title"
                         label="Title"
                         name="title"
                         type="text"
                         required
                         fullWidth
-                        placeholder="Title"
-                        onChange={handleChange}
                         value={content.title}
+                        onChange={handleChange}
                     />
                     <TextField
                         margin="dense"
-                        id="openDate"
                         label="Open Date"
                         name="openDate"
                         type="date"
                         required
+                        fullWidth
                         value={content.openDate}
                         onChange={handleChange}
-                        fullWidth
                         InputLabelProps={{
                             shrink: true,
                         }}
                     />
                     <TextField
-                        id="closeDate"
+                        margin="dense"
                         label="Close Date"
                         name="closeDate"
-                        margin="dense"
-                        required
                         type="date"
-                        onChange={handleChange}
-                        value={content.closeDate}
+                        required
                         fullWidth
+                        value={content.closeDate}
+                        onChange={handleChange}
                         InputLabelProps={{
                             shrink: true,
                         }}
                     />
                     <TextField
                         margin="dense"
-                        id="eventStartDate"
                         label="Event Start Date"
                         name="eventStartDate"
                         type="date"
                         required
+                        fullWidth
                         value={content.eventStartDate}
                         onChange={handleChange}
-                        fullWidth
                         InputLabelProps={{
                             shrink: true,
                         }}
                     />
                     <TextField
-                        id="eventEndDate"
+                        margin="dense"
                         label="Event End Date"
                         name="eventEndDate"
-                        margin="dense"
-                        required
                         type="date"
-                        onChange={handleChange}
-                        value={content.eventEndDate}
+                        required
                         fullWidth
+                        value={content.eventEndDate}
+                        onChange={handleChange}
                         InputLabelProps={{
                             shrink: true,
                         }}
                     />
                     <TextField
                         margin="dense"
-                        id="venue"
                         label="Venue"
-                        type="text"
-                        fullWidth
-                        placeholder={'Venue of Event'}
                         name="venue"
+                        type="text"
                         required
-                        onChange={handleChange}
+                        fullWidth
                         value={content.venue}
+                        onChange={handleChange}
                     />
                     <TextField
                         margin="dense"
-                        id="doclink"
-                        label="Registration form link (like: Google Doc, etc.)"
+                        label="Registration Link"
+                        name="doclink"
                         type="text"
                         fullWidth
-                        placeholder={'Leave it blank if not available'}
-                        name="doclink"
-                        onChange={handleChange}
                         value={content.doclink}
+                        onChange={handleChange}
                     />
                     
                     <FormControl fullWidth margin="dense">
-                        <InputLabel id="type-label">Type</InputLabel>
+                        <InputLabel>Type</InputLabel>
                         <Select
-                            labelId="type-label"
-                            id="type"
                             name="type"
                             value={content.type}
                             onChange={handleChange}
@@ -234,29 +193,26 @@ export const AddForm = ({ handleClose, modal }) => {
                         </Select>
                     </FormControl>
 
-                    <MainAttachment
-                        mainAttachment={mainAttachment}
-                        setMainAttachment={setMainAttachment}
-                        placeholder="Main Event Link/Attach"
-                    />
+                   
 
-                    <BroadcastMail
-                        broadcastMail={broadcastMail}
-                        setBroadcastMail={setBroadcastMail}
-                    />
-
-                    <h2>Attachments</h2>
                     <AddAttachments
-                        attachments={attachments}
-                        setAttachments={setAttachments}
+                        attachments={new_attach}
+                        setAttachments={setNew_attach}
                     />
                 </DialogContent>
+
                 <DialogActions>
-                    <Button type="submit" color="primary" disabled={submitting}>
-                        {submitting ? 'Submitting' : 'Submit'}
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button 
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Creating...' : 'Create'}
                     </Button>
                 </DialogActions>
             </form>
         </Dialog>
-    );
-};
+    )
+}

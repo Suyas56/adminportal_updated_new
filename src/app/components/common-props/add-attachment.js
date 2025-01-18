@@ -128,30 +128,36 @@ export const AddAttachments = ({ attachments, setAttachments, limit }) => {
     )
 }
 
-{
-    /* <button type="button" onClick={() => console.log(attachments)}>
-				Status
-			</button> */
-}
 export const handleNewAttachments = async (new_attach) => {
     for (let i = 0; i < new_attach.length; i++) {
-        delete new_attach[i].value
+        delete new_attach[i].value;
 
-        if (new_attach[i].typeLink == false && new_attach[i].url) {
-            let file = new FormData()
-            file.append('files', new_attach[i].url)
-            // console.log(file.get("files"));
-            let viewLink = await fetch('/api/gdrive/uploadfiles', {
-                method: 'POST',
-                body: file,
-            })
-            viewLink = await viewLink.json()
-            // console.log("Client side link");
-            // console.log(viewLink);
-            new_attach[i].url = viewLink[0].webViewLink
+        // If it's not a link and it's a file, upload the file
+        if (new_attach[i].typeLink === false && new_attach[i].url) {
+            let file = new FormData();
+            file.append('file', new_attach[i].url);
+
+            try {
+                let response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: file,
+                });
+
+                if (!response.ok) {
+                    throw new Error('File upload failed');
+                }
+
+                let data = await response.json();
+                // Update the attachment with the webViewLink
+                new_attach[i].url = data.url; // This will now be the webViewLink from Google Drive
+            } catch (error) {
+                console.error('File upload error:', error);
+                new_attach[i].url = ''; // Set it to empty if there was an error
+            }
         } else {
-            console.log('NOT A FILE')
+            console.log('NOT A FILE, It is a link');
         }
     }
-    return new_attach
-}
+
+    return new_attach;
+};

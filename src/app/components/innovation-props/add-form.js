@@ -1,174 +1,173 @@
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import TextField from '@mui/material/TextField'
+import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
+} from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
-import { AddAttachments } from './../common-props/add-image'
+import { AddAttachments } from './../common-props/add-attachment'
+import { handleNewAttachments } from './../common-props/add-attachment'
 
 export const AddForm = ({ handleClose, modal }) => {
-    const {data:session,status} = useSession()
+    const { data: session } = useSession()
+    const [submitting, setSubmitting] = useState(false)
     const [content, setContent] = useState({
         title: '',
         openDate: '',
         closeDate: '',
         description: '',
+        type: 'general',
     })
-    const [submitting, setSubmitting] = useState(false)
 
-    const [attachments, setAttachments] = useState([])
+    const [new_attach, setNew_attach] = useState([])
+
     const handleChange = (e) => {
         setContent({ ...content, [e.target.name]: e.target.value })
-        //console.log(content)
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
-        let open = new Date(content.openDate)
-        let close = new Date(content.closeDate)
-        open = open.getTime()
-        close = close.getTime()
-        let now = Date.now()
+        setSubmitting(true)
 
-        let data = {
-            ...content,
-            id: now,
-            openDate: open,
-            closeDate: close,
-            timestamp: now,
-            email: session.user.email,
-            author: session.user.name,
-            image: [...attachments],
-        }
-        for (let i = 0; i < data.image.length; i++) {
-            delete data.image[i].value
-            // if (data.image[i].url === undefined) {
-            // 	data.image[i].url = "";
-            // }
-            console.log(data.image[i])
-
-            if (data.image[i].url) {
-                let file = new FormData()
-                file.append('files', data.image[i].url)
-                // console.log(file.get("files"));
-                let viewLink = await fetch('/api/gdrive/uploadfiles', {
-                    method: 'POST',
-                    body: file,
-                })
-                viewLink = await viewLink.json()
-                // console.log("Client side link");
-                // console.log(viewLink);
-                data.image[i].url = viewLink[0].webViewLink
-            } else {
-                console.log('Request Not Sent')
+        try {
+            let attachments = []
+            if (new_attach.length) {
+                const processedAttachments = await handleNewAttachments(new_attach)
+                attachments = processedAttachments.map(attachment => ({
+                    id: Date.now() + Math.random(),
+                    caption: attachment.caption,
+                    url: attachment.url,
+                    typeLink: attachment.typeLink
+                }))
             }
-        }
-        // data.attachments = JSON.stringify(data.attachments);
 
-        let result = await fetch('/api/create', {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify({data:data,type:"innovation"}),
-        })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            console.log(result)
+            const finaldata = {
+                id: Date.now(),
+                title: content.title,
+                openDate: new Date(content.openDate).getTime(),
+                closeDate: new Date(content.closeDate).getTime(),
+                description: content.description,
+                type: content.type,
+                timestamp: Date.now(),
+                email: session.user.email,
+                author: session.user.name,
+                image: JSON.stringify(attachments)
+            }
+
+            const result = await fetch('/api/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    data: finaldata,
+                    type: "innovation"
+                }),
+            })
+
+            if (!result.ok) {
+                throw new Error('Failed to create innovation')
+            }
+
+            window.location.reload()
+        } catch (error) {
+            console.error('Error creating innovation:', error)
+            alert('Failed to create innovation. Please try again.')
+        } finally {
+            setSubmitting(false)
         }
-        console.log(result)
-        window.location.reload()
     }
 
     return (
-        <>
-            <Dialog open={modal} onClose={handleClose}>
-                <form
-                    onSubmit={(e) => {
-                        handleSubmit(e)
-                    }}
-                >
-                    <DialogTitle  style={{ fontSize: `2rem` }}>
-                        Add Innovations
-                    </DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            margin="dense"
-                            id="label"
-                            label="Title"
-                            name="title"
-                            type="text"
-                            required
-                            fullWidth
-                            placeholder="Title"
-                            onChange={(e) => handleChange(e)}
-                            value={content.title}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="desc"
-                            label="Description"
-                            type="text"
-                            fullWidth
-                            placeholder={'Description'}
-                            name="description"
-                            required
-                            onChange={(e) => handleChange(e)}
-                            value={content.description}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="openDate"
-                            label="Open Date"
-                            name="openDate"
-                            type="date"
-                            required
-                            value={content.openDate}
-                            onChange={(e) => handleChange(e)}
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-                        <TextField
-                            id="closeDate"
-                            label="Close Date"
-                            name="closeDate"
-                            margin="dense"
-                            required
-                            type="date"
-                            onChange={(e) => handleChange(e)}
-                            value={content.closeDate}
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-
-                        <h2>Attachments</h2>
-                        <AddAttachments
-                            attachments={attachments}
-                            setAttachments={setAttachments}
-                            limit={2}
-                        />
-                      
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            type="submit"
-                            color="primary"
-                            disabled={submitting}
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle>Create New Innovation</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Title"
+                        name="title"
+                        type="text"
+                        required
+                        fullWidth
+                        value={content.title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Description"
+                        name="description"
+                        multiline
+                        rows={4}
+                        required
+                        fullWidth
+                        value={content.description}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Open Date"
+                        name="openDate"
+                        type="date"
+                        required
+                        fullWidth
+                        value={content.openDate}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Close Date"
+                        name="closeDate"
+                        type="date"
+                        required
+                        fullWidth
+                        value={content.closeDate}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel>Type</InputLabel>
+                        <Select
+                            name="type"
+                            value={content.type}
+                            onChange={handleChange}
                         >
-                            {submitting ? 'Submitting' : 'Submit'}
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
-        </>
+                            <MenuItem value="general">General</MenuItem>
+                            <MenuItem value="intranet">Intranet</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <AddAttachments
+                        attachments={new_attach}
+                        setAttachments={setNew_attach}
+                    />
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button 
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Creating...' : 'Create'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
     )
 }

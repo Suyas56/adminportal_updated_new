@@ -22,11 +22,9 @@ export async function POST(request) {
       );
     }
 
-    // Get form data from request
     const formData = await request.formData();
     const file = formData.get('file');
-    const type = formData.get('type');
-
+    
     if (!file) {
       return NextResponse.json(
         { message: 'No file provided' },
@@ -35,25 +33,18 @@ export async function POST(request) {
     }
 
     // Convert file to buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const stream = Readable.from(buffer);
-
-    // Set up file metadata based on type
-    const fileMetadata = {
-      name: file.name,
-      parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
-    };
-
-    // Set up media upload
-    const media = {
-      mimeType: file.type,
-      body: stream
-    };
-
-    // Upload file to Google Drive
+    const buffer = await file.arrayBuffer();
+    
+    // Upload to Google Drive
     const driveResponse = await drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
+      requestBody: {
+        name: file.name,
+        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+      },
+      media: {
+        mimeType: file.type,
+        body: Readable.from(Buffer.from(buffer))
+      },
       fields: 'id, webViewLink'
     });
 
@@ -66,16 +57,11 @@ export async function POST(request) {
       }
     });
 
-    // Get the final response with file details
-    const result = {
-      id: driveResponse.data.id,
-      name: file.name,
+    return NextResponse.json({
+      success: true,
       url: driveResponse.data.webViewLink,
-      type: file.type,
-      uploadedBy: session.user.email
-    };
-
-    return NextResponse.json(result);
+      id: driveResponse.data.id
+    });
 
   } catch (error) {
     console.error('Upload Error:', error);
@@ -94,7 +80,6 @@ function getExtension(filename) {
 // Configure size limits
 export const config = {
   api: {
-    bodyParser: false,
-    sizeLimit: '200mb'
+    bodyParser: false
   }
 }; 

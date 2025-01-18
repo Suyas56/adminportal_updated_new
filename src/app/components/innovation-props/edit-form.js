@@ -1,256 +1,294 @@
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import TextField from '@mui/material/TextField'
-import { Delete, Link } from '@material-ui/icons'
+import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    IconButton
+} from '@mui/material'
+import { Delete, Link } from '@mui/icons-material'
 import { useSession } from 'next-auth/react'
 import React, { useRef, useState } from 'react'
 import { dateformatter } from './../common-props/date-formatter'
 import { ConfirmDelete } from './confirm-delete'
+import { AddAttachments } from './../common-props/add-attachment'
 import { handleNewAttachments } from './../common-props/add-attachment'
-import { AddAttachments } from './../common-props/add-image'
 
 export const EditForm = ({ data, handleClose, modal }) => {
-    const limit = 2
     const deleteArray = useRef([])
-    const {data:session,status} = useSession()
+    const { data: session } = useSession()
+    const [submitting, setSubmitting] = useState(false)
     const [content, setContent] = useState({
         id: data.id,
         title: data.title,
+        description: data.description,
         openDate: dateformatter(data.openDate),
         closeDate: dateformatter(data.closeDate),
-        description: data.description,
+        type: data.type || 'general',
     })
-    const [submitting, setSubmitting] = useState(false)
 
     const [verifyDelete, setVerifyDelete] = useState(false)
     const handleDelete = () => {
-        setVerifyDelete(false)
+        setVerifyDelete(true)
     }
-    const [image, setImage] = useState(data.image)
 
-    const [newImages, setNewImages] = useState([])
+    const [add_attach, setAdd_attach] = useState(() => {
+        if (!data.image) return [];
+        
+        try {
+            // Handle both string and already parsed data
+            const imageData = typeof data.image === 'string' ? 
+                JSON.parse(data.image) : 
+                data.image;
+                
+            // Ensure we're working with an array
+            return Array.isArray(imageData) ? imageData : [];
+        } catch (e) {
+            console.error('Error parsing image data:', e);
+            return [];
+        }
+    });
+
+    const [new_attach, setNew_attach] = useState([]);
 
     const handleChange = (e) => {
         setContent({ ...content, [e.target.name]: e.target.value })
-        //console.log(content)
-    }
-    const handleAttachments = (e, idx) => {
-        let attach = [...image]
-        attach[idx].caption = e.target.value
-        setImage(attach)
-    }
-
-    const deleteAttachment = (idx) => {
-        deleteArray.current.push(image[idx].url.split('/')[5])
-        console.log(deleteArray.current)
-        let atch = [...image]
-        atch.splice(idx, 1)
-        setImage(atch)
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSubmitting(true)
-        let open = new Date(content.openDate)
-        let close = new Date(content.closeDate)
-        open = open.getTime()
-        close = close.getTime()
-        let now = Date.now()
-        let new_attach = [...newImages]
-        new_attach = await handleNewAttachments(new_attach)
 
-        let finaldata = {
-            ...content,
-            openDate: open,
-            closeDate: close,
-            timestamp: now,
-            email: session.user.email,
-            author: session.user.name,
-            image: [...image, ...newImages],
-        }
+        try {
+            let attachments = [...add_attach]
+            if (new_attach.length) {
+                const processedAttachments = await handleNewAttachments(new_attach)
+                const newAttachmentsWithIds = processedAttachments.map(attachment => ({
+                    id: Date.now() + Math.random(),
+                    caption: attachment.caption,
+                    url: attachment.url,
+                    typeLink: attachment.typeLink
+                }))
+                attachments = [...attachments, ...newAttachmentsWithIds]
+            }
 
-        if (deleteArray.current.length) {
-            let result = await fetch('/api/gdrive/deletefiles', {
-                method: 'DELETE',
+            const finaldata = {
+                id: content.id,
+                title: content.title,
+                description: content.description,
+                openDate: new Date(content.openDate).getTime(),
+                closeDate: new Date(content.closeDate).getTime(),
+                type: content.type,
+                updatedAt: Date.now(),
+                updatedBy: session.user.email,
+                image: JSON.stringify(attachments),
+                deleteArray: deleteArray.current
+            }
+
+            const result = await fetch('/api/update', {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(deleteArray.current),
+                body: JSON.stringify({
+                    data: finaldata,
+                    type: "innovation"
+                }),
             })
-            result = await result.json()
-            if (result instanceof Error) {
-                console.log('Error Occured')
-            }
-            console.log(result)
-        }
 
-        console.log(finaldata)
-        let result = await fetch('/api/update', {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            method: 'PUT',
-            body: JSON.stringify({data:finaldata,type:"innovation"}),
-        })
-        result = await result.json()
-        if (result instanceof Error) {
-            console.log('Error Occured')
-            console.log(result)
+            if (!result.ok) {
+                throw new Error('Failed to update innovation')
+            }
+
+            window.location.reload()
+        } catch (error) {
+            console.error('Error updating innovation:', error)
+            alert('Failed to update innovation. Please try again.')
+        } finally {
+            setSubmitting(false)
         }
-        console.log(result)
-        window.location.reload()
+    }
+
+    return (
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle>
+                    Edit Innovation
+                    <IconButton
+                        onClick={handleDelete}
+                        style={{
+                            position: 'absolute',
+                            right: '8px',
+                            top: '8px',
+                            color: '#d32f2f'
+                        }}
+                    >
+                        <Delete />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Title"
+                        name="title"
+                        type="text"
+                        required
+                        fullWidth
+                        value={content.title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Description"
+                        name="description"
+                        multiline
+                        rows={4}
+                        required
+                        fullWidth
+                        value={content.description}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Open Date"
+                        name="openDate"
+                        type="date"
+                        required
+                        fullWidth
+                        value={content.openDate}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Close Date"
+                        name="closeDate"
+                        type="date"
+                        required
+                        fullWidth
+                        value={content.closeDate}
+                        onChange={handleChange}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel>Type</InputLabel>
+                        <Select
+                            name="type"
+                            value={content.type}
+                            onChange={handleChange}
+                        >
+                            <MenuItem value="general">General</MenuItem>
+                            <MenuItem value="intranet">Intranet</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <DisplayAdditionalAttach
+                        add_attach={add_attach}
+                        setAdd_attach={setAdd_attach}
+                        deleteArray={deleteArray}
+                    />
+
+                    <AddAttachments
+                        attachments={new_attach}
+                        setAttachments={setNew_attach}
+                    />
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button 
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Saving...' : 'Save'}
+                    </Button>
+                </DialogActions>
+            </form>
+
+            <ConfirmDelete
+                handleClose={() => setVerifyDelete(false)}
+                modal={verifyDelete}
+                id={data.id}
+            />
+        </Dialog>
+    )
+}
+
+const DisplayAdditionalAttach = ({ add_attach, setAdd_attach, deleteArray }) => {
+    const deleteAttachment = (idx) => {
+        const values = [...add_attach]
+        const attachmentToDelete = values[idx]
+        
+        if (attachmentToDelete.id) {
+            deleteArray.current = [...deleteArray.current, {
+                id: attachmentToDelete.id,
+                url: attachmentToDelete.url
+            }]
+        }
+        
+        values.splice(idx, 1)
+        setAdd_attach(values)
     }
 
     return (
         <>
-            <Dialog open={modal} onClose={handleClose}>
-                <form onSubmit={(e) => handleSubmit(e)}>
-                    <DialogTitle
-                        disableTypography
-                        style={{ fontSize: `2rem`, position: 'relative' }}
-                    >
-                        Edit Innovations
-                        <i
-                            style={{
-                                position: `absolute`,
-                                right: `15px`,
-                                cursor: `pointer`,
+            {add_attach?.map((attachment, idx) => (
+                <div
+                    key={idx}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginTop: '10px'
+                    }}
+                >
+                    <TextField
+                        type="text"
+                        value={attachment.caption || ''}
+                        fullWidth
+                        label={`Attachment ${idx + 1}`}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        disabled
+                    />
+                    {attachment.url && (
+                        <a 
+                            href={attachment.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ 
+                                color: '#1976d2',
+                                textDecoration: 'none',
+                                display: 'flex',
+                                alignItems: 'center' 
                             }}
                         >
-                            <Delete
-                                type="button"
-                                onClick={() => setVerifyDelete(true)}
-                                style={{ height: `2rem`, width: `auto` }}
-                                color="secondary"
-                            />
-                        </i>
-                    </DialogTitle>
-                    <ConfirmDelete
-                        modal={verifyDelete}
-                        handleClose={handleDelete}
-                        id={content.id}
-                        attachments={image}
-                        delArray={deleteArray.current}
+                            <Link style={{ marginRight: '5px' }} />
+                            View
+                        </a>
+                    )}
+                    <Delete
+                        onClick={() => deleteAttachment(idx)}
+                        style={{
+                            cursor: 'pointer',
+                            color: '#d32f2f'
+                        }}
                     />
-                    <DialogContent>
-                        <TextField
-                            margin="dense"
-                            id="label"
-                            label="Title"
-                            name="title"
-                            type="text"
-                            required
-                            fullWidth
-                            placeholder="Title"
-                            onChange={(e) => handleChange(e)}
-                            value={content.title}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="desc"
-                            label="Description"
-                            type="text"
-                            fullWidth
-                            placeholder={'Description'}
-                            name="description"
-                            required
-                            onChange={(e) => handleChange(e)}
-                            value={content.description}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="openDate"
-                            label="Open Date"
-                            name="openDate"
-                            type="date"
-                            required
-                            value={content.openDate}
-                            onChange={(e) => handleChange(e)}
-                            fullWidth
-                        />
-                        <TextField
-                            id="closeDate"
-                            label="Close Date"
-                            name="closeDate"
-                            margin="dense"
-                            required
-                            type="date"
-                            onChange={(e) => handleChange(e)}
-                            value={content.closeDate}
-                            fullWidth
-                        />
-                        {data.image && (
-                            <>
-                                <h2>Images</h2>
-                                {image.map((img, idx) => {
-                                    return (
-                                        <div key={idx}>
-                                            <TextField
-                                                id="attachments"
-                                                margin="dense"
-                                                type="text"
-                                                value={img.caption}
-                                                onChange={(e) =>
-                                                    handleAttachments(e, idx)
-                                                }
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                            />
-                                            <a
-                                                href={img.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <Link />
-                                            </a>
-                                            <i
-                                                style={{
-                                                    position: `absolute`,
-                                                    right: `15px`,
-                                                    cursor: `pointer`,
-                                                }}
-                                            >
-                                                <Delete
-                                                    type="button"
-                                                    onClick={() =>
-                                                        deleteAttachment(idx)
-                                                    }
-                                                    style={{
-                                                        height: `2rem`,
-                                                        width: `auto`,
-                                                    }}
-                                                    color="secondary"
-                                                />
-                                            </i>
-                                        </div>
-                                    )
-                                })}
-                            </>
-                        )}
-                        {limit > image.length && (
-                            <AddAttachments
-                                limit={limit - image.length}
-                                attachments={newImages}
-                                setAttachments={setNewImages}
-                            />
-                        )}
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            type="submit"
-                            color="primary"
-                            disabled={submitting}
-                        >
-                            {submitting ? 'Submitting' : 'Submit'}
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
+                </div>
+            ))}
         </>
     )
 }
