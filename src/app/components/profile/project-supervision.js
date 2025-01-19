@@ -15,13 +15,15 @@ import {
   TableRow,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import AddIcon from '@mui/icons-material/Add'
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -322,14 +324,16 @@ export default function ProjectSupervisionManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => setOpenAdd(true)}
-                sx={{m: 2 }}
-            >
-                Add Project Supervision
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Project Supervision</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Project Supervision
+                </Button>
+            </div>
 
             <TableContainer component={Paper}>
                 <Table>
@@ -400,4 +404,4 @@ export default function ProjectSupervisionManagement() {
             )}
         </div>
     )
-} 
+}

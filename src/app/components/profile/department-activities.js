@@ -12,7 +12,8 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -25,6 +26,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import Loading from '../common/Loading'
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import AddIcon from '@mui/icons-material/Add'
 
 // Add formatDate helper function at the top
 const formatDate = (dateString) => {
@@ -338,14 +340,16 @@ export default function DepartmentActivityManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => setOpenAdd(true)}
-                sx={{m: 2 }}
-            >
-                Add Department Activity
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Department Activities</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Department Activity
+                </Button>
+            </div>
 
             <TableContainer component={Paper}>
                 <Table>
@@ -413,4 +417,4 @@ export default function DepartmentActivityManagement() {
             )}
         </div>
     )
-} 
+}
