@@ -70,6 +70,7 @@ export const AddForm = ({ handleClose, modal }) => {
             console.error('Error:', error)
         } finally {
             setSubmitting(false)
+            window.location.reload()
         }
     }
 
@@ -214,6 +215,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -234,6 +236,42 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         onChange={handleChange}
                     />
                     {/* ... other fields same as AddForm ... */}
+                    <TextField
+                        margin="dense"
+                        label="Authors"
+                        name="authors"
+                        fullWidth
+                        required
+                        value={content.authors}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Conference Name"
+                        name="conference_name"
+                        fullWidth
+                        required
+                        value={content.conference_name}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Location"
+                        name="location"
+                        fullWidth
+                        required
+                        value={content.location}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Conference Year"
+                        name="conference_year"
+                        fullWidth
+                        required
+                        value={content.conference_year}
+                        onChange={handleChange}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -301,6 +339,8 @@ export default function ConferencePaperManagement() {
                 refreshData()
             } catch (error) {
                 console.error('Error:', error)
+            }finally{
+                window.location.reload()
             }
         }
     }

@@ -23,6 +23,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import Loading from '../common/Loading'
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 // Add formatDate helper function at the top
 const formatDate = (dateString) => {
@@ -66,8 +68,8 @@ export const AddForm = ({ handleClose, modal }) => {
                   start_date: content.start_date 
                     ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
                     : null,
-                  end_date: content.end_date 
-                    ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                  end_date: content.end_date?content.end_date === "Continue"?"Continue"
+                    : new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
                     : null,
                   id: Date.now().toString(),
                   email: session?.user?.email,
@@ -117,14 +119,29 @@ export const AddForm = ({ handleClose, modal }) => {
                         />
                         <DatePicker
                             label="End Date"
-                            value={content.end_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end_date: newValue})
+                            value={content.end_date === "Continue" ? null : content.end_date}
+                            onChange={(newValue) =>
+                                setContent({ ...content, end_date: newValue })
                             }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                         />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end_date === "Continue"}
+                                    onChange={(e) => 
+                                        setContent({
+                                            ...content,
+                                            end_date: e.target.checked ? "Continue" : null,
+                                        })
+                                    }
+                                />
+                            }
+                            label="Continue (End Date not known)"
+                        />
+
                     </LocalizationProvider>
                 </DialogContent>
                 <DialogActions>
@@ -172,9 +189,9 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     start_date: content.start_date 
                         ? new Date(content.start_date).toISOString().split('T')[0]
                         : null,
-                    end_date: content.end_date
-                        ? new Date(content.end_date).toISOString().split('T')[0]
-                        : null,
+                    end_date: content.end_date?content.end_date === "Continue"?"Continue"
+                    : new Date(content.end_date).toISOString().split('T')[0]
+                    : null,
                     email: session?.user?.email
                 }),
             })
@@ -223,16 +240,27 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         />
                         <DatePicker
                             label="End Date"
-                            value={content.end_date}
-                            onChange={(newValue) => {
-                                setContent(prev => ({
-                                    ...prev,
-                                    end_date: newValue
-                                }))
-                            }}
+                            value={content.end_date === "Continue" ? null : content.end_date}
+                            onChange={(newValue) =>
+                                setContent({ ...content, end_date: newValue })
+                            }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end_date === "Continue"}
+                                    onChange={(e) => 
+                                        setContent({
+                                            ...content,
+                                            end_date: e.target.checked ? "Continue" : null,
+                                        })
+                                    }
+                                />
+                            }
+                            label="Continue (End Date not known)"
                         />
                     </LocalizationProvider>
                 </DialogContent>
@@ -337,7 +365,7 @@ export default function DepartmentActivityManagement() {
                                     {formatDate(activity.start_date)}
                                 </TableCell>
                                 <TableCell>
-                                    {activity.end_date ? formatDate(activity.end_date) : 'Present'}
+                                {activity.end_date ? (activity.end_date === "Continue" ? "Continue" : formatDate(activity.end_date)) : "Present"}
                                 </TableCell>
                                 <TableCell align="right">
                                     <IconButton 

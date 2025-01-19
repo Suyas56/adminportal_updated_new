@@ -25,7 +25,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import Toast from '../common/Toast'
-
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 // Add the formatDate helper function at the top
 const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -144,8 +145,8 @@ export default function InstituteActivityManagement() {
                         start_date: content.start_date 
                             ? new Date(content.start_date).toISOString().split('T')[0]
                             : null,
-                        end_date: content.end_date 
-                            ? new Date(content.end_date).toISOString().split('T')[0]
+                        end_date: content.end_date?content.end_date === "Continue"?"Continue"
+                            : new Date(content.end_date).toISOString().split('T')[0]
                             : null,
                         id: Date.now().toString(),
                         email: session?.user?.email,
@@ -193,14 +194,28 @@ export default function InstituteActivityManagement() {
                             />
                             <DatePicker
                                 label="End Date"
-                                value={content.end_date}
-                                onChange={(newValue) => 
-                                    setContent({ ...content, end_date: newValue})
+                                value={content.end_date === "Continue" ? null : content.end_date}
+                                onChange={(newValue) =>
+                                    setContent({ ...content, end_date: newValue })
                                 }
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" />
                                 )}
-                            />
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end_date === "Continue"}
+                                    onChange={(e) => 
+                                        setContent({
+                                            ...content,
+                                            end_date: e.target.checked ? "Continue" : null,
+                                        })
+                                    }
+                                />
+                            }
+                            label="Continue (End Date not known)"
+                        />
                         </LocalizationProvider>
                     </DialogContent>
                     <DialogActions>
@@ -247,8 +262,8 @@ export default function InstituteActivityManagement() {
                         start_date: content.start_date 
                             ? new Date(content.start_date).toISOString().split('T')[0]
                             : null,
-                        end_date: content.end_date
-                            ? new Date(content.end_date).toISOString().split('T')[0]
+                        end_date: content.end_date?content.end_date === "Continue"?"Continue"
+                            : new Date(content.end_date).toISOString().split('T')[0]
                             : null,
                         email: session?.user?.email
                     }),
@@ -265,6 +280,7 @@ export default function InstituteActivityManagement() {
                 showToast('Failed to update institute activity', 'error')
             } finally {
                 setSubmitting(false)
+                window.location.reload()
             }
         }
 
@@ -298,16 +314,27 @@ export default function InstituteActivityManagement() {
                             />
                             <DatePicker
                                 label="End Date"
-                                value={content.end_date}
-                                onChange={(newValue) => {
-                                    setContent(prev => ({
-                                        ...prev,
-                                        end_date: newValue
-                                    }))
-                                }}
+                                value={content.end_date === "Continue" ? null : content.end_date}
+                                onChange={(newValue) =>
+                                    setContent({ ...content, end_date: newValue })
+                                }
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" />
                                 )}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={content.end_date === "Continue"}
+                                        onChange={(e) => 
+                                            setContent({
+                                                ...content,
+                                                end_date: e.target.checked ? "Continue" : null,
+                                            })
+                                        }
+                                    />
+                                }
+                                label="Continue (End Date not known)"
                             />
                         </LocalizationProvider>
                     </DialogContent>
@@ -354,7 +381,7 @@ export default function InstituteActivityManagement() {
                                     {formatDate(activity.start_date)}
                                 </TableCell>
                                 <TableCell>
-                                    {activity.end_date ? formatDate(activity.end_date) : 'Present'}
+                                    {activity.end_date ? (activity.end_date === "Continue" ? "Continue" : formatDate(activity.end_date)) : "Present"}
                                 </TableCell>
                                 <TableCell align="right">
                                     <IconButton 
