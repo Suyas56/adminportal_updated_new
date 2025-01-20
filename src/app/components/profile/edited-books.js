@@ -12,7 +12,8 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -20,6 +21,7 @@ import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Loading from '../common/Loading'
+import AddIcon from '@mui/icons-material/Add'
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -339,14 +341,16 @@ export default function EditedBookManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => setOpenAdd(true)}
-                sx={{m: 2 }}
-            >
-                Add Edited Book
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Edited Books</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Edited Book
+                </Button>
+            </div>
 
             <TableContainer component={Paper}>
                 <Table>
@@ -414,4 +418,4 @@ export default function EditedBookManagement() {
             )}
         </div>
     )
-} 
+}

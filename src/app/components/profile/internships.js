@@ -15,7 +15,8 @@ import {
   TableRow,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -26,6 +27,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import Loading from '../common/Loading'
+import AddIcon from '@mui/icons-material/Add'
 
 // Add formatDate helper function at the top
 const formatDate = (dateString) => {
@@ -405,14 +407,17 @@ export default function InternshipManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => setOpenAdd(true)}
-                sx={{m: 2 }}
-            >
-                Add Internship
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Internships</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Internship
+                </Button>
+            </div>
 
             <TableContainer component={Paper}>
                 <Table>
@@ -485,4 +490,4 @@ export default function InternshipManagement() {
             )}
         </div>
     )
-} 
+}

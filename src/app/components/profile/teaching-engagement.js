@@ -15,13 +15,15 @@ import {
   TableRow,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import AddIcon from '@mui/icons-material/Add'
 
 // Add formatDate helper function at the top
 const formatDate = (dateString) => {
@@ -494,14 +496,16 @@ export default function TeachingEngagementManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => setOpenAdd(true)}
-                sx={{m: 2 }}
-            >
-                Add Course
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Teaching Engagement</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Course
+                </Button>
+            </div>
 
             <TableContainer component={Paper}>
                 <Table>
@@ -575,4 +579,4 @@ export default function TeachingEngagementManagement() {
             )}
         </div>
     )
-} 
+}

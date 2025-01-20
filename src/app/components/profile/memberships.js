@@ -12,7 +12,8 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -22,6 +23,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import AddIcon from '@mui/icons-material/Add'
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -286,15 +288,16 @@ export default function MembershipManagement() {
 
     return (
         <div>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={() => setOpenAdd(true)}
-                sx={{ mb: 2 }}
-            >
-                Add Membership
-            </Button>
-
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                <Typography variant="h6">Professional Memberships</Typography>
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    onClick={() => setOpenAdd(true)}
+                >
+                    Add Membership
+                </Button>
+            </div>
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
@@ -365,4 +368,4 @@ export default function MembershipManagement() {
             )}
         </div>
     )
-} 
+}
