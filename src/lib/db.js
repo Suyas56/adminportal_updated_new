@@ -7,6 +7,12 @@ const db = mysql({
     user: process.env.MYSQL_USERNAME,
     password: process.env.MYSQL_PASSWORD,
     port: parseInt(process.env.MYSQL_PORT, 10),
+    connectTimeout: 60000, // 60 seconds
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
   },
 });
 
@@ -27,14 +33,27 @@ if (
  * @param {Array<string|number>} [values=[]] - Query parameters to be escaped.
  * @returns {Promise<any>} - The query result.
  */
-async function query(q, values = []) {
-  try {
-    const results = await db.query(q, values);
-    return results;
-  } catch (e) {
-    console.error('Database Query Error:', e);
-    throw new Error(`Database query failed: ${e.message}`);
+async function query(q, values = [], retries = 3) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const results = await db.query(q, values);
+      await db.end();
+      return results;
+    } catch (error) {
+      lastError = error;
+      console.error(`Query attempt ${attempt} failed:`, error);
+      
+      if (attempt < retries) {
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        continue;
+      }
+    }
   }
+  
+  throw new Error(`Database query failed after ${retries} attempts: ${lastError.message}`);
 }
 
 /**

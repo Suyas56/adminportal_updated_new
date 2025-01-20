@@ -245,6 +245,13 @@ export async function POST(request) {
             [params.email]
           )
           return NextResponse.json(cvResult)
+
+        case 'about':
+          const aboutResult = await query(
+            `DELETE FROM about_me WHERE email = ?`,
+            [params.email]
+          )
+          return NextResponse.json(aboutResult)
       }
     }
 

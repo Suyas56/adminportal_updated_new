@@ -684,10 +684,28 @@ export async function PUT(request) {
           )
           return NextResponse.json(educationResult)
 
-        
+        case 'about':
+          // Check if record exists
+          const exists = await query(
+            'SELECT * FROM about_me WHERE email = ?',
+            [params.email]
+          )
 
-          
-
+          if (exists.length > 0) {
+            // Update existing record
+            const result = await query(
+              `UPDATE about_me SET content = ? WHERE email = ?`,
+              [params.content, params.email]
+            )
+            return NextResponse.json(result)
+          } else {
+            // Create new record
+            const result = await query(
+              `INSERT INTO about_me (email, content) VALUES (?, ?)`,
+              [params.email, params.content]
+            )
+            return NextResponse.json(result)
+          }
       }
     }
 

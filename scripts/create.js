@@ -388,6 +388,16 @@ await query(`CREATE TABLE IF NOT EXISTS user (
     retirement_date DATE
 );`).catch((e) => console.log(e));
 
+await query(`CREATE TABLE IF NOT EXISTS about_me (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL,
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (email) REFERENCES user(email),
+    UNIQUE KEY unique_email (email)
+);`).catch((e) => console.log(e));
+
 // Web Team Table
 await query(`CREATE TABLE IF NOT EXISTS webteam (
     id INT PRIMARY KEY,
