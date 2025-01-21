@@ -2,11 +2,36 @@ import { NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { depList, facultyTables } from '@/lib/const'
 
+const allowedOrigins = [
+  "https://adminportal-updated-new.vercel.app/",  
+  'http://localhost:3000',
+  'https://faculty-performance-appraisal-performa.vercel.app/',
+  
+  // Add other allowed domains
+]
+
 export async function GET(request) {
   try {
+    // Add CORS headers
+    const response = NextResponse
+    
+    // Handle preflight requests
+    if (request.method === 'OPTIONS') {
+      return new NextResponse(null, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      })
+    }
+
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type')
     let results
+
+    const origin = request.headers.get('origin')
+    const isAllowedOrigin = allowedOrigins.includes(origin)
 
     switch (type) {
       case 'all':
@@ -109,11 +134,39 @@ export async function GET(request) {
         return NextResponse.json(profileData)
     }
 
+    // Return response with CORS headers
+    return NextResponse.json(results, {
+      headers: {
+        'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true', // If you need to support credentials
+      },
+    })
+
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json(
       { message: error.message },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
+      }
     )
   }
+}
+
+// Handle OPTIONS requests
+export async function OPTIONS(request) {
+  return new NextResponse(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
 } 
