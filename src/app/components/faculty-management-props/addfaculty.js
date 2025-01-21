@@ -14,10 +14,8 @@ import { useState } from 'react'
 import { ROLES } from '@/lib/roles'
 import { depList } from '@/lib/const'
 import Toast from '@/app/components/common/Toast'
-import { useSession } from 'next-auth/react'
 
 export function AddFaculty({ open, onClose, onSuccess }) {
-  const session = useSession()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',

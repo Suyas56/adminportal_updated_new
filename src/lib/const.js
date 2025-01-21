@@ -85,8 +85,6 @@ export const facultyTables = [
   // Background
   'education',
   'work_experience',
-  'internships',
-
-  'about_me'
+  'internships'
 ]
 

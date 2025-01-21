@@ -32,7 +32,6 @@ import JournalPaperManagement from './profile/journal-papers.js'
 import ConferencePaperManagement from './profile/conference-papers.js'
 import Loading from './loading'
 import { EditProfile } from './profile/edit-profile'
-import { About } from './profile/about'
 
 const Profile = styled.div`
     font-family: 'Source Sans Pro';
@@ -261,24 +260,24 @@ export default function Profilepage({ details }) {
                         handleClose={() => handleModalClose('cv')}
                         modal={openModals.cv}
                     />
-                        </div>
-                    </div>
+                                            </div>
+                                        </div>
                                         
-
-                    <div className="faculty-details-row">
+            
+            <div className="faculty-details-row">
             <div className="fac-card">
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
                         <div>
-                            <h2 className="font-bold text-2xl pt-4">Profile Details</h2>
+                            <h2 style={{marginTop: '10px'}}>Profile Details</h2>
                             <div style={{ marginTop: '20px' }}>
-                                <h4 className="font-bold">Research Interest:</h4>
+                                <h4>Research Interest:</h4>
                                 <p>{detail?.profile?.research_interest}</p>
                                 
-                                <h4 className="font-bold" style={{marginTop: '10px'}}>Contact:</h4>
+                                <h4 style={{marginTop: '10px'}}>Contact:</h4>
                                 <p>Email: {detail?.profile?.email}</p>
                                 <p>Phone: {detail?.profile?.ext_no}</p>
                                 
-                                <h4 className="font-bold" style={{marginTop: '10px'}}>Social Media & Academic Links:</h4>
+                                <h4 style={{marginTop: '10px'}}>Social Media & Academic Links:</h4>
                                 {detail?.profile?.linkedin && (
                                     <p>LinkedIn: <a href={detail.profile.linkedin} target="_blank" rel="noopener noreferrer">{detail.profile.linkedin}</a></p>
                                 )}
@@ -299,13 +298,13 @@ export default function Profilepage({ details }) {
                                 )}
                             </div>
                         </div>
-                            <Button
-                                variant="contained"
+                        <Button
+                            variant="contained"
                             onClick={() => handleModalOpen('editProfile')}
                             sx={{ m: 2 }}
                         >
                             + Edit Details
-                            </Button>
+                        </Button>
                     </Box>
                     <EditProfile
                         handleClose={() => handleModalClose('editProfile')}
@@ -314,21 +313,19 @@ export default function Profilepage({ details }) {
                     />
                 </div>
 
-                <div className="fac-card">
-                    <About about={details?.about_me} />
-                </div>
+
                 <div className="fac-card">
                     <EducationManagement />
-                        </div>
+                                    </div>
                 <div className="fac-card">
                     <WorkshopConferenceManagement/>
-                            </div>
+                                </div>
                 <div className="fac-card">
                     <InstituteActivityManagement/>
                         </div>
                 <div className="fac-card">
                     <DepartmentActivityManagement/>
-                            </div>
+                    </div>
                 <div className="fac-card">
                     <InternshipManagement/>
                         </div>
@@ -352,13 +349,13 @@ export default function Profilepage({ details }) {
                         </div>
                 <div className="fac-card">
                 <ConsultancyProjectManagement/>
-                        </div>
-                <div className="fac-card">
-                <IPRManagement/>
                             </div>
                 <div className="fac-card">
-                <StartupManagement/>
+                <IPRManagement/>
                         </div>
+                <div className="fac-card">
+                <StartupManagement/>
+                            </div>
                 <div className="fac-card">
                 <MembershipManagement/>
                         </div>
@@ -375,12 +372,11 @@ export default function Profilepage({ details }) {
                 <ConferencePaperManagement/>
                         </div>
 
-
                 
 
 
 
-                            </div>
+                        </div>
 
           
 

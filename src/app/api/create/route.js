@@ -9,13 +9,12 @@ export async function POST(request) {
   
   if (!session) {
     return NextResponse.json(
-      { message: 'You must be logged in.' },
-      { status: 401 }
+      { message: 'You are not authorized' },
+      { status: 403 }
     )
   }
 
   try {
-    console.log('Received request:', await request.json())
     const { type, ...params } = await request.json()
 
     // Notice handling based on role
@@ -508,34 +507,8 @@ export async function POST(request) {
       }
     }
 
-    if (type === 'about') {
-      // Check if entry already exists
-      const existing = await query(
-        'SELECT * FROM about_me WHERE email = ?',
-        [params.email]
-      )
-
-      if (existing.length > 0) {
-        return NextResponse.json(
-          { message: 'About section already exists. Use update API.' },
-          { status: 400 }
-        )
-      }
-
-      // Create new entry
-      const result = await query(
-        'INSERT INTO about_me (email, content) VALUES (?, ?)',
-        [params.email, params.content]
-      )
-
-      return NextResponse.json({
-        message: 'About section created successfully',
-        result
-      })
-    }
-
     return NextResponse.json(
-      { message: 'Invalid request type' },
+      { message: 'Could not find matching requests' },
       { status: 400 }
     )
 
