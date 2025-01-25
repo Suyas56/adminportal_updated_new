@@ -83,6 +83,7 @@ export const AddForm = ({ handleClose, modal }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload();
             setSubmitting(false)
         }
     }
@@ -401,18 +402,23 @@ export default function SponsoredProjectManagement() {
                     body: JSON.stringify({
                         type: 'sponsored_projects',
                         id,
-                        email: session?.user?.email
+                        email: session?.user?.email,
                     }),
-                })
-                
-                if (!response.ok) throw new Error('Failed to delete')
-                refreshData()
+                });
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete');
+                }
+    
+                setProjects((prevProjects) => prevProjects.filter((project) => project.id !== id));
             } catch (error) {
-                console.error('Error:', error)
+                console.error('Error:', error);
+                alert('Failed to delete the project. Please try again.');
             }
         }
-    }
-
+    };
+    
     if (loading) return <div>Loading...</div>
 
     return (

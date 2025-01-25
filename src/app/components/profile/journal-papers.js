@@ -82,6 +82,7 @@ export const AddForm = ({ handleClose, modal }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload();
             setSubmitting(false)
         }
     }
@@ -214,65 +215,173 @@ export const AddForm = ({ handleClose, modal }) => {
         </Dialog>
     )
 }
-
-// Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
-    const { data: session } = useSession()
-    const [content, setContent] = useState(values)
-    const refreshData = useRefreshData(false)
-    const [submitting, setSubmitting] = useState(false)
+    const { data: session } = useSession();
+    const refreshData = useRefreshData(false);
+    const [submitting, setSubmitting] = useState(false);
+
+    // Initialize state with correctly formatted date
+    const [content, setContent] = useState({
+        ...values,
+        publication_date: values.publication_date
+            ? new Date(values.publication_date).toISOString().split('T')[0]
+            : '', // Default to an empty string if no date is provided
+    });
 
     const handleChange = (e) => {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
-        setContent({ ...content, [e.target.name]: value })
-    }
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        setContent({ ...content, [e.target.name]: value });
+    };
+
+    const handleDateChange = (newValue) => {
+        if (newValue) {
+            const formattedDate = new Date(newValue).toISOString().split('T')[0];
+            setContent({ ...content, publication_date: formattedDate });
+        } else {
+            setContent({ ...content, publication_date: '' });
+        }
+    };
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
-        e.preventDefault()
+        e.preventDefault();
+        setSubmitting(true);
 
         try {
-            const result = await fetch('/api/update', {
+            const response = await fetch('/api/update', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'journal_papers',
                     ...content,
-                    email: session?.user?.email
+                    email: session?.user?.email,
                 }),
-            })
+            });
 
-            if (!result.ok) throw new Error('Failed to update')
-            
-            handleClose()
-            refreshData()
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update');
+            }
+
+            handleClose();
+            refreshData();
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Error:', error);
         } finally {
-            setSubmitting(false)
+            setSubmitting(false);
         }
-    }
+    };
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Journal Paper</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
+                    <TextField
+                        margin="dense"
+                        label="Authors"
+                        name="authors"
+                        fullWidth
+                        required
+                        value={content.authors}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Title"
+                        name="title"
+                        fullWidth
+                        required
+                        value={content.title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Journal Name"
+                        name="journal_name"
+                        fullWidth
+                        required
+                        value={content.journal_name}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Volume"
+                        name="volume"
+                        fullWidth
+                        value={content.volume}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Publication Year"
+                        name="publication_year"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.publication_year}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Pages"
+                        name="pages"
+                        fullWidth
+                        value={content.pages}
+                        onChange={handleChange}
+                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Publication Date"
+                            value={content.publication_date ? new Date(content.publication_date) : null}
+                            onChange={handleDateChange}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                    </LocalizationProvider>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={content.student_involved}
+                                onChange={(e) =>
+                                    setContent({
+                                        ...content,
+                                        student_involved: e.target.checked,
+                                    })
+                                }
+                                name="student_involved"
+                            />
+                        }
+                        label="Student Involved"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Student Details"
+                        name="student_details"
+                        fullWidth
+                        value={content.student_details}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="DOI URL"
+                        name="doi_url"
+                        type="url"
+                        fullWidth
+                        value={content.doi_url}
+                        onChange={handleChange}
+                    />
                 </DialogContent>
                 <DialogActions>
-                    <Button
-                        type="submit"
-                        color="primary"
-                        disabled={submitting}
-                    >
+                    <Button type="submit" color="primary" disabled={submitting}>
                         {submitting ? 'Saving...' : 'Save'}
                     </Button>
                 </DialogActions>
             </form>
         </Dialog>
-    )
-}
+    );
+};
+
 
 // Main Component
 export default function JournalPaperManagement() {
@@ -308,7 +417,6 @@ export default function JournalPaperManagement() {
         setSelectedPaper(paper)
         setOpenEdit(true)
     }
-
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this paper?')) {
             try {
@@ -318,17 +426,24 @@ export default function JournalPaperManagement() {
                     body: JSON.stringify({
                         type: 'journal_papers',
                         id,
-                        email: session?.user?.email
+                        email: session?.user?.email,
                     }),
-                })
-                
-                if (!result.ok) throw new Error('Failed to delete')
-                refreshData()
+                });
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete');
+                }
+    
+                // Update the local state to remove the deleted item
+                setPapers((prevPapers) => prevPapers.filter((paper) => paper.id !== id));
             } catch (error) {
-                console.error('Error:', error)
+                console.error('Error:', error);
+                alert('Failed to delete the paper. Please try again.');
             }
         }
-    }
+    };
+    
 
     if (loading) return <div>Loading...</div>
 

@@ -73,6 +73,7 @@ export const AddForm = ({ handleClose, modal }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload();
             setSubmitting(false)
         }
     }
@@ -155,73 +156,138 @@ export const AddForm = ({ handleClose, modal }) => {
     )
 }
 
-// Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
-    const { data: session } = useSession()
-    const [content, setContent] = useState(values)
-    const refreshData = useRefreshData(false)
-    const [submitting, setSubmitting] = useState(false)
+    const { data: session } = useSession();
+    const [content, setContent] = useState({
+        ...values,
+        registration_date: values?.registration_date || null, // Ensure fallback for dates
+    });
+    const refreshData = useRefreshData(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const handleChange = (e) => {
-        setContent({ ...content, [e.target.name]: e.target.value })
-    }
+        const { name, value } = e.target;
+        setContent({ ...content, [name]: value });
+    };
+
+    const handleDateChange = (newValue) => {
+        try {
+            const dateValue = newValue
+                ? new Date(newValue).toISOString().split('T')[0]
+                : null;
+            setContent({ ...content, registration_date: dateValue });
+        } catch (error) {
+            console.error('Error parsing date:', error);
+        }
+    };
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
-        e.preventDefault()
+        e.preventDefault();
+        setSubmitting(true);
 
         try {
-            const result = await fetch('/api/update', {
+            if (!session?.user?.email) {
+                throw new Error('User email is required to update the record.');
+            }
+
+            const response = await fetch('/api/update', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'startups',
                     ...content,
-                    email: session?.user?.email
+                    email: session.user.email,
                 }),
-            })
+            });
 
-            if (!result.ok) throw new Error('Failed to update')
-            
-            handleClose()
-            refreshData()
+            if (!response.ok) {
+                throw new Error('Failed to update. Please try again.');
+            }
+
+            handleClose();
+            refreshData();
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Submission Error:', error);
         } finally {
-            setSubmitting(false)
+            setSubmitting(false);
         }
-    }
+    };
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Startup</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
                     <TextField
                         margin="dense"
                         label="Startup Name"
                         name="startup_name"
                         fullWidth
                         required
-                        value={content.startup_name}
+                        value={content.startup_name || ''}
                         onChange={handleChange}
                     />
-                    {/* ... other fields same as AddForm ... */}
+                    <TextField
+                        margin="dense"
+                        label="Incubation Place"
+                        name="incubation_place"
+                        fullWidth
+                        required
+                        value={content.incubation_place || ''}
+                        onChange={handleChange}
+                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Registration Date"
+                            value={content.registration_date ? new Date(content.registration_date) : null}
+                            onChange={handleDateChange}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                    </LocalizationProvider>
+                    <TextField
+                        margin="dense"
+                        label="Owners/Founders"
+                        name="owners_founders"
+                        fullWidth
+                        required
+                        value={content.owners_founders || ''}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Annual Income (₹)"
+                        name="annual_income"
+                        type="number"
+                        fullWidth
+                        value={content.annual_income || ''}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="PAN Number"
+                        name="pan_number"
+                        fullWidth
+                        required
+                        value={content.pan_number || ''}
+                        onChange={handleChange}
+                    />
                 </DialogContent>
                 <DialogActions>
-                    <Button
-                        type="submit"
-                        color="primary"
-                        disabled={submitting}
-                    >
+                    <Button type="button" onClick={handleClose} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button type="submit" color="primary" disabled={submitting}>
                         {submitting ? 'Saving...' : 'Save'}
                     </Button>
                 </DialogActions>
             </form>
         </Dialog>
-    )
-}
+    );
+};
+
 
 // Main Component
 export default function StartupManagement() {
@@ -267,17 +333,29 @@ export default function StartupManagement() {
                     body: JSON.stringify({
                         type: 'startups',
                         id,
-                        email: session?.user?.email
+                        email: session?.user?.email,
                     }),
-                })
-                
-                if (!response.ok) throw new Error('Failed to delete')
-                refreshData()
+                });
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete');
+                }
+    
+                // Update the local state to remove the deleted startup
+                setStartups((prevStartups) =>
+                    prevStartups.filter((startup) => startup.id !== id)
+                );
+    
+                alert('Startup deleted successfully.');
             } catch (error) {
-                console.error('Error:', error)
+                console.error('Error:', error);
+                alert('Failed to delete the startup. Please try again.');
             }
         }
-    }
+    };
+    
+    
 
     if (loading) return <div>Loading...</div>
 

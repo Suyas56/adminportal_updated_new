@@ -423,23 +423,29 @@ export async function POST(request) {
             )
             return NextResponse.json(workExpResult)
 
-          case 'ipr':
-            const iprResult = await query(
-              `INSERT INTO ipr(id, email, title, type, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-              [
-                params.id,
-                params.email,
-                params.title,
-                params.type,
-                params.registration_date,
-                params.publication_date,
-                params.grant_date,
-                params.grant_no,
-                params.applicant_name,
-                params.inventors
-              ]
-            )
-            return NextResponse.json(iprResult)
+            case 'ipr':
+    try {
+        // Validate required fields
+        const { id, email, title, type, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors } = params;
+
+        if (!id || !email || !title || !type) {
+            return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+        }
+
+        // Insert the record into the database
+        const iprResult = await query(
+            `INSERT INTO ipr (
+                id, email, title, type, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [id, email, title, type, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors]
+        );
+
+        return NextResponse.json({ message: 'Record created successfully', data: iprResult });
+    } catch (error) {
+        console.error('Error inserting IPR record:', error);
+        return NextResponse.json({ message: 'Error creating record', error: error.message }, { status: 500 });
+    }
+          
 
           case 'startups':
             const startupResult = await query(
