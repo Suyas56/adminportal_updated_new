@@ -24,7 +24,11 @@ import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { DatePicker } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -33,7 +37,9 @@ export const AddForm = ({ handleClose, modal }) => {
         project_title: '',
         student_details: '',
         internal_supervisors: '',
-        external_supervisors: ''
+        external_supervisors: '',
+        start_date:'',
+        end_date:''
     }
     const [content, setContent] = useState(initialState)
     const refreshData = useRefreshData(false)
@@ -58,9 +64,7 @@ export const AddForm = ({ handleClose, modal }) => {
                   start_date: content.start_date
                     ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
                     : null,
-                  end_date: content.end_date
-                    ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                    : null,
+                  end_date: content.end_date,
                   id: Date.now().toString(),
                   email: session?.user?.email,
                 }),
@@ -97,6 +101,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="BTech">B.Tech</MenuItem>
                         <MenuItem value="MTech">M.Tech</MenuItem>
                         <MenuItem value="PhD">PhD</MenuItem>
+                        <MenuItem value="MSC">MSC</MenuItem>
+                        <MenuItem value="MCA">MCA</MenuItem>
                         <MenuItem value="Other">Other</MenuItem>
                     </Select>
                     <TextField
@@ -138,6 +144,42 @@ export const AddForm = ({ handleClose, modal }) => {
                         onChange={handleChange}
                         helperText="Enter names separated by commas Name1, Name2, etc."
                     />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
+                                label="Start Date"
+                                value={content.start_date}
+                                onChange={(newValue) => 
+                                    setContent({ ...content, start_date: newValue})
+                                }
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" size="medium" />
+                                )}
+                            />
+                            <DatePicker
+                                label="End Date"
+                                value={content.end_date === "Continue" ? null : content.end_date}
+                                onChange={(newValue) =>
+                                    setContent({ ...content, end_date: newValue })
+                                }
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" size="medium" />
+                                )}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end_date === "Continue"}
+                                    onChange={(e) => 
+                                        setContent({
+                                            ...content,
+                                            end_date: e.target.checked ? "Continue" : null,
+                                        })
+                                    }
+                                />
+                            }
+                            label="Continue (End Date not known)"
+                        />
+                        </LocalizationProvider>
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -208,6 +250,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <MenuItem value="BTech">B.Tech</MenuItem>
                         <MenuItem value="MTech">M.Tech</MenuItem>
                         <MenuItem value="PhD">PhD</MenuItem>
+                        <MenuItem value="MSC">MSC</MenuItem>
+                        <MenuItem value="MCA">MCA</MenuItem>
                         <MenuItem value="Other">Other</MenuItem>
                     </Select>
                     <TextField
@@ -249,6 +293,42 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         onChange={handleChange}
                         helperText="Enter names separated by commas Name1, Name2, etc."
                     />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
+                                label="Start Date"
+                                value={new Date(content.start_date)}
+                                onChange={(newValue) => 
+                                    setContent({ ...content, start_date: newValue})
+                                }
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" size="medium" />
+                                )}
+                            />
+                            <DatePicker
+                                label="End Date"
+                                value={content.end_date === "Continue" ? null : new Date(content.end_date)}
+                                onChange={(newValue) =>
+                                    setContent({ ...content, end_date: newValue })
+                                }
+                                renderInput={(params) => (
+                                    <TextField {...params} fullWidth margin="dense" size="medium" />
+                                )}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end_date === "Continue"}
+                                    onChange={(e) => 
+                                        setContent({
+                                            ...content,
+                                            end_date: e.target.checked ? "Continue" : null,
+                                        })
+                                    }
+                                />
+                            }
+                            label="Continue (End Date not known)"
+                        />
+                        </LocalizationProvider>
                 </DialogContent>
                 <DialogActions>
                     <Button

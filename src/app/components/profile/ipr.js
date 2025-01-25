@@ -59,7 +59,8 @@ export const AddForm = ({ handleClose, modal }) => {
                 id: Date.now().toString(),
                 email: session?.user?.email?.trim() || '',
                 title: content.title?.trim() || '',
-                type: content.type?.trim() || '',
+                type:'ipr',
+                iprtype: content.type?.trim() || '',
                 registration_date: content.registration_date
                     ? new Date(content.registration_date).toISOString().split('T')[0]
                     : null,
@@ -101,6 +102,7 @@ export const AddForm = ({ handleClose, modal }) => {
             console.error('An unexpected error occurred:', error);
             alert('An unexpected error occurred. Please try again.');
         } finally {
+            window.location.reload()
             setSubmitting(false);
         }
     };
@@ -222,15 +224,19 @@ export const EditForm = ({ handleClose, modal, values }) => {
     const handleSubmit = async (e) => {
         setSubmitting(true)
         e.preventDefault()
-
+        // const formattedPatentDate = new Date(content.patent_date).toISOString().split('T')[0]
         try {
             const result = await fetch('/api/update', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'ipr',
                     ...content,
-                    email: session?.user?.email
+                    type: 'ipr',
+                    email: session?.user?.email,
+                    iprtype:content.type,
+                    registration_date:new Date(content.registration_date).toISOString().split('T')[0],
+                    publication_date:new Date(content.publication_date).toISOString().split("T")[0],
+                    grant_date:new Date(content.grant_date).toISOString().split("T")[0]
                 }),
             })
 
@@ -241,28 +247,122 @@ export const EditForm = ({ handleClose, modal, values }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload();
             setSubmitting(false)
         }
     }
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
-            <form onSubmit={handleSubmit}>
-                <DialogTitle>Edit IPR</DialogTitle>
-                <DialogContent>
-                    {/* Same form fields as AddForm */}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        type="submit"
-                        color="primary"
-                        disabled={submitting}
-                    >
-                        {submitting ? 'Saving...' : 'Save'}
-                    </Button>
-                </DialogActions>
-            </form>
-        </Dialog>
+    <form onSubmit={handleSubmit}>
+        <DialogTitle>Edit IPR</DialogTitle>
+        <DialogContent>
+            {/* Title Field */}
+            <TextField
+                margin="dense"
+                label="Title"
+                name="title"
+                fullWidth
+                required
+                value={content.title}
+                onChange={handleChange}
+            />
+            
+            {/* IPR Type Field */}
+            <InputLabel id="type">IPR Type</InputLabel>
+            <Select
+                labelId="type"
+                name="type"
+                value={content.type}
+                onChange={handleChange}
+                fullWidth
+                required
+            >
+                <MenuItem value="Patent">Patent</MenuItem>
+                <MenuItem value="Copyright">Copyright</MenuItem>
+                <MenuItem value="Trademark">Trademark</MenuItem>
+                <MenuItem value="Industrial Design">Industrial Design</MenuItem>
+            </Select>
+
+            {/* Date Pickers for Registration, Publication, and Grant Dates */}
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                    label="Registration Date"
+                    value={new Date(content.registration_date)}
+                    onChange={(newValue) => 
+                        setContent({ ...content, registration_date: newValue })
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth margin="dense" />
+                    )}
+                />
+                <DatePicker
+                    label="Publication Date"
+                    value={new Date(content.publication_date)}
+                    onChange={(newValue) => 
+                        setContent({ ...content, publication_date: newValue })
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth margin="dense" />
+                    )}
+                />
+                <DatePicker
+                    label="Grant Date"
+                    value={new Date(content.grant_date)}
+                    onChange={(newValue) => 
+                        setContent({ ...content, grant_date: newValue })
+                    }
+                    renderInput={(params) => (
+                        <TextField {...params} fullWidth margin="dense" />
+                    )}
+                />
+            </LocalizationProvider>
+
+            {/* Grant Number */}
+            <TextField
+                margin="dense"
+                label="Grant Number"
+                name="grant_no"
+                fullWidth
+                value={content.grant_no}
+                onChange={handleChange}
+            />
+
+            {/* Applicant Name */}
+            <TextField
+                margin="dense"
+                label="Applicant Name"
+                name="applicant_name"
+                fullWidth
+                required
+                value={content.applicant_name}
+                onChange={handleChange}
+            />
+
+            {/* Inventors Field */}
+            <TextField
+                margin="dense"
+                label="Inventors"
+                name="inventors"
+                fullWidth
+                required
+                value={content.inventors}
+                onChange={handleChange}
+                helperText="Enter names separated by commas"
+            />
+        </DialogContent>
+        <DialogActions>
+            <Button
+                type="submit"
+                color="primary"
+                disabled={submitting}
+            >
+                {submitting ? 'Saving...' : 'Save'}
+            </Button>
+        </DialogActions>
+    </form>
+</Dialog>
+
     )
 }
 
@@ -316,6 +416,7 @@ export default function IPRManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }
