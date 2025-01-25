@@ -50,41 +50,61 @@ export const AddForm = ({ handleClose, modal }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
-        e.preventDefault()
-
+        e.preventDefault();
+        setSubmitting(true);
+    
         try {
-            const result = await fetch('/api/create', {
+            // Construct the request payload
+            const requestBody = {
+                id: Date.now().toString(),
+                email: session?.user?.email?.trim() || '',
+                title: content.title?.trim() || '',
+                type: content.type?.trim() || '',
+                registration_date: content.registration_date
+                    ? new Date(content.registration_date).toISOString().split('T')[0]
+                    : null,
+                publication_date: content.publication_date
+                    ? new Date(content.publication_date).toISOString().split('T')[0]
+                    : null,
+                grant_date: content.grant_date
+                    ? new Date(content.grant_date).toISOString().split('T')[0]
+                    : null,
+                grant_no: content.grant_no?.trim() || '',
+                applicant_name: content.applicant_name?.trim() || '',
+                inventors: content.inventors?.trim() || '',
+            };
+    
+            // Ensure required fields are filled
+            if (!requestBody.email || !requestBody.title || !requestBody.type) {
+                alert('Please fill out all required fields.');
+                setSubmitting(false);
+                return;
+            }
+    
+            // Make the API call
+            const response = await fetch('/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'ipr',
-                    ...content,
-                    // Example: Handle date fields if present (e.g., creation_date, expiry_date)
-                    creation_date: content.creation_date
-                        ? new Date(content.creation_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                        : null,
-                    expiry_date: content.expiry_date
-                        ? new Date(content.expiry_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                        : null,
-                    id: Date.now().toString(),
-                    email: session?.user?.email
-                }),
+                body: JSON.stringify(requestBody),
             });
-            
-            
-            
-            if (!result.ok) throw new Error('Failed to create')
-            
-            handleClose()
-            refreshData()
-            setContent(initialState)
+    
+            if (response.ok) {
+                console.log('Record created successfully');
+                handleClose();
+                refreshData();
+                setContent(initialState); // Reset form state
+            } else {
+                const errorData = await response.json();
+                alert(`Failed to create record: ${errorData.message || 'Unknown error'}`);
+            }
         } catch (error) {
-            console.error('Error:', error)
+            console.error('An unexpected error occurred:', error);
+            alert('An unexpected error occurred. Please try again.');
         } finally {
-            setSubmitting(false)
+            setSubmitting(false);
         }
-    }
+    };
+    
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>

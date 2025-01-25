@@ -255,20 +255,21 @@ await query(`CREATE TABLE IF NOT EXISTS consultancy_projects (
     investigators VARCHAR(500),
     status VARCHAR(50)
 );`).catch((e) => console.log(e));
-
-// IPR
-await query(`CREATE TABLE IF NOT EXISTS ipr (
-    id VARCHAR(255) PRIMARY KEY,
-    email VARCHAR(255),
-    title VARCHAR(500),
-    type VARCHAR(50),
-    registration_date DATE,
-    publication_date DATE,
-    grant_date DATE,
-    grant_no VARCHAR(100),
-    applicant_name VARCHAR(255),
-    inventors VARCHAR(500)
-);`).catch((e) => console.log(e));
+//ipr
+await query(`
+    CREATE TABLE IF NOT EXISTS ipr (
+        id VARCHAR(255) PRIMARY KEY,
+        email VARCHAR(255),
+        title VARCHAR(500),
+        type VARCHAR(50),
+        registration_date DATE,
+        publication_date DATE,
+        grant_date DATE,
+        grant_no VARCHAR(100),
+        applicant_name VARCHAR(255),
+        inventors VARCHAR(500)
+    );
+`).catch((e) => console.error('Error creating table:', e));
 
 // Startups
 await query(`CREATE TABLE IF NOT EXISTS startups (
