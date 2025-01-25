@@ -143,6 +143,22 @@ export async function PUT(request) {
           )
           return NextResponse.json(eventResult)
 
+          case 'patents':
+            const patentResult = await query(
+                `UPDATE patents
+                SET title = ?, description = ?, patent_date = ?, email = ?
+                WHERE id = ?`,
+                [
+                    params.title,
+                    params.description,
+                    params.patent_date,
+                    params.email,
+                    params.id 
+                ]
+            );
+            return NextResponse.json(patentResult);
+
+
         case 'innovation':
           const innovationResult = await query(
             `UPDATE innovation SET 
@@ -496,7 +512,7 @@ export async function PUT(request) {
              WHERE id = ? AND email = ?`,
             [
               params.title,
-              params.type,
+              params.iprtype,
               params.registration_date,
               params.publication_date,
               params.grant_date,
@@ -568,26 +584,30 @@ export async function PUT(request) {
           )
           return NextResponse.json(teachingResult)
 
-        case 'project_supervision':
-          const supervisionResult = await query(
-            `UPDATE project_supervision SET 
-             category = ?,
-             project_title = ?,
-             student_details = ?,
-             internal_supervisors = ?,
-             external_supervisors = ?
-             WHERE id = ? AND email = ?`,
-            [
-              params.category,
-              params.project_title,
-              params.student_details,
-              params.internal_supervisors,
-              params.external_supervisors,
-              params.id,
-              params.email
-            ]
-          )
-          return NextResponse.json(supervisionResult)
+          case 'project_supervision':
+            const supervisionResult = await query(
+                `UPDATE project_supervision SET 
+                    category = ?, 
+                    project_title = ?, 
+                    student_details = ?, 
+                    internal_supervisors = ?, 
+                    external_supervisors = ?, 
+                    start_date = ?, 
+                    end_date = ?
+                 WHERE id = ? AND email = ?`,
+                [
+                    params.category,
+                    params.project_title,
+                    params.student_details,
+                    params.internal_supervisors,
+                    params.external_supervisors,
+                    params.start_date,
+                    params.end_date, 
+                    params.id,
+                    params.email
+                ]
+            );
+            return NextResponse.json(supervisionResult);
 
         case 'workshops_conferences':
           const workshopResult = await query(

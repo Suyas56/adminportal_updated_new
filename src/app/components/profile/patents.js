@@ -46,6 +46,7 @@ export const AddForm = ({ handleClose, modal }) => {
         e.preventDefault()
 
         try {
+            const formattedPatentDate = new Date(content.patent_date).toISOString().split('T')[0]
             const result = await fetch('/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -53,7 +54,8 @@ export const AddForm = ({ handleClose, modal }) => {
                     type: 'patents',
                     ...content,
                     id: Date.now().toString(),
-                    email: session?.user?.email
+                    email: session?.user?.email,
+                    patent_date: formattedPatentDate,
                 }),
             })
 
@@ -65,6 +67,7 @@ export const AddForm = ({ handleClose, modal }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -143,7 +146,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'patents',
                     ...content,
-                    email: session?.user?.email
+                    email: session?.user?.email,
+                    patent_date:new Date(content.patent_date).toISOString().split("T")[[0]]
                 }),
             })
 
@@ -154,6 +158,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -186,7 +191,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Patent Date"
-                            value={content.patent_date}
+                            value={new Date(content.patent_date)}
                             onChange={(newValue) => 
                                 setContent({ ...content, patent_date: newValue})
                             }
@@ -260,6 +265,7 @@ export default function PatentManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }

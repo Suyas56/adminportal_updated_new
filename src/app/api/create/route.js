@@ -341,21 +341,24 @@ export async function POST(request) {
             )
             return NextResponse.json(teachingResult)
 
-          case 'project_supervision':
-            const supervisionResult = await query(
-              `INSERT INTO project_supervision(id, email, category, project_title, student_details, internal_supervisors, external_supervisors) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-              [
-                params.id,
-                params.email,
-                params.category,
-                params.project_title,
-                params.student_details,
-                params.internal_supervisors,
-                params.external_supervisors
-              ]
-            )
-            return NextResponse.json(supervisionResult)
-
+            case 'project_supervision':
+              const supervisionResult = await query(
+                  `INSERT INTO project_supervision(id, email, category, project_title, student_details, internal_supervisors, external_supervisors, start_date, end_date) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                  [
+                      params.id,
+                      params.email,
+                      params.category,
+                      params.project_title,
+                      params.student_details,
+                      params.internal_supervisors,
+                      params.external_supervisors,
+                      params.start_date, 
+                      params.end_date 
+                  ]
+              );
+              return NextResponse.json(supervisionResult);
+      
             case 'workshops_conferences':
               // Debugging
               console.log('params:', params);
@@ -426,7 +429,7 @@ export async function POST(request) {
             case 'ipr':
     try {
         // Validate required fields
-        const { id, email, title, type, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors } = params;
+        const { id, email, title, iprtype, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors } = params;
 
         if (!id || !email || !title || !type) {
             return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -437,7 +440,7 @@ export async function POST(request) {
             `INSERT INTO ipr (
                 id, email, title, type, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [id, email, title, type, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors]
+            [id, email, title, iprtype, registration_date, publication_date, grant_date, grant_no, applicant_name, inventors]
         );
 
         return NextResponse.json({ message: 'Record created successfully', data: iprResult });
@@ -462,6 +465,19 @@ export async function POST(request) {
               ]
             )
             return NextResponse.json(startupResult)
+
+            case 'patents':
+              const patentResult = await query(
+                `INSERT INTO patents(id, title, description, patent_date, email) VALUES (?, ?, ?, ?, ?)`,
+                [
+                  params.id,
+                  params.title,
+                  params.description,
+                  params.patent_date,
+                  params.email
+                ]
+              )
+              return NextResponse.json(patentResult)
 
           case 'internships':
             const internshipResult = await query(

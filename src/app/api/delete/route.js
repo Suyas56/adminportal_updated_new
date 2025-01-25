@@ -114,6 +114,19 @@ export async function POST(request) {
           )
           return NextResponse.json(phdResult)
 
+          case 'patents':
+            const deleteResult = await query(
+                `DELETE FROM patents WHERE id = ?`,
+                [params.id]
+            );
+        
+            if (deleteResult.affectedRows > 0) {
+                return NextResponse.json({ message: 'Patent deleted successfully' });
+            } else {
+                return NextResponse.json({ message: 'Patent not found' }, { status: 404 });
+            }
+        
+
         case 'journal_papers':
           const journalResult = await query(
             `DELETE FROM journal_papers WHERE id = ? AND email = ?`,
