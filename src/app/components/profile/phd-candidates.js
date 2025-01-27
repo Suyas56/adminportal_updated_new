@@ -182,7 +182,16 @@ export const AddForm = ({ handleClose, modal }) => {
 // Edit Form Component
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession()
-    const [content, setContent] = useState(values)
+    const [content, setContent] = useState({
+        student_name: values.student_name || '',
+        roll_no: values.roll_no || '',
+        registration_year: values.registration_year || new Date().getFullYear(),
+        registration_type: values.registration_type || '',
+        research_area: values.research_area || '',
+        other_supervisors: values.other_supervisors || '',
+        current_status: values.current_status || 'Ongoing',
+        completion_year: values.completion_year || ''
+    })
     const refreshData = useRefreshData(false)
     const [submitting, setSubmitting] = useState(false)
 
@@ -191,8 +200,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
         e.preventDefault()
+        setSubmitting(true)
 
         try {
             const result = await fetch('/api/update', {
@@ -200,28 +209,31 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'phd_candidates',
-                    ...content,
-                    email: session?.user?.email
+                    id: values.id,
+                    email: session?.user?.email,
+                    ...content
                 }),
             })
 
-            if (!result.ok) throw new Error('Failed to update')
-            
-            handleClose()
+            if (!result.ok) {
+                throw new Error('Failed to update PhD candidate')
+            }
+
             refreshData()
+            handleClose()
         } catch (error) {
             console.error('Error:', error)
         } finally {
             setSubmitting(false)
+            window.location.reload()
         }
     }
 
     return (
-        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+        <Dialog open={modal} onClose={handleClose}>
             <form onSubmit={handleSubmit}>
-                <DialogTitle>Edit PhD Student</DialogTitle>
+                <DialogTitle>Edit PhD Candidate</DialogTitle>
                 <DialogContent>
-                    {/* Same form fields as AddForm */}
                     <TextField
                         margin="dense"
                         label="Student Name"
@@ -231,11 +243,83 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.student_name}
                         onChange={handleChange}
                     />
-                    {/* ... other fields same as AddForm ... */}
+                    <TextField
+                        margin="dense"
+                        label="Roll Number"
+                        name="roll_no"
+                        fullWidth
+                        required
+                        value={content.roll_no}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Registration Year"
+                        name="registration_year"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.registration_year}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Registration Type"
+                        name="registration_type"
+                        fullWidth
+                        required
+                        value={content.registration_type}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Research Area"
+                        name="research_area"
+                        fullWidth
+                        required
+                        value={content.research_area}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Other Supervisors"
+                        name="other_supervisors"
+                        fullWidth
+                        value={content.other_supervisors}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas"
+                    />
+                    <TextField
+                        select
+                        margin="dense"
+                        label="Current Status"
+                        name="current_status"
+                        fullWidth
+                        required
+                        value={content.current_status}
+                        onChange={handleChange}
+                    >
+                        <MenuItem value="Ongoing">Ongoing</MenuItem>
+                        <MenuItem value="Completed">Completed</MenuItem>
+                        <MenuItem value="Discontinued">Discontinued</MenuItem>
+                    </TextField>
+                    {content.current_status === 'Completed' && (
+                        <TextField
+                            margin="dense"
+                            label="Completion Year"
+                            name="completion_year"
+                            type="number"
+                            fullWidth
+                            required
+                            value={content.completion_year}
+                            onChange={handleChange}
+                        />
+                    )}
                 </DialogContent>
                 <DialogActions>
-                    <Button
-                        type="submit"
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button 
+                        type="submit" 
                         color="primary"
                         disabled={submitting}
                     >
