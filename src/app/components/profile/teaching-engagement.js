@@ -103,15 +103,24 @@ export const AddForm = ({ handleClose, modal }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Add Teaching Engagement</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Semester"
-                        name="semester"
-                        fullWidth
-                        required
-                        value={content.semester}
-                        onChange={handleChange}
-                    />
+                <TextField
+    margin="dense"
+    label="Semester"
+    name="semester"
+    select
+    fullWidth
+    required
+    value={content.semester}
+    onChange={handleChange}
+>
+    {[...Array(10).keys()].map((num) => (
+        <MenuItem key={num + 1} value={num + 1}>
+            {num + 1}
+        </MenuItem>
+    ))}
+</TextField>
+
+
                     <InputLabel id="level">Level</InputLabel>
                     <Select
                         labelId="level"
@@ -296,15 +305,23 @@ export const EditForm = ({ handleClose, modal, values }) => {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Teaching Engagement</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Semester"
-                        name="semester"
-                        fullWidth
-                        required
-                        value={content.semester}
-                        onChange={handleChange}
-                    />
+                <TextField
+    margin="dense"
+    label="Semester"
+    name="semester"
+    select
+    fullWidth
+    required
+    value={content.semester}
+    onChange={handleChange}
+>
+    {[...Array(10).keys()].map((num) => (
+        <MenuItem key={num + 1} value={num + 1}>
+            {num + 1}
+        </MenuItem>
+    ))}
+</TextField>
+
                     <TextField
                         margin="dense"
                         label="Level"

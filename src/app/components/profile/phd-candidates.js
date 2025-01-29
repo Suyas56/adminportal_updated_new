@@ -153,16 +153,21 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Discontinued">Discontinued</MenuItem>
                     </Select>
                     {content.current_status === 'Completed' && (
-                        <TextField
-                            margin="dense"
-                            label="Completion Year"
-                            name="completion_year"
-                            type="number"
-                            fullWidth
-                            required
+                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={enUS}>
+                        <DatePicker
+                            label="Completion Date"
                             value={content.completion_year}
-                            onChange={handleChange}
+                            onChange={(newValue)=>set}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    margin="dense"
+                                    fullWidth
+                                    required
+                                />
+                            )}
                         />
+                    </LocalizationProvider>
                     )}
                 </DialogContent>
                 <DialogActions>

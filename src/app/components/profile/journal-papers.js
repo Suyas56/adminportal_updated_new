@@ -268,6 +268,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             console.error('Error:', error);
         } finally {
             setSubmitting(false);
+            window.location.reload();
         }
     };
 
@@ -329,6 +330,19 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.pages}
                         onChange={handleChange}
                     />
+                    <InputLabel id="quartile">Journal Quartile</InputLabel>
+                    <Select
+                        labelId="quartile"
+                        name="journal_quartile"
+                        value={content.journal_quartile}
+                        onChange={handleChange}
+                        fullWidth
+                    >
+                        <MenuItem value="Q1">Q1</MenuItem>
+                        <MenuItem value="Q2">Q2</MenuItem>
+                        <MenuItem value="Q3">Q3</MenuItem>
+                        <MenuItem value="Q4">Q4</MenuItem>
+                    </Select>
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Publication Date"
