@@ -165,6 +165,7 @@ export default function InstituteActivityManagement() {
                 console.error('Error:', error)
                 showToast('Failed to add institute activity', 'error')
             } finally {
+                window.location.reload()
                 setSubmitting(false)
             }
         }

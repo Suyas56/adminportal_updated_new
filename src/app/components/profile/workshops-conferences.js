@@ -118,6 +118,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Conference">Conference</MenuItem>
                         <MenuItem value="Seminar">Seminar</MenuItem>
                         <MenuItem value="Symposium">Symposium</MenuItem>
+                        <MenuItem value="National">National</MenuItem>
+                        <MenuItem value="International">International</MenuItem>
                     </Select>
                     <InputLabel id="role">Role</InputLabel>
                     <Select
@@ -265,6 +267,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <MenuItem value="Workshop">Workshop</MenuItem>
                         <MenuItem value="Conference">Conference</MenuItem>
                         <MenuItem value="Seminar">Seminar</MenuItem>
+                        <MenuItem value="National">National</MenuItem>
+                        <MenuItem value="International">International</MenuItem>
                         <MenuItem value="Other">Other</MenuItem>
                     </TextField>
                     <TextField

@@ -20,11 +20,10 @@ import {
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState, useEffect } from 'react'
-import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-import Toast from '../common/Toast'
+
 export function EducationManagement() {
     const { data: session } = useSession()
     const [educations, setEducations] = useState([])
@@ -32,8 +31,7 @@ export function EducationManagement() {
     const [openEdit, setOpenEdit] = useState(false)
     const [selectedEducation, setSelectedEducation] = useState(null)
     const [loading, setLoading] = useState(true)
- 
-    // Fetch education data
+
     useEffect(() => {
         const fetchEducation = async () => {
             try {
@@ -46,7 +44,6 @@ export function EducationManagement() {
                 setLoading(false)
             }
         }
-
         if (session?.user?.email) {
             fetchEducation()
         }
@@ -54,7 +51,6 @@ export function EducationManagement() {
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this education record?')) return
-
         try {
             const res = await fetch('/api/delete', {
                 method: 'POST',
@@ -63,15 +59,11 @@ export function EducationManagement() {
                     type: 'education',
                     id,
                     email: session?.user?.email
-                    
                 })
             })
-
             if (!res.ok) throw new Error('Failed to delete')
-
             setEducations(prev => prev.filter(edu => edu.id !== id))
-          
-                window.location.reload()
+            window.location.reload()
         } catch (error) {
             console.error('Error deleting education:', error)
         }
@@ -81,15 +73,10 @@ export function EducationManagement() {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
                 <Typography variant="h6">Education</Typography>
-                <Button
-                    startIcon={<AddIcon />}
-                    variant="contained"
-                    onClick={() => setOpenAdd(true)}
-                >
+                <Button startIcon={<AddIcon />} variant="contained" onClick={() => setOpenAdd(true)}>
                     Add Education
                 </Button>
             </div>
-
             {loading ? (
                 <div>Loading education details...</div>
             ) : (
@@ -110,12 +97,7 @@ export function EducationManagement() {
                                     <TableCell>{edu.institution}</TableCell>
                                     <TableCell>{edu.passing_year}</TableCell>
                                     <TableCell>
-                                        <IconButton 
-                                            onClick={() => {
-                                                setSelectedEducation(edu)
-                                                setOpenEdit(true)
-                                            }}
-                                        >
+                                        <IconButton onClick={() => { setSelectedEducation(edu); setOpenEdit(true) }}>
                                             <EditIcon />
                                         </IconButton>
                                         <IconButton onClick={() => handleDelete(edu.id)}>
@@ -128,84 +110,41 @@ export function EducationManagement() {
                     </Table>
                 </TableContainer>
             )}
-
-            
-            <AddEducation
-                open={openAdd}
-                onClose={() => setOpenAdd(false)}
-                onSuccess={(newEdu) => {
-                    setEducations(prev => [...prev, newEdu])
-                    setOpenAdd(false)
-                }}
-            />
-
-            
+            <AddEducation open={openAdd} onClose={() => setOpenAdd(false)} onSuccess={(newEdu) => { setEducations(prev => [...prev, newEdu]); setOpenAdd(false) }} />
             {selectedEducation && (
-                <EditEducation
-                    open={openEdit}
-                    onClose={() => {
-                        setOpenEdit(false)
-                        setSelectedEducation(null)
-                    }}
-                    education={selectedEducation}
-                    onSuccess={(updatedEdu) => {
-                        setEducations(prev => 
-                            prev.map(edu => edu.id === updatedEdu.id ? updatedEdu : edu)
-                        )
-                        setOpenEdit(false)
-                        setSelectedEducation(null)
-                    }}
-                />
+                <EditEducation open={openEdit} onClose={() => { setOpenEdit(false); setSelectedEducation(null) }} education={selectedEducation} onSuccess={(updatedEdu) => { setEducations(prev => prev.map(edu => edu.id === updatedEdu.id ? updatedEdu : edu)); setOpenEdit(false); setSelectedEducation(null) }} />
             )}
         </div>
     )
 }
 
+const degreeOptions = [
+    "PhD", "M.Tech", "B.Tech", "M.Arch", "B.Arch", "BSc", "MSc", "MCA"
+]
+
 export function AddEducation({ open, onClose, onSuccess }) {
     const { data: session } = useSession()
-    const [formData, setFormData] = useState({
-        degree: '',
-        institution: '',
-        year: ''
-    })
-    const [submitting, setSubmitting] = useState(false)
-   
-
-    const generateYearOptions = () => {
-        const currentYear = new Date().getFullYear()
-        const years = []
-        for (let year = currentYear; year >= 1900; year--) {
-            years.push(year)
-        }
-        return years
-    }
-
+    const [formData, setFormData] = useState({ degree: '', institution: '', year: '' })
+    
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setSubmitting(true)
-
         try {
             const res = await fetch('/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'education',
-                    id: parseInt(new Date().getTime()),
+                    id: Date.now(),
                     ...formData,
                     email: session?.user?.email
                 })
             })
-
             if (!res.ok) throw new Error('Failed to add education')
-
             const newEducation = await res.json()
             onSuccess(newEducation)
-            
-              window.location.reload()
+            window.location.reload()
         } catch (error) {
             console.error('Error adding education:', error)
-        } finally {
-            setSubmitting(false)
         }
     }
 
@@ -214,43 +153,17 @@ export function AddEducation({ open, onClose, onSuccess }) {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Add Education</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        fullWidth
-                        label="Degree"
-                        value={formData.degree}
-                        onChange={(e) => setFormData(prev => ({ ...prev, degree: e.target.value }))}
-                        margin="normal"
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        label="Institution"
-                        value={formData.institution}
-                        onChange={(e) => setFormData(prev => ({ ...prev, institution: e.target.value }))}
-                        margin="normal"
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        select
-                        label="Year"
-                        value={formData.year}
-                        onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))}
-                        margin="normal"
-                        required
-                    >
-                        {generateYearOptions().map((year) => (
-                            <MenuItem key={year} value={year}>
-                                {year}
-                            </MenuItem>
+                    <TextField fullWidth select label="Degree" value={formData.degree} onChange={(e) => setFormData(prev => ({ ...prev, degree: e.target.value }))} margin="normal" required>
+                        {degreeOptions.map((degree) => (
+                            <MenuItem key={degree} value={degree}>{degree}</MenuItem>
                         ))}
                     </TextField>
+                    <TextField fullWidth label="Institution" value={formData.institution} onChange={(e) => setFormData(prev => ({ ...prev, institution: e.target.value }))} margin="normal" required />
+                    <TextField fullWidth label="Year" value={formData.year} onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))} margin="normal" required />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose}>Cancel</Button>
-                    <Button type="submit" disabled={submitting} variant="contained">
-                        {submitting ? 'Adding...' : 'Add'}
-                    </Button>
+                    <Button type="submit" variant="contained">Add</Button>
                 </DialogActions>
             </form>
         </Dialog>
@@ -293,6 +206,7 @@ export function EditEducation({ open, onClose, education, onSuccess }) {
         } catch (error) {
             console.error('Error updating education:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -302,14 +216,24 @@ export function EditEducation({ open, onClose, education, onSuccess }) {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>Edit Education</DialogTitle>
                 <DialogContent>
+                    {/* Dropdown for Degree */}
                     <TextField
                         fullWidth
+                        select
                         label="Degree"
                         value={formData.certification}
                         onChange={(e) => setFormData(prev => ({ ...prev, certification: e.target.value }))}
                         margin="normal"
                         required
-                    />
+                    >
+                        {degreeOptions.map((degree) => (
+                            <MenuItem key={degree} value={degree}>
+                                {degree}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+
+                    {/* Input for Institution */}
                     <TextField
                         fullWidth
                         label="Institution"
@@ -318,6 +242,8 @@ export function EditEducation({ open, onClose, education, onSuccess }) {
                         margin="normal"
                         required
                     />
+
+                    {/* Dropdown for Year */}
                     <TextField
                         fullWidth
                         select
