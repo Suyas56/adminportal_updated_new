@@ -315,13 +315,7 @@ export default function Profilepage({ details }) {
                 </div>
 
 
-                <div className="fac-card">
-                    <AboutYouPage />
-                                    </div>
-                                    <div className="fac-card">
-                    <ExperiencePage />
-                                    </div>
-
+               
                 <div className="fac-card">
                     <EducationManagement />
                                     </div>
