@@ -111,7 +111,7 @@ export const AddForm = ({ handleClose, modal }) => {
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
-                <DialogTitle>Add IPR</DialogTitle>
+                <DialogTitle>Add IPR / Patent</DialogTitle>
                 <DialogContent>
                     <TextField
                         margin="dense"
@@ -428,13 +428,13 @@ export default function IPRManagement() {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-                <Typography variant="h6">IPR</Typography>
+                <Typography variant="h6">IPR/Patent</Typography>
                 <Button
                     startIcon={<AddIcon />}
                     variant="contained"
                     onClick={() => setOpenAdd(true)}
                 >
-                    Add IPR
+                    Add IPR / Patent
                 </Button>
             </div>
             <TableContainer component={Paper}>
@@ -445,6 +445,9 @@ export default function IPRManagement() {
                             <TableCell>Type</TableCell>
                             <TableCell>Grant No</TableCell>
                             <TableCell>Grant Date</TableCell>
+                            <TableCell>Registration Date</TableCell>
+                            <TableCell>Publication Date</TableCell>
+                            <TableCell>Applicant Name</TableCell>
                             <TableCell>Inventors</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
@@ -458,6 +461,13 @@ export default function IPRManagement() {
                                 <TableCell>
                                     {ipr.grant_date ? new Date(ipr.grant_date).toLocaleDateString() : '-'}
                                 </TableCell>
+                                <TableCell>
+                                    {ipr.registration_date ? new Date(ipr.registration_date).toLocaleDateString() : '-'}
+                                </TableCell>
+                                <TableCell>
+                                    {ipr.publication_date ? new Date(ipr.publication_date).toLocaleDateString() : '-'}
+                                </TableCell>
+                                <TableCell>{ipr.applicant_name}</TableCell>
                                 <TableCell>{ipr.inventors}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 

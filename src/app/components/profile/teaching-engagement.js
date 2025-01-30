@@ -233,7 +233,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.years_offered}
                         onChange={handleChange}
-                        helperText="e.g., 2020-2023 *strictly in the format YYYY-YYYY otherwise no computation will be done"
+                        helperText="e.g., 2024 *strictly in the format YYYY otherwise no computation will be done"
                     />
                 </DialogContent>
                 <DialogActions>
@@ -503,6 +503,7 @@ export default function TeachingEngagementManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }

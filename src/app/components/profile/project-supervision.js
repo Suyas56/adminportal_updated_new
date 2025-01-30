@@ -394,6 +394,7 @@ export default function ProjectSupervisionManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }

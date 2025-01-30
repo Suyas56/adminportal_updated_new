@@ -24,7 +24,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-
+import { parseISO, format } from 'date-fns';
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -152,6 +152,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'memberships',
                     ...content,
+                    start_date: content.start_date ? new Date(content.start_date).toISOString().split('T')[0] : null,
+                    end_date: content.end_date ? new Date(content.end_date).toISOString().split('T')[0] : null,
                     email: session?.user?.email
                 }),
             })
@@ -191,20 +193,30 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.membership_society}
                         onChange={handleChange}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            label="Start Date"
-                            value={content.start}
-                            onChange={(newValue) => setContent({ ...content, start: newValue })}
-                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
-                        />
-                        <DatePicker
-                            label="End Date"
-                            value={content.end}
-                            onChange={(newValue) => setContent({ ...content, end: newValue })}
-                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
-                        />
-                    </LocalizationProvider>
+                   <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <DatePicker
+        label="Start Date"
+        value={content.start ? parseISO(content.start) : null}
+        onChange={(newValue) =>
+            setContent({ 
+                ...content, 
+                start: newValue ? format(newValue, 'yyyy-MM-dd') : null
+            })
+        }
+        renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
+    />
+    <DatePicker
+        label="End Date"
+        value={content.end ? parseISO(content.end) : null}
+        onChange={(newValue) =>
+            setContent({ 
+                ...content, 
+                end: newValue ? format(newValue, 'yyyy-MM-dd') : null
+            })
+        }
+        renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
+    />
+</LocalizationProvider>
                 </DialogContent>
                 <DialogActions>
                     <Button

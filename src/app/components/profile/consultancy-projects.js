@@ -449,6 +449,7 @@ export default function ConsultancyProjectManagement() {
                             <TableCell>Agency</TableCell>
                             <TableCell>Outlay (₹)</TableCell>
                             <TableCell>Duration</TableCell>
+                            <TableCell>Investigators</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Investigator</TableCell>
                             <TableCell align="right">Actions</TableCell>

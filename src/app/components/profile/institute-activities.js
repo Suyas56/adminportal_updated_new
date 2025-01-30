@@ -109,6 +109,7 @@ export default function InstituteActivityManagement() {
                 if (!response.ok) throw new Error('Failed to delete')
                 showToast('Institute activity deleted successfully!')
                 refreshData()
+                window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
                 showToast('Failed to delete institute activity', 'error')
