@@ -253,6 +253,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'journal_papers',
                     ...content,
+                    publication_date: content.publication_date ? new Date(content.publication_date).toISOString().split("T")[0] : null,
                     email: session?.user?.email,
                 }),
             });

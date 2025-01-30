@@ -375,7 +375,9 @@ export default function BookChapterManagement() {
                 })
                 
                 if (!response.ok) throw new Error('Failed to delete')
+                    window.location.reload()
                 refreshData()
+            
             } catch (error) {
                 console.error('Error:', error)
             }
