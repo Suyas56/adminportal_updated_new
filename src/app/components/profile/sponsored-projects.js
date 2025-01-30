@@ -247,6 +247,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.href()
             setSubmitting(false)
         }
     }
