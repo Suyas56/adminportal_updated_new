@@ -66,6 +66,7 @@ export const AddForm = ({ handleClose, modal }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -165,6 +166,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -282,6 +284,7 @@ export default function MembershipManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }

@@ -341,6 +341,20 @@ export async function POST(request) {
             )
             return NextResponse.json(teachingResult)
 
+            case 'memberships':
+              const membershipResult = await query(
+                `INSERT INTO memberships (id, email, membership_id, membership_society, start, end) VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                  params.id,
+                  params.email,
+                  params.membership_id,
+                  params.membership_society,
+                  params.start,
+                  params.end
+                ]
+              );
+              return NextResponse.json(membershipResult);
+
             case 'project_supervision':
               const supervisionResult = await query(
                   `INSERT INTO project_supervision(id, email, category, project_title, student_details, internal_supervisors, external_supervisors, start_date, end_date) 

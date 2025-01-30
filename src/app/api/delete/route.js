@@ -53,6 +53,7 @@ export async function POST(request) {
             'sponsored_projects',
             'consultancy_projects',
             'teaching_engagement',
+            "memberships",
             'project_supervision',
             'workshops_conferences',
             'institute_activities',
@@ -182,6 +183,13 @@ export async function POST(request) {
             [params.id, params.email]
           )
           return NextResponse.json(teachingResult)
+
+          case 'memberships':
+            const deleteMembershipResult = await query(
+                `DELETE FROM memberships WHERE id = ?`,
+                [params.id]
+            );
+            return NextResponse.json(deleteMembershipResult);
 
         case 'project_supervision':
           const supervisionResult = await query(

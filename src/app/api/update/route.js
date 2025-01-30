@@ -584,6 +584,26 @@ export async function PUT(request) {
           )
           return NextResponse.json(teachingResult)
 
+          case 'memberships':
+            const membershipUpdateResult = await query(
+                `UPDATE memberships 
+                SET email = ?, 
+                    membership_id = ?, 
+                    membership_society = ?, 
+                    start = ?, 
+                    end = ? 
+                WHERE id = ?`,
+                [
+                    params.email,
+                    params.membership_id,
+                    params.membership_society,
+                    params.start,
+                    params.end,
+                    params.id
+                ]
+            );
+            return NextResponse.json(membershipUpdateResult);
+
           case 'project_supervision':
             const supervisionResult = await query(
                 `UPDATE project_supervision SET 
