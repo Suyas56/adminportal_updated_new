@@ -164,12 +164,16 @@ export const AddForm = ({ handleClose, modal }) => {
                         fullWidth
                         required
                     >
-                        <MenuItem value="Ongoing">Ongoing</MenuItem>
+                      
+                        <MenuItem value="Admission">Admission</MenuItem>
+                        <MenuItem value="Comprehension">Comprehension</MenuItem>
+                        <MenuItem value="Presubmission">Presubmission</MenuItem>
+                        <MenuItem value="Thesis_Submitted">Thesis Submitted</MenuItem>
                         <MenuItem value="Awarded">Awarded</MenuItem>
                         {/* <MenuItem value="Completed">Completed</MenuItem>
                         <MenuItem value="Discontinued">Discontinued</MenuItem> */}
                     </Select>
-                    {content.current_status === 'Awarded' && (
+                    { (
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Completion Year"

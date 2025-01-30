@@ -1,23 +1,23 @@
-import { 
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  InputLabel,
-  InputAdornment,
-  Typography
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    IconButton,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Select,
+    MenuItem,
+    InputLabel,
+    InputAdornment,
+    Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
@@ -28,6 +28,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import AddIcon from '@mui/icons-material/Add'
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
@@ -73,10 +75,10 @@ export const AddForm = ({ handleClose, modal }) => {
                     email: session?.user?.email
                 }),
             });
-            
+
 
             if (!result.ok) throw new Error('Failed to create')
-            
+
             handleClose()
             refreshData()
             setContent(initialState)
@@ -125,8 +127,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
+                            onChange={(newValue) =>
+                                setContent({ ...content, start_date: newValue })
                             }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
@@ -135,12 +137,26 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="End Date"
                             value={content.end_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end_date: newValue})
+                            onChange={(newValue) =>
+                                setContent({ ...content, end_date: newValue })
                             }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end_date === "Continue"}
+                                    onChange={(e) =>
+                                        setContent({
+                                            ...content,
+                                            end_date: e.target.checked ? "Continue" : null,
+                                        })
+                                    }
+                                />
+                            }
+                            label="Continue (End Date not known)"
                         />
                     </LocalizationProvider>
                     <TextField
@@ -224,7 +240,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
             })
 
             if (!result.ok) throw new Error('Failed to update')
-            
+
             handleClose()
             refreshData()
             window.location.reload()
@@ -236,10 +252,10 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     return (
-        <Dialog 
-            open={modal} 
-            onClose={handleClose} 
-            maxWidth="md" 
+        <Dialog
+            open={modal}
+            onClose={handleClose}
+            maxWidth="md"
             fullWidth
             disableBackdropClick
             disableEscapeKeyDown
@@ -405,12 +421,12 @@ export default function SponsoredProjectManagement() {
                         email: session?.user?.email,
                     }),
                 });
-    
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Failed to delete');
                 }
-    
+
                 setProjects((prevProjects) => prevProjects.filter((project) => project.id !== id));
             } catch (error) {
                 console.error('Error:', error);
@@ -418,7 +434,7 @@ export default function SponsoredProjectManagement() {
             }
         }
     };
-    
+
     if (loading) return <div>Loading...</div>
 
     return (
@@ -441,7 +457,9 @@ export default function SponsoredProjectManagement() {
                             <TableCell>Agency</TableCell>
                             <TableCell>Outlay (₹)</TableCell>
                             <TableCell>Duration</TableCell>
+                            <TableCell>PI Institute</TableCell>
                             <TableCell>Status</TableCell>
+                            <TableCell>Funds Received</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -454,16 +472,18 @@ export default function SponsoredProjectManagement() {
                                 <TableCell>
                                     {new Date(project.start_date).getFullYear()} - {new Date(project.end_date).getFullYear()}
                                 </TableCell>
+                                <TableCell>{project.pi_institute}</TableCell>
                                 <TableCell>{project.status}</TableCell>
+                                <TableCell>{project.funds_received}</TableCell>
                                 <TableCell align="right">
-                                    <IconButton 
+                                    <IconButton
                                         onClick={() => handleEdit(project)}
                                         color="primary"
                                         size="small"
                                     >
                                         <EditIcon />
                                     </IconButton>
-                                    <IconButton 
+                                    <IconButton
                                         onClick={() => handleDelete(project.id)}
                                         color="error"
                                         size="small"
@@ -484,7 +504,7 @@ export default function SponsoredProjectManagement() {
                 </Table>
             </TableContainer>
 
-            <AddForm 
+            <AddForm
                 modal={openAdd}
                 handleClose={() => setOpenAdd(false)}
             />

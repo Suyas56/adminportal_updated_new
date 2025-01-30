@@ -422,7 +422,8 @@ export default function ProjectSupervisionManagement() {
                             <TableCell>Category</TableCell>
                             <TableCell>Project Title</TableCell>
                             <TableCell>Students</TableCell>
-                            <TableCell>Supervisors</TableCell>
+                            <TableCell>Internal supervisors</TableCell>
+                            <TableCell>External supervisors</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -432,12 +433,9 @@ export default function ProjectSupervisionManagement() {
                                 <TableCell>{project.category}</TableCell>
                                 <TableCell>{project.project_title}</TableCell>
                                 <TableCell>{project.student_details}</TableCell>
-                                <TableCell>
-                                    {project.internal_supervisors}
-                                    {project.external_supervisors && (
-                                        <>, External: {project.external_supervisors}</>
-                                    )}
-                                </TableCell>
+                                <TableCell>{project.internal_supervisors}</TableCell>
+                                <TableCell>{project.external_supervisors}</TableCell>
+                               
                                 <TableCell align="right">
                                     <IconButton 
                                         onClick={() => handleEdit(project)}
