@@ -461,6 +461,7 @@ export default function WorkshopConferenceManagement() {
                             <TableCell>Type</TableCell>
                             <TableCell>Role</TableCell>
                             <TableCell>Duration</TableCell>
+                            <TableCell>Sponsored By</TableCell>
                             <TableCell>Participants</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
@@ -474,6 +475,7 @@ export default function WorkshopConferenceManagement() {
                                 <TableCell>
                                     {formatDate(event.start_date)} - {formatDate(event.end_date)}
                                 </TableCell>
+                                <TableCell>{event.sponsored_by}</TableCell>
                                 <TableCell>{event.participants_count}</TableCell>
                                 <TableCell align="right">
                                     <IconButton

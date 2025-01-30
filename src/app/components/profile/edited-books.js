@@ -359,6 +359,8 @@ export default function EditedBookManagement() {
                             <TableCell>Title</TableCell>
                             <TableCell>Editors</TableCell>
                             <TableCell>Publisher</TableCell>
+                            <TableCell>Scopus</TableCell>
+                            <TableCell>DOI</TableCell>
                             <TableCell>ISBN</TableCell>
                             <TableCell>Year</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -370,6 +372,8 @@ export default function EditedBookManagement() {
                                 <TableCell>{book.title}</TableCell>
                                 <TableCell>{book.editors}</TableCell>
                                 <TableCell>{book.publisher}</TableCell>
+                                <TableCell>{book.scopus}</TableCell>
+                                <TableCell>{book.doi}</TableCell>
                                 <TableCell>{book.isbn}</TableCell>
                                 <TableCell>{book.year}</TableCell>
                                 <TableCell align="right">
