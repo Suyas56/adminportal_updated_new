@@ -278,7 +278,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                         }}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
@@ -305,7 +305,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                         />
-                    </LocalizationProvider>
+                    </LocalizationProvider> */}
                     <TextField
                         margin="dense"
                         label="Duration (months)"

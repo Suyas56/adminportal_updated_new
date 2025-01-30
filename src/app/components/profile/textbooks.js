@@ -366,6 +366,8 @@ export default function TextbookManagement() {
                             <TableCell>Title</TableCell>
                             <TableCell>Authors</TableCell>
                             <TableCell>Publisher</TableCell>
+                            <TableCell>Scopus</TableCell>
+                            <TableCell>DOI</TableCell>
                             <TableCell>ISBN</TableCell>
                             <TableCell>Year</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -377,6 +379,8 @@ export default function TextbookManagement() {
                                 <TableCell>{book.title}</TableCell>
                                 <TableCell>{book.authors}</TableCell>
                                 <TableCell>{book.publisher}</TableCell>
+                                <TableCell>{book.scopus}</TableCell>
+                                <TableCell>{book.doi}</TableCell>
                                 <TableCell>{book.isbn}</TableCell>
                                 <TableCell>{book.year}</TableCell>
                                 <TableCell align="right">

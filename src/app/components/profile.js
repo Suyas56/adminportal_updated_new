@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import { EducationManagement } from './profile/education'
-// import { AboutYouPage } from './profile/about-you'
+// import { AboutYouPage } from './profile/aboutus'
 // import { ExperiencePage } from './profile/experience'
 import { AddProfilePic } from './profile/profilepic'
 import { AddCv } from './profile/addCv'
@@ -314,6 +314,9 @@ export default function Profilepage({ details }) {
                     />
                 </div>
 
+                {/* <div className="fac-card">
+                    <AboutYouPage />
+                                    </div> */}
 
                
                 <div className="fac-card">

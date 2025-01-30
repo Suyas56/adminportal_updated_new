@@ -195,22 +195,14 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start: newValue})
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
+                            onChange={(newValue) => setContent({ ...content, start: newValue })}
+                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
                         />
                         <DatePicker
                             label="End Date"
                             value={content.end}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end: newValue})
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
+                            onChange={(newValue) => setContent({ ...content, end: newValue })}
+                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
                         />
                     </LocalizationProvider>
                 </DialogContent>

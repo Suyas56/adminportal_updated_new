@@ -530,6 +530,7 @@ export default function TeachingEngagementManagement() {
                         <TableRow>
                             <TableCell>Course</TableCell>
                             <TableCell>Level</TableCell>
+                            <TableCell>Semester</TableCell>
                             <TableCell>Type</TableCell>
                             <TableCell>Students</TableCell>
                             <TableCell>Hours</TableCell>
@@ -544,6 +545,7 @@ export default function TeachingEngagementManagement() {
                                     {course.course_number} - {course.course_title}
                                 </TableCell>
                                 <TableCell>{course.level}</TableCell>
+                                <TableCell>{course.semester}</TableCell>
                                 <TableCell>{course.course_type}</TableCell>
                                 <TableCell>{course.student_count}</TableCell>
                                 <TableCell>
