@@ -349,9 +349,9 @@ export default function Profilepage({ details }) {
                         <div className="fac-card">
                 <IPRManagement/>
                         </div>
-                        <div className="fac-card">
+                        {/* <div className="fac-card">
                 <PatentManagement/>
-                            </div>
+                            </div> */}
                             <div className="fac-card">
                 <JournalPaperManagement/>
                             </div>

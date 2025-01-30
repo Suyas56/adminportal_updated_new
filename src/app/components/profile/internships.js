@@ -175,8 +175,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         fullWidth
                         required
                     >
-                        <MenuItem value="UG">Internal Student</MenuItem>
-                        <MenuItem value="PG">External Student</MenuItem>
+                        <MenuItem value="Internal">Internal Student</MenuItem>
+                        <MenuItem value="External">External Student</MenuItem>
                     </Select>
                 </DialogContent>
                 <DialogActions>
@@ -424,6 +424,7 @@ export default function InternshipManagement() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Student Name</TableCell>
+                            <TableCell>Qualification</TableCell>
                             <TableCell>Project Title</TableCell>
                             <TableCell>Affiliation</TableCell>
                             <TableCell>Duration</TableCell>
@@ -435,13 +436,11 @@ export default function InternshipManagement() {
                         {internships?.map((internship) => (
                             <TableRow key={internship.id}>
                                 <TableCell>{internship.student_name}</TableCell>
+                                <TableCell>{internship.qualification}</TableCell>
                                 <TableCell>{internship.project_title}</TableCell>
                                 <TableCell>{internship.affiliation}</TableCell>
                                 <TableCell>
-                                    {formatDate(internship.start_date)}
-                                </TableCell>
-                                <TableCell>
-                                    {internship.end_date ? formatDate(internship.end_date) : 'Present'}
+                                    {formatDate(internship.start_date)}-{internship.end_date ? formatDate(internship.end_date) : 'Present'}
                                 </TableCell>
                                 <TableCell>{internship.student_type}</TableCell>
                                 <TableCell align="right">

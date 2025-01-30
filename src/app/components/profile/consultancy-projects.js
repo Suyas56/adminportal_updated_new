@@ -433,6 +433,7 @@ export default function ConsultancyProjectManagement() {
                             <TableCell>Agency</TableCell>
                             <TableCell>Outlay (₹)</TableCell>
                             <TableCell>Duration</TableCell>
+                            <TableCell>Investigators</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
@@ -446,6 +447,7 @@ export default function ConsultancyProjectManagement() {
                                 <TableCell>
                                     {project.period_months} months
                                 </TableCell>
+                                <TableCell>{project.investigators}</TableCell>
                                 <TableCell>{project.status}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 

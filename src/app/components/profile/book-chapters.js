@@ -403,6 +403,8 @@ export default function BookChapterManagement() {
                             <TableCell>Chapter Title</TableCell>
                             <TableCell>Book Title</TableCell>
                             <TableCell>Authors</TableCell>
+                            <TableCell>Scopus</TableCell>
+                            <TableCell>DOI</TableCell>
                             <TableCell>Publisher</TableCell>
                             <TableCell>Year</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -414,6 +416,8 @@ export default function BookChapterManagement() {
                                 <TableCell>{chapter.chapter_title}</TableCell>
                                 <TableCell>{chapter.book_title}</TableCell>
                                 <TableCell>{chapter.authors}</TableCell>
+                                <TableCell>{chapter.scopus}</TableCell>
+                                <TableCell>{chapter.doi}</TableCell>
                                 <TableCell>{chapter.publisher}</TableCell>
                                 <TableCell>{chapter.year}</TableCell>
                                 <TableCell align="right">

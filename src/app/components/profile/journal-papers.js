@@ -480,8 +480,11 @@ export default function JournalPaperManagement() {
                             <TableCell>Title</TableCell>
                             <TableCell>Authors</TableCell>
                             <TableCell>Journal</TableCell>
+                            <TableCell>Volume</TableCell>
                             <TableCell>Year</TableCell>
+                            <TableCell>Publication Date</TableCell>
                             <TableCell>Quartile</TableCell>
+                            <TableCell>DOI</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -491,8 +494,11 @@ export default function JournalPaperManagement() {
                                 <TableCell>{paper.title}</TableCell>
                                 <TableCell>{paper.authors}</TableCell>
                                 <TableCell>{paper.journal_name}</TableCell>
+                                <TableCell>{paper.volume}</TableCell>
                                 <TableCell>{paper.publication_year}</TableCell>
+                                <TableCell>{paper.publication_date}</TableCell>
                                 <TableCell>{paper.journal_quartile}</TableCell>
+                                <TableCell>{paper.doi_url}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 
                                         onClick={() => handleEdit(paper)}

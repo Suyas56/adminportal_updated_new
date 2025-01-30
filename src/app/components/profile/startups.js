@@ -380,6 +380,7 @@ export default function StartupManagement() {
                             <TableCell>Registration Date</TableCell>
                             <TableCell>Owners/Founders</TableCell>
                             <TableCell>Annual Income</TableCell>
+                            <TableCell>PAN Number</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -393,6 +394,7 @@ export default function StartupManagement() {
                                 </TableCell>
                                 <TableCell>{startup.owners_founders}</TableCell>
                                 <TableCell>₹{startup.annual_income}</TableCell>
+                                <TableCell>{startup.pan_number}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 
                                         onClick={() => handleEdit(startup)}

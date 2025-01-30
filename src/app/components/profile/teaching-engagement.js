@@ -233,7 +233,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.years_offered}
                         onChange={handleChange}
-                        helperText="e.g., 2020-2023 *strictly in the format YYYY-YYYY otherwise no computation will be done"
+                        helperText="e.g., 2024 *strictly in the format YYYY otherwise no computation will be done"
                     />
                 </DialogContent>
                 <DialogActions>
