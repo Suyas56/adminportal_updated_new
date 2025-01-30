@@ -24,7 +24,9 @@ import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { parseISO } from "date-fns";
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -43,8 +45,19 @@ export const AddForm = ({ handleClose, modal }) => {
     const [submitting, setSubmitting] = useState(false)
 
     const handleChange = (e) => {
-        setContent({ ...content, [e.target.name]: e.target.value })
-    }
+        if (e instanceof Date) {
+            setContent((prevContent) => ({
+                ...prevContent,
+                completion_year: e.toISOString().split("T")[0], 
+            }));
+        } else if (e?.target) {
+            const { name, value } = e.target;
+            setContent((prevContent) => ({
+                ...prevContent,
+                [name]: value,
+            }));
+        }
+    };
 
     const handleSubmit = async (e) => {
         setSubmitting(true)
@@ -70,6 +83,7 @@ export const AddForm = ({ handleClose, modal }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -118,10 +132,12 @@ export const AddForm = ({ handleClose, modal }) => {
                     >
                         <MenuItem value="Full Time">Full Time</MenuItem>
                         <MenuItem value="Part Time">Part Time</MenuItem>
+                        <MenuItem value="SRF">SRF</MenuItem>
+                        <MenuItem value="JRF">JRF</MenuItem>
                     </Select>
                     <TextField
                         margin="dense"
-                        label="Research Area"
+                        label="Research Area/Thesis Title"
                         name="research_area"
                         fullWidth
                         multiline
@@ -149,25 +165,28 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                     >
                         <MenuItem value="Ongoing">Ongoing</MenuItem>
-                        <MenuItem value="Completed">Completed</MenuItem>
-                        <MenuItem value="Discontinued">Discontinued</MenuItem>
+                        <MenuItem value="Awarded">Awarded</MenuItem>
+                        {/* <MenuItem value="Completed">Completed</MenuItem>
+                        <MenuItem value="Discontinued">Discontinued</MenuItem> */}
                     </Select>
-                    {content.current_status === 'Completed' && (
-                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={enUS}>
+                    {content.current_status === 'Awarded' && (
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
-                            label="Completion Date"
-                            value={content.completion_year}
-                            onChange={(newValue)=>set}
+                            label="Completion Year"
+                            value={content.completion_year ? parseISO(content.completion_year) : null}
+                            onChange={(date) => handleChange({ target: { name: "completion_year", value: date.toISOString().split("T")[0] } })}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
                                     margin="dense"
                                     fullWidth
                                     required
+                                    name="completion_year"
+                                    onChange={handleChange}
                                 />
                             )}
                         />
-                    </LocalizationProvider>
+                    </LocalizationProvider>                  
                     )}
                 </DialogContent>
                 <DialogActions>
@@ -278,7 +297,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     />
                     <TextField
                         margin="dense"
-                        label="Research Area"
+                        label="Research Area/Thesis Title"
                         name="research_area"
                         fullWidth
                         required
@@ -305,20 +324,27 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         onChange={handleChange}
                     >
                         <MenuItem value="Ongoing">Ongoing</MenuItem>
-                        <MenuItem value="Completed">Completed</MenuItem>
-                        <MenuItem value="Discontinued">Discontinued</MenuItem>
+                        <MenuItem value="Awarded">Awarded</MenuItem>
+                        {/* <MenuItem value="Discontinued">Discontinued</MenuItem> */}
                     </TextField>
-                    {content.current_status === 'Completed' && (
-                        <TextField
-                            margin="dense"
-                            label="Completion Year"
-                            name="completion_year"
-                            type="number"
-                            fullWidth
-                            required
-                            value={content.completion_year}
-                            onChange={handleChange}
-                        />
+                    {content.current_status === 'Awarded' && (
+                       <LocalizationProvider dateAdapter={AdapterDateFns}>
+                       <DatePicker
+                           label="Completion Year"
+                           value={content.completion_year ? parseISO(content.completion_year) : null}
+                           onChange={(date) => handleChange({ target: { name: "completion_year", value: date.toISOString().split("T")[0] } })}
+                           renderInput={(params) => (
+                               <TextField
+                                   {...params}
+                                   margin="dense"
+                                   fullWidth
+                                   required
+                                   name="completion_year"
+                                   onChange={handleChange}
+                               />
+                           )}
+                       />
+                   </LocalizationProvider>
                     )}
                 </DialogContent>
                 <DialogActions>
@@ -412,8 +438,8 @@ export default function PhdCandidateManagement() {
                         <TableRow>
                             <TableCell>Student Name</TableCell>
                             <TableCell>Roll No</TableCell>
-                            <TableCell>Registration</TableCell>
-                            <TableCell>Research Area</TableCell>
+                            <TableCell>Registration(Registration Type)</TableCell>
+                            <TableCell>Research Area/Thesis Title</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
@@ -425,6 +451,13 @@ export default function PhdCandidateManagement() {
                                 <TableCell>{candidate.roll_no}</TableCell>
                                 <TableCell>
                                     {candidate.registration_type} ({candidate.registration_year})
+                                    {/* (
+                                        {candidate.registration_type === "Ongoing" 
+                                            ? `${candidate.registration_year} - Continue` 
+                                            : candidate.registration_type === "Awarded" 
+                                            ? candidate.completion_year 
+                                            : candidate.registration_year}
+                                        ) */}
                                 </TableCell>
                                 <TableCell>{candidate.research_area}</TableCell>
                                 <TableCell>{candidate.current_status}</TableCell>
