@@ -164,12 +164,16 @@ export const AddForm = ({ handleClose, modal }) => {
                         fullWidth
                         required
                     >
-                        <MenuItem value="Ongoing">Ongoing</MenuItem>
+                      
+                        <MenuItem value="Admission">Admission</MenuItem>
+                        <MenuItem value="Comprehension">Comprehension</MenuItem>
+                        <MenuItem value="Presubmission">Presubmission</MenuItem>
+                        <MenuItem value="Thesis_Submitted">Thesis Submitted</MenuItem>
                         <MenuItem value="Awarded">Awarded</MenuItem>
                         {/* <MenuItem value="Completed">Completed</MenuItem>
                         <MenuItem value="Discontinued">Discontinued</MenuItem> */}
                     </Select>
-                    {content.current_status === 'Awarded' && (
+                    { (
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Completion Year"
@@ -438,7 +442,8 @@ export default function PhdCandidateManagement() {
                         <TableRow>
                             <TableCell>Student Name</TableCell>
                             <TableCell>Roll No</TableCell>
-                            <TableCell>Registration(Registration Type)</TableCell>
+                            <TableCell>Registration Type</TableCell>
+                            <TableCell>Registration Year</TableCell>
                             <TableCell>Research Area/Thesis Title</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Other Supervisors</TableCell>
@@ -451,7 +456,7 @@ export default function PhdCandidateManagement() {
                                 <TableCell>{candidate.student_name}</TableCell>
                                 <TableCell>{candidate.roll_no}</TableCell>
                                 <TableCell>
-                                    {candidate.registration_type} ({candidate.registration_year})
+                                    {candidate.registration_type} 
                                     {/* (
                                         {candidate.registration_type === "Ongoing" 
                                             ? `${candidate.registration_year} - Continue` 
@@ -460,6 +465,7 @@ export default function PhdCandidateManagement() {
                                             : candidate.registration_year}
                                         ) */}
                                 </TableCell>
+                                <TableCell>{candidate.registration_year} </TableCell>
                                 <TableCell>{candidate.research_area}</TableCell>
                                 <TableCell>{candidate.current_status}</TableCell>
                                 <TableCell>{candidate.other_supervisors}</TableCell>

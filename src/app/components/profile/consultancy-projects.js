@@ -28,6 +28,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 
 // Add Form Component
@@ -146,6 +148,20 @@ export const AddForm = ({ handleClose, modal }) => {
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                         />
+                          <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            checked={content.end_date === "Continue"}
+                                                            onChange={(e) =>
+                                                                setContent({
+                                                                    ...content,
+                                                                    end_date: e.target.checked ? "Continue" : null,
+                                                                })
+                                                            }
+                                                        />
+                                                    }
+                                                    label="Continue (End Date not known)"
+                                                />
                     </LocalizationProvider>
                     <TextField
                         margin="dense"
@@ -177,7 +193,7 @@ export const AddForm = ({ handleClose, modal }) => {
                     >
                         <MenuItem value="Ongoing">Ongoing</MenuItem>
                         <MenuItem value="Completed">Completed</MenuItem>
-                        <MenuItem value="Terminated">Terminated</MenuItem>
+                        {/* <MenuItem value="Terminated">Terminated</MenuItem> */}
                     </Select>
                 </DialogContent>
                 <DialogActions>
@@ -299,7 +315,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                         />
-                        
+                       
                     </LocalizationProvider>
                     <TextField
                         margin="dense"
@@ -434,6 +450,7 @@ export default function ConsultancyProjectManagement() {
                             <TableCell>Outlay (₹)</TableCell>
                             <TableCell>Duration</TableCell>
                             <TableCell>Status</TableCell>
+                            <TableCell>Investigator</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -446,6 +463,7 @@ export default function ConsultancyProjectManagement() {
                                 <TableCell>
                                     {project.period_months} months
                                 </TableCell>
+                                <TableCell>{project.investigators}</TableCell>
                                 <TableCell>{project.status}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 
