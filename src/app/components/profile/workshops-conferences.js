@@ -133,6 +133,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Organizer">Organizer</MenuItem>
                         <MenuItem value="Coordinator">Coordinator</MenuItem>
                         <MenuItem value="Speaker">Speaker</MenuItem>
+                        <MenuItem value="Chairman">Chairman</MenuItem>
+                        <MenuItem value="Secretary">Secretary</MenuItem>
                         <MenuItem value="Participant">Participant</MenuItem>
                     </Select>
                     <TextField
