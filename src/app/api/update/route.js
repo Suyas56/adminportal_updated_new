@@ -718,9 +718,10 @@ export async function PUT(request) {
             `UPDATE education SET 
              certification = ?,
              institution = ?,
-             passing_year = ?
+             passing_year = ?,
+             specialization=?
              WHERE id = ? AND email = ?`,
-            [params.certification, params.institution, params.passing_year, params.id, params.email]
+            [params.certification, params.institution, params.passing_year,params.specialization, params.id, params.email]
           )
           return NextResponse.json(educationResult)
 

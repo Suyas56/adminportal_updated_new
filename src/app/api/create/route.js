@@ -513,11 +513,12 @@ export async function POST(request) {
           case 'education':
             const educationResult = await query(
               
-              `INSERT INTO education (email, certification, institution, passing_year) VALUES (?, ?, ?, ?)`,[
+              `INSERT INTO education (email, certification, institution, passing_year,specialization) VALUES (?, ?, ?, ?,?)`,[
         params.email, 
         params.degree,
         params.institution,
-        params.year
+        params.year,
+        params.specialization
       ]
 
             )
