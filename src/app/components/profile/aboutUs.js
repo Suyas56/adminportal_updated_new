@@ -1,22 +1,53 @@
 import { useState, useEffect } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Paper } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Paper,useTheme,useMediaQuery } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import { useSession } from 'next-auth/react';
 
 export function AboutYouPage() {
-    const [content, setContent] = useState("");
+    const { data: session, status } = useSession();
+    const [content, setContent] = useState('');
     const [openEdit, setOpenEdit] = useState(false);
 
     useEffect(() => {
         const savedContent = localStorage.getItem("aboutYou");
-        if (savedContent) setContent(savedContent);
+        if (savedContent){setContent(savedContent);}
     }, []);
 
-    const handleSave = (newContent) => {
-        localStorage.setItem("aboutYou", newContent);
-        setContent(newContent);
-        setOpenEdit(false);
+    const handleSave = async (newContent) => {
+        localStorage.setItem('aboutYou', newContent);
+        if (!session?.user?.email) {
+            console.error('User is not authenticated.');
+            return;
+        }
+        try {
+            const response = await fetch('/api/about', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type:"about_me",
+                    email: session.user.email,
+                    content: newContent,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Content saved to DB:', data);
+            } else {
+                console.error('Failed to save content to DB');
+            }
+            setContent(newContent);
+            setOpenEdit(false);
+        } catch (error) {
+            console.error('Error saving content:', error);
+        }
     };
+
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     return (
         <div>
@@ -26,9 +57,27 @@ export function AboutYouPage() {
                     Edit
                 </Button>
             </div>
-            <Paper style={{ padding: '1rem', margin: '1rem' }}>
-                <Typography variant="body1">{content || "No information provided yet."}</Typography>
-            </Paper>
+            <Paper
+            style={{
+                padding: isSmallScreen ? '0.5rem' : '1rem',
+                margin: isSmallScreen ? '0.5rem' : '1rem',
+                width: '100%',
+                boxSizing: 'border-box',
+            }}
+        >
+            <Typography
+            variant="body1"
+            style={{
+                // fontSize: isSmallScreen ? '1rem' : '1.25rem',
+                wordWrap: 'break-word',
+                whiteSpace: 'normal',
+                overflowWrap: 'break-word',
+                hyphens: 'auto',
+            }}
+        >
+            {content || 'No information provided yet.'}
+        </Typography>
+        </Paper>
             {openEdit && (
                 <EditAboutDialog open={openEdit} onClose={() => setOpenEdit(false)} initialContent={content} onSave={handleSave} />
             )}
