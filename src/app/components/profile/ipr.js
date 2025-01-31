@@ -428,7 +428,7 @@ export default function IPRManagement() {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-                <Typography variant="h6">IPR/Patent</Typography>
+                <Typography variant="h6">IPR/Patent/Copyright/Trademark</Typography>
                 <Button
                     startIcon={<AddIcon />}
                     variant="contained"

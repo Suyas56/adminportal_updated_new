@@ -423,6 +423,7 @@ export default function ProjectSupervisionManagement() {
                             <TableCell>Category</TableCell>
                             <TableCell>Project Title</TableCell>
                             <TableCell>Students</TableCell>
+                            <TableCell>Duration</TableCell>
                             <TableCell>Internal supervisors</TableCell>
                             <TableCell>External supervisors</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -434,6 +435,8 @@ export default function ProjectSupervisionManagement() {
                                 <TableCell>{project.category}</TableCell>
                                 <TableCell>{project.project_title}</TableCell>
                                 <TableCell>{project.student_details}</TableCell>
+                                <TableCell>{new Date(project.start_date).toLocaleDateString()} - {project.end_date === "Continue" ?"Continue":new Date(project.end_date).toLocaleDateString()}</TableCell>
+                                
                                 <TableCell>{project.internal_supervisors}</TableCell>
                                 <TableCell>{project.external_supervisors}</TableCell>
                                

@@ -497,7 +497,7 @@ export default function JournalPaperManagement() {
                                 <TableCell>{paper.journal_name}</TableCell>
                                 <TableCell>{paper.volume}</TableCell>
                                 <TableCell>{paper.publication_year}</TableCell>
-                                <TableCell>{paper.publication_date}</TableCell>
+                                <TableCell>{new Date(paper.publication_date).toLocaleDateString()}</TableCell>
                                 <TableCell>{paper.journal_quartile}</TableCell>
                                 <TableCell>{paper.doi_url}</TableCell>
                                 <TableCell align="right">

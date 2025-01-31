@@ -235,6 +235,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'sponsored_projects',
                     ...content,
+                    start_date:new Date(content.start_date).toISOString().split('T')[0],
+                    end_date:new Date(content.end_date).toISOString().split('T')[0],
                     email: session?.user?.email
                 }),
             })
@@ -295,10 +297,10 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                         }}
                     />
-                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Start Date"
-                            value={content.start_date}
+                            value={content.start_date?new Date(content.start_date):null}
                             onChange={(newValue) => {
                                 setContent(prev => ({
                                     ...prev,
@@ -311,7 +313,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         />
                         <DatePicker
                             label="End Date"
-                            value={content.end_date}
+                            value={content.end_date?new Date(content.end_date):null}
                             onChange={(newValue) => {
                                 setContent(prev => ({
                                     ...prev,
@@ -322,14 +324,14 @@ export const EditForm = ({ handleClose, modal, values }) => {
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                         />
-                    </LocalizationProvider> */}
+                    </LocalizationProvider>
                     <TextField
                         margin="dense"
                         label="Duration (months)"
                         name="period_months"
                         type="number"
                         fullWidth
-                        required
+                        // required
                         value={content.period_months}
                         onChange={handleChange}
                     />
@@ -471,7 +473,7 @@ export default function SponsoredProjectManagement() {
                                 <TableCell>{project.funding_agency}</TableCell>
                                 <TableCell>{project.financial_outlay}</TableCell>
                                 <TableCell>
-                                    {new Date(project.start_date).getFullYear()} - {new Date(project.end_date).getFullYear()}
+                                    {new Date(project.start_date).toLocaleDateString()} - {new Date(project.end_date).toLocaleDateString()}
                                 </TableCell>
                                 <TableCell>{project.pi_institute}</TableCell>
                                 <TableCell>{project.status}</TableCell>
