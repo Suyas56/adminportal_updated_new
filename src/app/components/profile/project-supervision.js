@@ -100,8 +100,11 @@ export const AddForm = ({ handleClose, modal }) => {
                     >
                         <MenuItem value="BTech">B.Tech</MenuItem>
                         <MenuItem value="MTech">M.Tech</MenuItem>
-                        <MenuItem value="PhD">PhD</MenuItem>
-                        <MenuItem value="MSC">MSC</MenuItem>
+                        {/* <MenuItem value="PhD">PhD</MenuItem> */}
+                        <MenuItem value="MSc">MSc</MenuItem>
+                        <MenuItem value="Int.Msc">Int.Msc</MenuItem>
+                        <MenuItem value="B.Arch">B.Arch</MenuItem>
+                        <MenuItem value="M.Arch">M.Arch</MenuItem>
                         <MenuItem value="MCA">MCA</MenuItem>
                         <MenuItem value="Other">Other</MenuItem>
                     </Select>
