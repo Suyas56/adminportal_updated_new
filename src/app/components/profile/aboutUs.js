@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Paper } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Paper,useTheme,useMediaQuery } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import { useSession } from 'next-auth/react';
@@ -46,6 +46,9 @@ export function AboutYouPage() {
         }
     };
 
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
@@ -54,9 +57,27 @@ export function AboutYouPage() {
                     Edit
                 </Button>
             </div>
-            <Paper style={{ padding: '1rem', margin: '1rem' }}>
-                <Typography variant="body1">{content || 'No information provided yet.'}</Typography>
-            </Paper>
+            <Paper
+            style={{
+                padding: isSmallScreen ? '0.5rem' : '1rem',
+                margin: isSmallScreen ? '0.5rem' : '1rem',
+                width: '100%',
+                boxSizing: 'border-box',
+            }}
+        >
+            <Typography
+            variant="body1"
+            style={{
+                // fontSize: isSmallScreen ? '1rem' : '1.25rem',
+                wordWrap: 'break-word',
+                whiteSpace: 'normal',
+                overflowWrap: 'break-word',
+                hyphens: 'auto',
+            }}
+        >
+            {content || 'No information provided yet.'}
+        </Typography>
+        </Paper>
             {openEdit && (
                 <EditAboutDialog open={openEdit} onClose={() => setOpenEdit(false)} initialContent={content} onSave={handleSave} />
             )}
