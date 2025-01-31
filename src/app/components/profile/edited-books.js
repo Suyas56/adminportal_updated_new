@@ -330,7 +330,8 @@ export default function EditedBookManagement() {
                 })
                 
                 if (!response.ok) throw new Error('Failed to delete')
-                refreshData()
+                // refreshData()
+            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }

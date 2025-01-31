@@ -25,6 +25,8 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import { parseISO, format } from 'date-fns';
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Checkbox from '@mui/material/Checkbox'
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -66,6 +68,7 @@ export const AddForm = ({ handleClose, modal }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
@@ -97,24 +100,32 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start: newValue})
-                            }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
+                            onChange={(newValue) => setContent({ ...content, start: newValue })}
+                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
                         />
                         <DatePicker
                             label="End Date"
-                            value={content.end}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end: newValue})
+                            value={content.end === "Continue" ? null : content.end}
+                            onChange={(newValue) => setContent({ ...content, end: newValue })}
+                            disabled={content.end === "Continue"}
+                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end === "Continue"}
+                                    onChange={(e) =>
+                                        setContent({
+                                            ...content,
+                                            end: e.target.checked ? "Continue" : null,
+                                        })
+                                    }
+                                />
                             }
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
+                            label="Continue (End Date not known)"
                         />
                     </LocalizationProvider>
+
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -165,9 +176,24 @@ export const EditForm = ({ handleClose, modal, values }) => {
         } catch (error) {
             console.error('Error:', error)
         } finally {
+            window.location.reload()
             setSubmitting(false)
         }
     }
+
+    const handleEndDateChange = (newValue) => {
+        setContent((prevContent) => ({
+            ...prevContent,
+            end: newValue ? newValue : "Continue",
+        }));
+    };
+
+    const handleContinueChange = (e) => {
+        setContent((prevContent) => ({
+            ...prevContent,
+            end: e.target.checked ? "Continue" : null,
+        }));
+    };
 
     return (
         <Dialog open={modal} onClose={handleClose}>
@@ -193,30 +219,35 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.membership_society}
                         onChange={handleChange}
                     />
-                   <LocalizationProvider dateAdapter={AdapterDateFns}>
-    <DatePicker
-        label="Start Date"
-        value={content.start ? parseISO(content.start) : null}
-        onChange={(newValue) =>
-            setContent({ 
-                ...content, 
-                start: newValue ? format(newValue, 'yyyy-MM-dd') : null
-            })
-        }
-        renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
-    />
-    <DatePicker
-        label="End Date"
-        value={content.end ? parseISO(content.end) : null}
-        onChange={(newValue) =>
-            setContent({ 
-                ...content, 
-                end: newValue ? format(newValue, 'yyyy-MM-dd') : null
-            })
-        }
-        renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
-    />
-</LocalizationProvider>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Start Date"
+                            value={new Date(content.start)}
+                            onChange={(newValue) => setContent({ ...content, start: newValue })}
+                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
+                        />
+                        <DatePicker
+                            label="End Date"
+                            value={
+                                content.end === "Continue" || !content.end
+                                    ? null
+                                    : new Date(content.end)
+                            }
+                            onChange={(newValue) => handleEndDateChange(newValue)}
+                            disabled={content.end === "Continue"}
+                            renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={content.end === "Continue"}
+                                    onChange={handleContinueChange}
+                                />
+                            }
+                            label="Continue (End Date not known)"
+                        />
+                    </LocalizationProvider>
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -282,6 +313,7 @@ export default function MembershipManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
+            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }
@@ -322,9 +354,9 @@ export default function MembershipManagement() {
                                     {new Date(membership.start).toLocaleDateString()}
                                 </TableCell>
                                 <TableCell>
-                                    {membership.end ? 
+                                    {membership.end !='Continue' ? 
                                         new Date(membership.end).toLocaleDateString() : 
-                                        'Present'}
+                                        'Continue'}
                                 </TableCell>
                                 <TableCell align="right">
                                     <IconButton 

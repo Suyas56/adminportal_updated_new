@@ -111,7 +111,7 @@ export const AddForm = ({ handleClose, modal }) => {
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
-                <DialogTitle>Add IPR / Patent</DialogTitle>
+                <DialogTitle>Add IPR/Patent/Copyright/Trademark</DialogTitle>
                 <DialogContent>
                     <TextField
                         margin="dense"
@@ -428,13 +428,13 @@ export default function IPRManagement() {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-                <Typography variant="h6">IPR/Patent</Typography>
+                <Typography variant="h6">IPR/Patent/Copyright/Trademark</Typography>
                 <Button
                     startIcon={<AddIcon />}
                     variant="contained"
                     onClick={() => setOpenAdd(true)}
                 >
-                    Add IPR / Patent
+                    Add IPR/Patent/Copyright/Trademark
                 </Button>
             </div>
             <TableContainer component={Paper}>

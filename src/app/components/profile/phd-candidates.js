@@ -447,6 +447,7 @@ export default function PhdCandidateManagement() {
                             <TableCell>Registration Year</TableCell>
                             <TableCell>Research Area/Thesis Title</TableCell>
                             <TableCell>Status</TableCell>
+                            <TableCell>Status Time</TableCell>
                             <TableCell>Other Supervisors</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
@@ -469,6 +470,7 @@ export default function PhdCandidateManagement() {
                                 <TableCell>{candidate.registration_year} </TableCell>
                                 <TableCell>{candidate.research_area}</TableCell>
                                 <TableCell>{candidate.current_status}</TableCell>
+                                <TableCell>{candidate.completion_year}</TableCell>
                                 <TableCell>{candidate.other_supervisors}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 

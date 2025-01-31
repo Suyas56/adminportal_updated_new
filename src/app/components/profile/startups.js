@@ -196,6 +196,9 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'startups',
                     ...content,
+                    registration_date: content.registration_date
+                        ? new Date(content.registration_date).toISOString().split('T')[0]
+                        : null,
                     email: session.user.email,
                 }),
             });
@@ -206,6 +209,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
 
             handleClose();
             refreshData();
+            window.location.reload()
         } catch (error) {
             console.error('Submission Error:', error);
         } finally {

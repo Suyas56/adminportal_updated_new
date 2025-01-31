@@ -422,6 +422,12 @@ import {
                               <TableCell>Conference</TableCell>
                               <TableCell>Location</TableCell>
                               <TableCell>Year</TableCell>
+                              <TableCell>Pages</TableCell>
+                              <TableCell>Indexing</TableCell>
+                              <TableCell>Foreign Author</TableCell>
+                              <TableCell>Student Involved</TableCell>
+                              <TableCell>DOI</TableCell>
+                              <TableCell>Year</TableCell>
                               <TableCell align="right">Actions</TableCell>
                           </TableRow>
                       </TableHead>
@@ -432,7 +438,13 @@ import {
                                   <TableCell>{paper.authors}</TableCell>
                                   <TableCell>{paper.conference_name}</TableCell>
                                   <TableCell>{paper.location}</TableCell>
+                                  <TableCell>{paper.pages}</TableCell>
+                                  <TableCell>{paper.indexing}</TableCell>
+                                  <TableCell>{paper.foreign_author}</TableCell>
+                                  <TableCell>{paper.student_involved}</TableCell>
+                                  <TableCell>{paper.doi}</TableCell>
                                   <TableCell>{paper.conference_year}</TableCell>
+                                  
                                   <TableCell align="right">
                                       <IconButton 
                                           onClick={() => handleEdit(paper)}
