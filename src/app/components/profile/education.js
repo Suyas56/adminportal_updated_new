@@ -85,6 +85,7 @@ export function EducationManagement() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Degree</TableCell>
+                                <TableCell>Specialization</TableCell>
                                 <TableCell>Institution</TableCell>
                                 <TableCell>Year</TableCell>
                                 <TableCell>Actions</TableCell>
@@ -94,6 +95,7 @@ export function EducationManagement() {
                             {educations.map((edu) => (
                                 <TableRow key={edu.id}>
                                     <TableCell>{edu.certification}</TableCell>
+                                    <TableCell>{edu.specialization?edu.specialization :"-"}</TableCell>
                                     <TableCell>{edu.institution}</TableCell>
                                     <TableCell>{edu.passing_year}</TableCell>
                                     <TableCell>
@@ -124,7 +126,7 @@ const degreeOptions = [
 
 export function AddEducation({ open, onClose, onSuccess }) {
     const { data: session } = useSession()
-    const [formData, setFormData] = useState({ degree: '', institution: '', year: '' })
+    const [formData, setFormData] = useState({ degree: '', institution: '', year: '',specialization:"" })
     
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -159,6 +161,14 @@ export function AddEducation({ open, onClose, onSuccess }) {
                         ))}
                     </TextField>
                     <TextField fullWidth label="Institution" value={formData.institution} onChange={(e) => setFormData(prev => ({ ...prev, institution: e.target.value }))} margin="normal" required />
+                    <TextField
+                        fullWidth
+                        label="Specialization"
+                        value={formData.specialization}
+                        onChange={(e) => setFormData(prev => ({ ...prev, specialization: e.target.value }))}
+                        margin="normal"
+                        required
+                    />
                     <TextField fullWidth label="Year" value={formData.year} onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))} margin="normal" required />
                 </DialogContent>
                 <DialogActions>
@@ -242,6 +252,15 @@ export function EditEducation({ open, onClose, education, onSuccess }) {
                         margin="normal"
                         required
                     />
+
+                    <TextField
+                            fullWidth
+                            label="Specialization"
+                            value={formData.specialization}
+                            onChange={(e) => setFormData(prev => ({ ...prev, specialization: e.target.value }))}
+                            margin="normal"
+                            required
+                        />
 
                     {/* Dropdown for Year */}
                     <TextField
