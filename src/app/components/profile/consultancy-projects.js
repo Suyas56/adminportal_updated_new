@@ -451,7 +451,7 @@ export default function ConsultancyProjectManagement() {
                             <TableCell>Duration</TableCell>
                             <TableCell>Investigators</TableCell>
                             <TableCell>Status</TableCell>
-                            <TableCell>Investigator</TableCell>
+                            {/* <TableCell>Investigator</TableCell> */}
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>

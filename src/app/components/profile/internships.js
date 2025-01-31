@@ -28,7 +28,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import Loading from '../common/Loading'
 import AddIcon from '@mui/icons-material/Add'
-
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Checkbox from '@mui/material/Checkbox'
 // Add formatDate helper function at the top
 const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -96,6 +97,13 @@ export const AddForm = ({ handleClose, modal }) => {
             setSubmitting(false)
         }
     }
+    const [isContinuing, setIsContinuing] = useState(false);
+    const handleContinueToggle = () => {
+        setIsContinuing((prev) => !prev);
+        if (!isContinuing) {
+            setContent((prev) => ({ ...prev, end_date: null }));
+        }
+    };
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
@@ -148,8 +156,8 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, start_date: newValue})
+                            onChange={(newValue) =>
+                                setContent({ ...content, start_date: newValue })
                             }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
@@ -158,14 +166,26 @@ export const AddForm = ({ handleClose, modal }) => {
                         <DatePicker
                             label="End Date"
                             value={content.end_date}
-                            onChange={(newValue) => 
-                                setContent({ ...content, end_date: newValue})
+                            onChange={(newValue) =>
+                                setContent({ ...content, end_date: newValue })
                             }
+                            disabled={isContinuing}
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                         />
                     </LocalizationProvider>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={isContinuing}
+                                onChange={handleContinueToggle}
+                                color="primary"
+                            />
+                        }
+                        label="Currently Working"
+                        style={{ marginTop: '10px' }}
+                    />
                     <InputLabel id="student-type">Student Type</InputLabel>
                     <Select
                         labelId="student-type"
@@ -242,6 +262,14 @@ export const EditForm = ({ handleClose, modal, values }) => {
             setSubmitting(false)
         }
     }
+    const [isContinuing, setIsContinuing] = useState(false);
+
+    const handleContinueToggle = () => {
+        setIsContinuing((prev) => !prev);
+        if (!isContinuing) {
+            setContent((prev) => ({ ...prev, end_date: null }));
+        }
+    };
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
@@ -294,12 +322,9 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
-                            onChange={(newValue) => {
-                                setContent(prev => ({
-                                    ...prev,
-                                    start_date: newValue
-                                }))
-                            }}
+                            onChange={(newValue) =>
+                                setContent({ ...content, start_date: newValue })
+                            }
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -307,17 +332,26 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <DatePicker
                             label="End Date"
                             value={content.end_date}
-                            onChange={(newValue) => {
-                                setContent(prev => ({
-                                    ...prev,
-                                    end_date: newValue
-                                }))
-                            }}
+                            onChange={(newValue) =>
+                                setContent({ ...content, end_date: newValue })
+                            }
+                            disabled={isContinuing}
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                         />
                     </LocalizationProvider>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={isContinuing}
+                                onChange={handleContinueToggle}
+                                color="primary"
+                            />
+                        }
+                        label="Currently Working"
+                        style={{ marginTop: '10px' }}
+                    />
                     <TextField
                         margin="dense"
                         label="Student Type"

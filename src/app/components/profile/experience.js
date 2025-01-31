@@ -22,7 +22,7 @@ import React, { useState, useEffect } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 export function ExperiencePage() {
     const { data: session } = useSession();
     const [experienceData, setExperienceData] = useState([]);
@@ -115,7 +115,7 @@ export function ExperiencePage() {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Work Experience</TableCell>
+                                <TableCell>Designation</TableCell>
                                 <TableCell>Institute Name</TableCell>
                                 <TableCell>Start Date</TableCell>
                                 <TableCell>End Date</TableCell>
@@ -201,14 +201,31 @@ function EditExperienceDialog({ open, onClose, onSave, experience }) {
             <form onSubmit={handleSubmit}>
                 <DialogTitle>{experience ? 'Edit Work Experience' : 'Add Work Experience'}</DialogTitle>
                 <DialogContent>
-                    <TextField
+                    {/* <TextField
                         fullWidth
                         margin="normal"
-                        label="Work Experience"
+                        label="work Experience"
                         value={workExperience}
                         onChange={(e) => setWorkExperience(e.target.value)}
                         required
-                    />
+                    /> */}
+                    <FormControl fullWidth margin="normal" required>
+                        <InputLabel>Designation</InputLabel>
+                        <Select
+                            value={workExperience} 
+                            onChange={(e) => setWorkExperience(e.target.value)}
+                            label="Designation"
+                        >
+                            <MenuItem value="Professor">Professor</MenuItem>
+                            <MenuItem value="Associate Professor">Associate Professor</MenuItem>
+                            <MenuItem value="Assistant Professor (Grade 1)">Assistant Professor (Grade 1)</MenuItem>
+                            <MenuItem value="Assistant Professor (Grade 2)">Assistant Professor (Grade 2)</MenuItem>
+                            <MenuItem value="Sr. Lecturer">Sr. Lecturer</MenuItem>
+                            <MenuItem value="Lecturer">Lecturer</MenuItem>
+                            <MenuItem value="Adhoc Faculty">Adhoc Faculty</MenuItem>
+                            <MenuItem value="Temporary Faculty">Temporary Faculty</MenuItem>
+                        </Select>
+                    </FormControl>
                     <TextField
                         fullWidth
                         margin="normal"
