@@ -51,6 +51,20 @@ async function migrate() {
       PRIMARY KEY (id)
     );`).catch((e) => console.log(e))
 
+
+    // "about_me" 
+
+    await query(`CREATE TABLE IF NOT EXISTS about_me (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      content TEXT NOT NULL,
+      created_at BIGINT NOT NULL,
+      updated_at BIGINT NOT NULL,
+      PRIMARY KEY (id)
+    );`).catch((e) => console.log(e));
+
+
+
 //Create news table
     await query(`create table if not exists news (
                 id bigint NOT NULL,
