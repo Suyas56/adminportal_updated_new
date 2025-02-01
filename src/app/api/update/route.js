@@ -274,15 +274,16 @@ export async function PUT(request) {
         case 'phd_candidates':
           const phdResult = await query(
             `UPDATE phd_candidates SET 
-             student_name = ?,
-             roll_no = ?,
-             registration_year = ?,
-             registration_type = ?,
-             research_area = ?,
-             other_supervisors = ?,
-             current_status = ?,
-             completion_year = ?
-             WHERE id = ? AND email = ?`,
+              student_name = ?,
+              roll_no = ?,
+              registration_year = ?,
+              registration_type = ?,
+              research_area = ?,
+              other_supervisors = ?,
+              current_status = ?,
+              completion_year = ?,
+              supervisor_type = ? 
+            WHERE id = ? AND email = ?`,
             [
               params.student_name,
               params.roll_no,
@@ -292,10 +293,11 @@ export async function PUT(request) {
               params.other_supervisors,
               params.current_status,
               params.completion_year,
+              params.supervisor_type,
               params.id,
               params.email
             ]
-          )
+          ); 
           return NextResponse.json(phdResult)
 
         case 'journal_papers':
