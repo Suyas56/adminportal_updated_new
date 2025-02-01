@@ -81,3 +81,30 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
   }
 }
+
+export async function GET(request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+    }
+
+    const { email } = request.query;
+
+    if (!email) {
+      return NextResponse.json({ message: 'Email is required' }, { status: 400 });
+    }
+
+    const result = await query(`SELECT * FROM about_me WHERE email = ?`, [email]);
+
+    if (result.length === 0) {
+      return NextResponse.json({ message: 'No content found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ content: result[0].content }, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+  }
+}
