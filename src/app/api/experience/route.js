@@ -11,13 +11,30 @@ export async function POST(request) {
             return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
         }
 
-        const { email, work_experience, institute, start_date, end_date } = await request.json();
+        const { email, work_experience, institute, start_date, end_date,id } = await request.json();
         const validEndDate = end_date === 'continue' ? null : end_date;
 
         const existingRecord = await query(
             `SELECT * FROM work_experience WHERE email = ? AND work_experiences = ?`,
             [email, work_experience]
         );
+
+        if (id){
+            let result;
+            result =await query(
+                `Update work_experience SET work_experiences= ? , institute= ? , start_date = ? , end_date = ? Where id= ?`,[
+                    work_experience,
+                    institute,
+                    start_date,
+                    validEndDate,
+                    id
+                ]
+            )
+            if (result.affectedRows === 1) {
+                return NextResponse.json({ message: 'Successfully saved work experience' }, { status: 200 });
+            }
+            return NextResponse.json({ message: 'Failed to update or create experience' }, { status: 500 });
+        }
 
         let result;
             result = await query(
