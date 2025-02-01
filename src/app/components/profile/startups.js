@@ -394,7 +394,11 @@ export default function StartupManagement() {
                                 <TableCell>{startup.startup_name}</TableCell>
                                 <TableCell>{startup.incubation_place}</TableCell>
                                 <TableCell>
-                                    {startup.registration_date ? new Date(startup.registration_date).toLocaleDateString() : '-'}
+                                    {startup.registration_date ? new Date(startup.registration_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }) : '-'}
                                 </TableCell>
                                 <TableCell>{startup.owners_founders}</TableCell>
                                 <TableCell>₹{startup.annual_income}</TableCell>

@@ -421,7 +421,7 @@ import {
                               <TableCell>Authors</TableCell>
                               <TableCell>Conference</TableCell>
                               <TableCell>Location</TableCell>
-                              <TableCell>Year</TableCell>
+                              {/* <TableCell>Year</TableCell> */}
                               <TableCell>Pages</TableCell>
                               <TableCell>Indexing</TableCell>
                               <TableCell>Foreign Author</TableCell>
@@ -438,6 +438,7 @@ import {
                                   <TableCell>{paper.authors}</TableCell>
                                   <TableCell>{paper.conference_name}</TableCell>
                                   <TableCell>{paper.location}</TableCell>
+                                  {/* <TableCell>{paper.yea}</TableCell> */}
                                   <TableCell>{paper.pages}</TableCell>
                                   <TableCell>{paper.indexing}</TableCell>
                                   <TableCell>{paper.foreign_author}</TableCell>

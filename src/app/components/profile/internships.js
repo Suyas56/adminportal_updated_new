@@ -474,7 +474,15 @@ export default function InternshipManagement() {
                                 <TableCell>{internship.project_title}</TableCell>
                                 <TableCell>{internship.affiliation}</TableCell>
                                 <TableCell>
-                                    {formatDate(internship.start_date)}-{internship.end_date ? formatDate(internship.end_date) : 'Present'}
+                                    {new Date(internship.start_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}-{internship.end_date ? new Date(internship.end_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }) : 'Present'}
                                 </TableCell>
                                 <TableCell>{internship.student_type}</TableCell>
                                 <TableCell align="right">

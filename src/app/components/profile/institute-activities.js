@@ -388,10 +388,18 @@ export default function InstituteActivityManagement() {
                             <TableRow key={activity.id}>
                                 <TableCell>{activity.role_position}</TableCell>
                                 <TableCell>
-                                    {formatDate(activity.start_date)}
+                                    {new Date(activity.start_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}
                                 </TableCell>
                                 <TableCell>
-                                    {activity.end_date ? (activity.end_date === "Continue" ? "Continue" : formatDate(activity.end_date)) : "Present"}
+                                    {activity.end_date ? (activity.end_date === "Continue" ? "Continue" : new Date(activity.end_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })) : "Present"}
                                 </TableCell>
                                 <TableCell align="right">
                                     <IconButton 

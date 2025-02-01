@@ -438,7 +438,15 @@ export default function ProjectSupervisionManagement() {
                                 <TableCell>{project.category}</TableCell>
                                 <TableCell>{project.project_title}</TableCell>
                                 <TableCell>{project.student_details}</TableCell>
-                                <TableCell>{new Date(project.start_date).toLocaleDateString()} - {project.end_date === "Continue" ?"Continue":new Date(project.end_date).toLocaleDateString()}</TableCell>
+                                <TableCell>{new Date(project.start_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })} - {project.end_date === "Continue" ?"Continue":new Date(project.end_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}</TableCell>
                                 
                                 <TableCell>{project.internal_supervisors}</TableCell>
                                 <TableCell>{project.external_supervisors}</TableCell>

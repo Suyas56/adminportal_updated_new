@@ -448,6 +448,7 @@ export default function ConsultancyProjectManagement() {
                             <TableCell>Title</TableCell>
                             <TableCell>Agency</TableCell>
                             <TableCell>Outlay (₹)</TableCell>
+                            <TableCell>Start Date</TableCell>
                             <TableCell>Duration</TableCell>
                             <TableCell>Investigators</TableCell>
                             <TableCell>Status</TableCell>
@@ -461,6 +462,11 @@ export default function ConsultancyProjectManagement() {
                                 <TableCell>{project.project_title}</TableCell>
                                 <TableCell>{project.funding_agency}</TableCell>
                                 <TableCell>{project.financial_outlay}</TableCell>
+                                <TableCell>{new Date(project.start_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}</TableCell>
                                 <TableCell>
                                     {project.period_months} months
                                 </TableCell>

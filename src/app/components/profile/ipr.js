@@ -459,13 +459,25 @@ export default function IPRManagement() {
                                 <TableCell>{ipr.type}</TableCell>
                                 <TableCell>{ipr.grant_no}</TableCell>
                                 <TableCell>
-                                    {ipr.grant_date ? new Date(ipr.grant_date).toLocaleDateString() : '-'}
+                                    {ipr.grant_date ? new Date(ipr.grant_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }) : '-'}
                                 </TableCell>
                                 <TableCell>
-                                    {ipr.registration_date ? new Date(ipr.registration_date).toLocaleDateString() : '-'}
+                                    {ipr.registration_date ? new Date(ipr.registration_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }) : '-'}
                                 </TableCell>
                                 <TableCell>
-                                    {ipr.publication_date ? new Date(ipr.publication_date).toLocaleDateString() : '-'}
+                                    {ipr.publication_date ? new Date(ipr.publication_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }) : '-'}
                                 </TableCell>
                                 <TableCell>{ipr.applicant_name}</TableCell>
                                 <TableCell>{ipr.inventors}</TableCell>
