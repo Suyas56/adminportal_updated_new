@@ -90,7 +90,8 @@ export async function GET(request) {
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
 
-    const { email } = request.query;
+    const url = new URL(request.url);
+    const email = url.searchParams.get('email');
 
     if (!email) {
       return NextResponse.json({ message: 'Email is required' }, { status: 400 });
