@@ -20,18 +20,6 @@ export async function POST(request) {
         );
 
         let result;
-        if (existingRecord.length > 0) {
-            result = await query(
-                `UPDATE work_experience SET institute = ?, start_date = ?, end_date = ? WHERE email = ? AND work_experiences = ?`,
-                [
-                    institute,
-                    start_date,
-                    validEndDate,
-                    email,
-                    work_experience
-                ]
-            );
-        } else {
             result = await query(
                 `INSERT INTO work_experience (id, email, work_experiences, institute, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)`,
                 [
@@ -43,7 +31,6 @@ export async function POST(request) {
                     validEndDate
                 ]
             );
-        }
 
         if (result.affectedRows === 0) {
             return NextResponse.json({ message: 'Failed to update or create experience' }, { status: 500 });
