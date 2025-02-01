@@ -475,7 +475,15 @@ export default function WorkshopConferenceManagement() {
                                 <TableCell>{event.event_type}</TableCell>
                                 <TableCell>{event.role}</TableCell>
                                 <TableCell>
-                                    {formatDate(event.start_date)} - {formatDate(event.end_date)}
+                                    {new Date(event.start_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })} - {new Date(event.end_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}
                                 </TableCell>
                                 <TableCell>{event.sponsored_by}</TableCell>
                                 <TableCell>{event.participants_count}</TableCell>

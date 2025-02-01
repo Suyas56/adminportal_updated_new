@@ -351,11 +351,19 @@ export default function MembershipManagement() {
                                 <TableCell>{membership.membership_id}</TableCell>
                                 <TableCell>{membership.membership_society}</TableCell>
                                 <TableCell>
-                                    {new Date(membership.start).toLocaleDateString()}
+                                    {new Date(membership.start).toLocaleDateString('en-GB', {
+                                        day: 'numeric',
+                                        month: 'short',
+                                        year: 'numeric'
+                                    })}
                                 </TableCell>
                                 <TableCell>
                                     {membership.end !='Continue' ? 
-                                        new Date(membership.end).toLocaleDateString() : 
+                                        new Date(membership.end).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }) : 
                                         'Continue'}
                                 </TableCell>
                                 <TableCell align="right">

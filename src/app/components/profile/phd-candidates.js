@@ -470,7 +470,11 @@ export default function PhdCandidateManagement() {
                                 <TableCell>{candidate.registration_year} </TableCell>
                                 <TableCell>{candidate.research_area}</TableCell>
                                 <TableCell>{candidate.current_status}</TableCell>
-                                <TableCell>{candidate.completion_year}</TableCell>
+                                <TableCell>{candidate.completion_year ? new Date(candidate.completion_year).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        }):"-"}</TableCell>
                                 <TableCell>{candidate.other_supervisors}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 

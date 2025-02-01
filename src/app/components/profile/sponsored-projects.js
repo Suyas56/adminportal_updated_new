@@ -492,7 +492,15 @@ export default function SponsoredProjectManagement() {
                                 <TableCell>{project.funding_agency}</TableCell>
                                 <TableCell>{project.financial_outlay}</TableCell>
                                 <TableCell>
-                                    {new Date(project.start_date).toLocaleDateString()} - {new Date(project.end_date).toLocaleDateString()}
+                                    {new Date(project.start_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })} - {new Date(project.end_date).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                        })}
                                 </TableCell>
                                 <TableCell>{project.pi_institute}</TableCell>
                                 <TableCell>{project.status}</TableCell>
