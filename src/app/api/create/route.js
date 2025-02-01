@@ -173,7 +173,7 @@ export async function POST(request) {
         switch (type) {
           case 'phd_candidates':
             const phdResult = await query(
-              `INSERT INTO phd_candidates(id, email, student_name, roll_no, registration_year, registration_type, research_area, other_supervisors, current_status, completion_year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              `INSERT INTO phd_candidates(id, email, student_name, roll_no, registration_year, registration_type, research_area, other_supervisors, current_status, completion_year,supervisor_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
               [
                 params.id,
                 params.email,
@@ -184,7 +184,8 @@ export async function POST(request) {
                 params.research_area,
                 params.other_supervisors,
                 params.current_status,
-                params.completion_year
+                params.completion_year,
+                params.supervisor_type
               ]
             )
             return NextResponse.json(phdResult)

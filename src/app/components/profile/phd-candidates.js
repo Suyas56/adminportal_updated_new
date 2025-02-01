@@ -27,6 +27,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { parseISO } from "date-fns";
+import FormControl from '@mui/material/FormControl'
 // Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -38,7 +39,8 @@ export const AddForm = ({ handleClose, modal }) => {
         research_area: '',
         other_supervisors: '',
         current_status: 'Ongoing',
-        completion_year: ''
+        completion_year: '',
+        supervisor_type:''
     }
     const [content, setContent] = useState(initialState)
     const refreshData = useRefreshData(false)
@@ -80,10 +82,11 @@ export const AddForm = ({ handleClose, modal }) => {
             handleClose()
             refreshData()
             setContent(initialState)
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
-            window.location.reload()
+            // window.location.reload()
             setSubmitting(false)
         }
     }
@@ -155,6 +158,20 @@ export const AddForm = ({ handleClose, modal }) => {
                         onChange={handleChange}
                         helperText="Enter names separated by commas"
                     />
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel>Type of Supervisor</InputLabel>
+                        <Select
+                            value={content.supervisor_type}
+                            onChange={handleChange}
+                            name="supervisor_type"
+                            label="Type of Supervisor"
+                        >
+                            {/* <MenuItem value="null">No Supervisor</MenuItem> */}
+                            <MenuItem value="Supervisor">Supervisor</MenuItem>
+                            <MenuItem value="Co Supervisor">Co Supervisor</MenuItem>
+                            <MenuItem value="Joint Supervisor">Joint Supervisor</MenuItem>
+                        </Select>
+                    </FormControl>
                     <InputLabel id="status">Current Status</InputLabel>
                     <Select
                         labelId="status"
@@ -218,7 +235,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
         research_area: values.research_area || '',
         other_supervisors: values.other_supervisors || '',
         current_status: values.current_status || 'Ongoing',
-        completion_year: values.completion_year || ''
+        completion_year: values.completion_year || '',
+        supervisor_type: values.supervisor_type || '',
     })
     const refreshData = useRefreshData(false)
     const [submitting, setSubmitting] = useState(false)
@@ -249,11 +267,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
 
             refreshData()
             handleClose()
+            window.location.reload()
         } catch (error) {
             console.error('Error:', error)
         } finally {
             setSubmitting(false)
-            window.location.reload()
+            
         }
     }
 
@@ -317,6 +336,19 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         onChange={handleChange}
                         helperText="Enter names separated by commas"
                     />
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel>Type of Supervisor</InputLabel>
+                        <Select
+                            value={content.supervisor_type}
+                            onChange={handleChange}
+                            name="supervisor_type"
+                            label="Type of Supervisor"
+                        >
+                            <MenuItem value="Supervisor">Supervisor</MenuItem>
+                            <MenuItem value="Co Supervisor">Co Supervisor</MenuItem>
+                            <MenuItem value="Joint Supervisor">Joint Supervisor</MenuItem>
+                        </Select>
+                    </FormControl>
                     <TextField
                         select
                         margin="dense"
@@ -448,6 +480,7 @@ export default function PhdCandidateManagement() {
                             <TableCell>Research Area/Thesis Title</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Status Time</TableCell>
+                            <TableCell>supervisor Type</TableCell>
                             <TableCell>Other Supervisors</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
@@ -475,6 +508,7 @@ export default function PhdCandidateManagement() {
                                             month: 'short',
                                             year: 'numeric'
                                         }):"-"}</TableCell>
+                                <TableCell>{candidate.supervisor_type? candidate.supervisor_type :"-"}</TableCell>
                                 <TableCell>{candidate.other_supervisors}</TableCell>
                                 <TableCell align="right">
                                     <IconButton 
