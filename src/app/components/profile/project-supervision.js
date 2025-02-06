@@ -180,7 +180,7 @@ export const AddForm = ({ handleClose, modal }) => {
                                     }
                                 />
                             }
-                            label="Continue (End Date not known)"
+                            label="Continue"
                         />
                         </LocalizationProvider>
                 </DialogContent>
@@ -329,7 +329,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                                     }
                                 />
                             }
-                            label="Continue (End Date not known)"
+                            label="Continue"
                         />
                         </LocalizationProvider>
                 </DialogContent>

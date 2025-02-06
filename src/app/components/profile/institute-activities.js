@@ -124,7 +124,8 @@ export default function InstituteActivityManagement() {
         const initialState = {
             role_position: '',
             start_date: null,
-            end_date: null
+            end_date: null,
+            institute_name: 'National Institute of Technology, Patna'
         }
         const [content, setContent] = useState(initialState)
         const refreshData = useRefreshData(false)
@@ -162,11 +163,12 @@ export default function InstituteActivityManagement() {
                 setContent(initialState)
                 showToast('Institute activity added successfully!')
                 refreshData()
+                window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
                 showToast('Failed to add institute activity', 'error')
             } finally {
-                window.location.reload()
+                
                 setSubmitting(false)
             }
         }
@@ -183,6 +185,16 @@ export default function InstituteActivityManagement() {
                             fullWidth
                             required
                             value={content.role_position}
+                            onChange={handleChange}
+                            size="medium"
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Institute Name"
+                            name="institute_name"
+                            fullWidth
+                            required
+                            value={content.institute_name}
                             onChange={handleChange}
                             size="medium"
                         />
@@ -219,7 +231,7 @@ export default function InstituteActivityManagement() {
                                     }
                                 />
                             }
-                            label="Continue (End Date not known)"
+                            label="Continue"
                         />
                         </LocalizationProvider>
                     </DialogContent>
@@ -285,7 +297,6 @@ export default function InstituteActivityManagement() {
                 showToast('Failed to update institute activity', 'error')
             } finally {
                 setSubmitting(false)
-                window.location.reload()
             }
         }
 
@@ -301,6 +312,16 @@ export default function InstituteActivityManagement() {
                             fullWidth
                             required
                             value={content.role_position}
+                            onChange={handleChange}
+                            size="medium"
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Institute Name"
+                            name="institute_name"
+                            fullWidth
+                            required
+                            value={content.institute_name}
                             onChange={handleChange}
                             size="medium"
                         />
@@ -340,7 +361,7 @@ export default function InstituteActivityManagement() {
                                         }
                                     />
                                 }
-                                label="Continue (End Date not known)"
+                                label="Continue"
                             />
                         </LocalizationProvider>
                     </DialogContent>
@@ -378,6 +399,7 @@ export default function InstituteActivityManagement() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Role/Position</TableCell>
+                            <TableCell>Institute Name</TableCell>
                             <TableCell>Start Date</TableCell>
                             <TableCell>End Date</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -387,6 +409,7 @@ export default function InstituteActivityManagement() {
                         {activities?.map((activity) => (
                             <TableRow key={activity.id}>
                                 <TableCell>{activity.role_position}</TableCell>
+                                <TableCell>{activity.institute_name?activity.institute_name:"-"}</TableCell>
                                 <TableCell>
                                     {new Date(activity.start_date).toLocaleDateString('en-GB', {
                                             day: 'numeric',

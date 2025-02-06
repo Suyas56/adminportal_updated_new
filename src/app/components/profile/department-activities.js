@@ -45,7 +45,8 @@ export const AddForm = ({ handleClose, modal }) => {
     const initialState = {
         activity_description: '',
         start_date: null,
-        end_date: null
+        end_date: null,
+        institute_name: 'National Institute of Technology, Patna'
     }
     const [content, setContent] = useState(initialState)
     const refreshData = useRefreshData(false)
@@ -108,6 +109,16 @@ export const AddForm = ({ handleClose, modal }) => {
                         value={content.activity_description}
                         onChange={handleChange}
                     />
+                    <TextField
+                        margin="dense"
+                        label="Institute Name"
+                        name="institute_name"
+                        fullWidth
+                        required
+                        value={content.institute_name}
+                        onChange={handleChange}
+                        size="medium"
+                    />
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Start Date"
@@ -141,7 +152,7 @@ export const AddForm = ({ handleClose, modal }) => {
                                     }
                                 />
                             }
-                            label="Continue (End Date not known)"
+                            label="Continue"
                         />
 
                     </LocalizationProvider>
@@ -226,6 +237,16 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.activity_description}
                         onChange={handleChange}
                     />
+                    <TextField
+                        margin="dense"
+                        label="Institute Name"
+                        name="institute_name"
+                        fullWidth
+                        required
+                        value={content.institute_name}
+                        onChange={handleChange}
+                        size="medium"
+                    />
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Start Date"
@@ -262,7 +283,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                                     }
                                 />
                             }
-                            label="Continue (End Date not known)"
+                            label="Continue"
                         />
                     </LocalizationProvider>
                 </DialogContent>
@@ -357,6 +378,7 @@ export default function DepartmentActivityManagement() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Activity Description</TableCell>
+                            <TableCell>Institute Name</TableCell>
                             <TableCell>Start Date</TableCell>
                             <TableCell>End Date</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -366,6 +388,7 @@ export default function DepartmentActivityManagement() {
                         {activities?.map((activity) => (
                             <TableRow key={activity.id}>
                                 <TableCell>{activity.activity_description}</TableCell>
+                                <TableCell>{activity.institute_name?activity.institute_name:"-"}</TableCell>
                                 <TableCell>
                                     {new Date(activity.start_date).toLocaleDateString('en-GB', {
                                             day: 'numeric',
