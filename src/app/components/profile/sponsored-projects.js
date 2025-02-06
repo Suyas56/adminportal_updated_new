@@ -20,7 +20,7 @@ import {
     Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -43,7 +43,8 @@ export const AddForm = ({ handleClose, modal }) => {
         investigators: '',
         pi_institute: '',
         status: 'Ongoing',
-        funds_received: ''
+        funds_received: '',
+        role:""
     }
     const [content, setContent] = useState(initialState)
     const refreshData = useRefreshData(false)
@@ -68,9 +69,7 @@ export const AddForm = ({ handleClose, modal }) => {
                     start_date: content.start_date
                         ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
                         : null,
-                    end_date: content.end_date
-                        ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                        : null,
+                    end_date: isContinuing ? null : (content.end_date ? new Date(content.end_date).toISOString().split('T')[0] : null),
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
@@ -203,6 +202,21 @@ export const AddForm = ({ handleClose, modal }) => {
                         value={content.funds_received}
                         onChange={handleChange}
                     />
+                    <InputLabel id="status">Role</InputLabel>
+                    <Select
+                        labelId="role"
+                        name="role"
+                        value={content.role}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="Principal Investigator">Principal Investigator</MenuItem>
+                        <MenuItem value="Co Principal Investigator">Co Principal Investigator</MenuItem>
+                        <MenuItem value="Research">Research</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                        {/* <MenuItem value="Terminated">Terminated</MenuItem> */}
+                    </Select>
                 </DialogContent>
                 <DialogActions>
                     <Button
@@ -229,6 +243,9 @@ export const EditForm = ({ handleClose, modal, values }) => {
         setContent({ ...content, [e.target.name]: e.target.value })
     }
 
+    useEffect(()=>{
+        setIsContinuing(content.end_date === null)
+    },[])
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSubmitting(true)
@@ -241,10 +258,10 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     type: 'sponsored_projects',
                     ...content,
                     start_date:new Date(content.start_date).toISOString().split('T')[0],
-                    end_date:new Date(content.end_date).toISOString().split('T')[0],
-                    email: session?.user?.email
+                    email: session?.user?.email,
+                    end_date: isContinuing ? null : new Date(content.end_date).toISOString().split('T')[0]
                 }),
-            })
+        })
 
             if (!result.ok) throw new Error('Failed to update')
 
@@ -313,7 +330,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
                             label="Start Date"
-                            value={content.start_date}
+                            value={new Date(content.start_date)}
                             onChange={(newValue) =>
                                 setContent({ ...content, start_date: newValue })
                             }
@@ -323,7 +340,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         />
                         <DatePicker
                             label="End Date"
-                            value={content.end_date}
+                            value={content.end_date ?new Date(content.end_date):""}
                             onChange={(newValue) =>
                                 setContent({ ...content, end_date: newValue })
                             }
@@ -377,6 +394,22 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <MenuItem value="Ongoing">Ongoing</MenuItem>
                         <MenuItem value="Completed">Completed</MenuItem>
                         <MenuItem value="Terminated">Terminated</MenuItem>
+                    </Select>
+
+                    <InputLabel id="status">Role</InputLabel>
+                    <Select
+                        labelId="role"
+                        name="role"
+                        value={content.role}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="Principal Investigator">Principal Investigator</MenuItem>
+                        <MenuItem value="Co Principal Investigator">Co Principal Investigator</MenuItem>
+                        <MenuItem value="Research">Research</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                        {/* <MenuItem value="Terminated">Terminated</MenuItem> */}
                     </Select>
                 </DialogContent>
                 <DialogActions>
@@ -477,6 +510,7 @@ export default function SponsoredProjectManagement() {
                         <TableRow>
                             <TableCell>Title</TableCell>
                             <TableCell>Agency</TableCell>
+                            <TableCell>Role</TableCell>
                             <TableCell>Outlay (₹)</TableCell>
                             <TableCell>Duration</TableCell>
                             <TableCell>PI Institute</TableCell>
@@ -490,17 +524,18 @@ export default function SponsoredProjectManagement() {
                             <TableRow key={project.id}>
                                 <TableCell>{project.project_title}</TableCell>
                                 <TableCell>{project.funding_agency}</TableCell>
+                                <TableCell>{project.role? project.role:"-"}</TableCell>
                                 <TableCell>{project.financial_outlay}</TableCell>
                                 <TableCell>
                                     {new Date(project.start_date).toLocaleDateString('en-GB', {
                                             day: 'numeric',
                                             month: 'short',
                                             year: 'numeric'
-                                        })} - {new Date(project.end_date).toLocaleDateString('en-GB', {
+                                        })} - {project.end_date ? new Date(project.end_date).toLocaleDateString('en-GB', {
                                             day: 'numeric',
                                             month: 'short',
                                             year: 'numeric'
-                                        })}
+                                        }):"continue"}
                                 </TableCell>
                                 <TableCell>{project.pi_institute}</TableCell>
                                 <TableCell>{project.status}</TableCell>

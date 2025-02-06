@@ -449,6 +449,7 @@ export async function PUT(request) {
           const sponsoredResult = await query(
             `UPDATE sponsored_projects SET 
              project_title = ?,
+             role=?,
              funding_agency = ?,
              financial_outlay = ?,
              start_date = ?,
@@ -460,6 +461,7 @@ export async function PUT(request) {
              WHERE id = ? AND email = ?`,
             [
               params.project_title,
+              params.role,
               params.funding_agency,
               params.financial_outlay,
               params.start_date,
@@ -478,6 +480,7 @@ export async function PUT(request) {
           const consultancyResult = await query(
             `UPDATE consultancy_projects SET 
              project_title = ?,
+             role= ?,
              funding_agency = ?,
              financial_outlay = ?,
              start_date = ?,
@@ -487,6 +490,7 @@ export async function PUT(request) {
              WHERE id = ? AND email = ?`,
             [
               params.project_title,
+              params.role,
               params.funding_agency,
               params.financial_outlay,
               params.start_date,

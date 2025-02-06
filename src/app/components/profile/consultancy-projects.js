@@ -43,7 +43,8 @@ export const AddForm = ({ handleClose, modal }) => {
         end_date: null,
         period_months: '',
         investigators: '',
-        status: 'Ongoing'
+        status: 'Ongoing',
+        role:''
     }
     const [content, setContent] = useState(initialState)
     const refreshData = useRefreshData(false)
@@ -193,6 +194,22 @@ export const AddForm = ({ handleClose, modal }) => {
                     >
                         <MenuItem value="Ongoing">Ongoing</MenuItem>
                         <MenuItem value="Completed">Completed</MenuItem>
+                        {/* <MenuItem value="Terminated">Terminated</MenuItem> */}
+                    </Select>
+
+                    <InputLabel id="status">Role</InputLabel>
+                    <Select
+                        labelId="role"
+                        name="role"
+                        value={content.role}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="Principal Investigator">Principal Investigator</MenuItem>
+                        <MenuItem value="Co Principal Investigator">Co Principal Investigator</MenuItem>
+                        <MenuItem value="Research">Research</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
                         {/* <MenuItem value="Terminated">Terminated</MenuItem> */}
                     </Select>
                 </DialogContent>
@@ -351,6 +368,22 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <MenuItem value="Completed">Completed</MenuItem>
                         <MenuItem value="Terminated">Terminated</MenuItem>
                     </Select>
+
+                    <InputLabel id="status">Role</InputLabel>
+                    <Select
+                        labelId="role"
+                        name="role"
+                        value={content.role}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="Principal Investigator">Principal Investigator</MenuItem>
+                        <MenuItem value="Co Principal Investigator">Co Principal Investigator</MenuItem>
+                        <MenuItem value="Research">Research</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                        {/* <MenuItem value="Terminated">Terminated</MenuItem> */}
+                    </Select>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">
@@ -447,6 +480,7 @@ export default function ConsultancyProjectManagement() {
                         <TableRow>
                             <TableCell>Title</TableCell>
                             <TableCell>Agency</TableCell>
+                            <TableCell>Role</TableCell>
                             <TableCell>Outlay (₹)</TableCell>
                             <TableCell>Start Date</TableCell>
                             <TableCell>Duration</TableCell>
@@ -461,6 +495,7 @@ export default function ConsultancyProjectManagement() {
                             <TableRow key={project.id}>
                                 <TableCell>{project.project_title}</TableCell>
                                 <TableCell>{project.funding_agency}</TableCell>
+                                <TableCell>{project.role?project.role:"-"}</TableCell>
                                 <TableCell>{project.financial_outlay}</TableCell>
                                 <TableCell>{new Date(project.start_date).toLocaleDateString('en-GB', {
                                             day: 'numeric',
