@@ -286,10 +286,11 @@ export async function POST(request) {
 
           case 'sponsored_projects':
             const sponsoredResult = await query(
-              `INSERT INTO sponsored_projects(id, email, project_title, funding_agency, financial_outlay, start_date, end_date, investigators, pi_institute, status, funds_received) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              `INSERT INTO sponsored_projects(id, email, role, project_title, funding_agency, financial_outlay, start_date, end_date, investigators, pi_institute, status, funds_received) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
               [
                 params.id,
                 params.email,
+                params.role,
                 params.project_title,
                 params.funding_agency,
                 params.financial_outlay,
@@ -305,10 +306,11 @@ export async function POST(request) {
 
           case 'consultancy_projects':
             const consultancyResult = await query(
-              `INSERT INTO consultancy_projects(id, email, project_title, funding_agency, financial_outlay, start_date, period_months, investigators, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              `INSERT INTO consultancy_projects(id, email,role, project_title, funding_agency, financial_outlay, start_date, period_months, investigators, status) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?)`,
               [
                 params.id,
                 params.email,
+                params.role,
                 params.project_title,
                 params.funding_agency,
                 params.financial_outlay,
