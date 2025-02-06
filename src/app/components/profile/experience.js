@@ -236,6 +236,8 @@ function EditExperienceDialog({ open, onClose, onSave, experience, session }) {
                             <MenuItem value="Lecturer">Lecturer</MenuItem>
                             <MenuItem value="Adhoc Faculty">Adhoc Faculty</MenuItem>
                             <MenuItem value="Temporary Faculty">Temporary Faculty</MenuItem>
+                            <MenuItem value="Guest Faculty">Guest Faculty</MenuItem>
+                            <MenuItem value="Visiting Faculty">Visiting Faculty</MenuItem>
                         </Select>
                     </FormControl>
                     <TextField
