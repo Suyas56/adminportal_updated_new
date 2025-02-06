@@ -122,7 +122,7 @@ export const AddForm = ({ handleClose, modal }) => {
                                     }
                                 />
                             }
-                            label="Continue (End Date not known)"
+                            label="Continue"
                         />
                     </LocalizationProvider>
 
@@ -245,7 +245,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                                     onChange={handleContinueChange}
                                 />
                             }
-                            label="Continue (End Date not known)"
+                            label="Continue"
                         />
                     </LocalizationProvider>
                 </DialogContent>

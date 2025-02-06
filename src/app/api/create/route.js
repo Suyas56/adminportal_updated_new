@@ -402,10 +402,11 @@ export async function POST(request) {
           
           case 'institute_activities':
             const instituteResult = await query(
-              `INSERT INTO institute_activities(id, email, role_position, start_date, end_date) VALUES (?, ?, ?, ?, ?)`,
+              `INSERT INTO institute_activities(id, email,institute_name role_position, start_date, end_date) VALUES (?,?, ?, ?, ?, ?)`,
               [
                 params.id,
                 params.email,
+                params.institute_name,
                 params.role_position,
                 params.start_date,
                 params.end_date
@@ -415,10 +416,11 @@ export async function POST(request) {
 
           case 'department_activities':
             const departmentResult = await query(
-              `INSERT INTO department_activities(id, email, activity_description, start_date, end_date) VALUES (?, ?, ?, ?, ?)`,
+              `INSERT INTO department_activities(id, email, institute_name ,activity_description, start_date, end_date) VALUES (?, ?, ?, ?, ?,?)`,
               [
                 params.id,
                 params.email,
+                params.institute_name,
                 params.activity_description,
                 params.start_date,
                 params.end_date

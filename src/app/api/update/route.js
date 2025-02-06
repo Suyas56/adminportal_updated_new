@@ -660,11 +660,13 @@ export async function PUT(request) {
           const instituteResult = await query(
             `UPDATE institute_activities SET 
              role_position = ?,
+             institute_name = ?,
              start_date = ?,
              end_date = ?
              WHERE id = ? AND email = ?`,
             [
               params.role_position,
+              params.institute_name,
               params.start_date,
               params.end_date,
               params.id,
@@ -677,11 +679,13 @@ export async function PUT(request) {
           const departmentResult = await query(
             `UPDATE department_activities SET 
              activity_description = ?,
+             institute_name = ?,
              start_date = ?,
              end_date = ?
              WHERE id = ? AND email = ?`,
             [
               params.activity_description,
+              params.institute_name,
               params.start_date,
               params.end_date,
               params.id,
