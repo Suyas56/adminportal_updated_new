@@ -121,7 +121,7 @@ export function EducationManagement() {
 }
 
 const degreeOptions = [
-    "PhD", "M.Tech", "B.Tech", "M.Arch", "B.Arch", "BSc", "MSc", "MCA","BE","ME","Post Doc"
+    "PhD", "M.Tech", "B.Tech", "M.Arch", "B.Arch", "BSc", "MSc", "MCA","BE","ME","Post Doc","M.B.A","M.A.","B.Com",'B.J.M.C'
 ]
 
 export function AddEducation({ open, onClose, onSuccess }) {
@@ -169,7 +169,7 @@ export function AddEducation({ open, onClose, onSuccess }) {
                         margin="normal"
                         required
                     />
-                    <TextField fullWidth label="Year" value={formData.year} onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))} margin="normal" required />
+                    <TextField fullWidth label="Year" value={formData.year} onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))} margin="normal" required type='number'/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose}>Cancel</Button>
