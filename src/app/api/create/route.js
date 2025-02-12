@@ -404,7 +404,7 @@ export async function POST(request) {
           
           case 'institute_activities':
             const instituteResult = await query(
-              `INSERT INTO institute_activities(id, email,institute_name role_position, start_date, end_date) VALUES (?,?, ?, ?, ?, ?)`,
+              `INSERT INTO institute_activities(id, email,institute_name, role_position, start_date, end_date) VALUES (?,?, ?, ?, ?, ?)`,
               [
                 params.id,
                 params.email,

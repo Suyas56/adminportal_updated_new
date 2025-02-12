@@ -118,12 +118,12 @@ function EditAboutDialog({ open, onClose, initialContent, onSave }) {
           <TextField
             fullWidth
             multiline
-            rows={10}
+            rows={20}
             value={formContent}
             onChange={(e) => setFormContent(e.target.value)}
             margin="normal"
             label="Write about yourself (max 1000 words)"
-            inputProps={{ maxLength: 1000 }}
+            inputProps={{ maxLength: 10000 }}
             required
           />
         </DialogContent>
