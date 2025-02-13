@@ -10,7 +10,8 @@ export async function GET(request) {
     switch (type) {
       case 'all':
         results = await query(
-          `SELECT * FROM project ORDER BY end DESC`
+          `SELECT * FROM sponsored_projects 
+            ORDER BY end_date DESC`
         )
         return NextResponse.json(results)
 
