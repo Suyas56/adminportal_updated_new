@@ -362,8 +362,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.student_type}
                         onChange={handleChange}
                     >
-                        <MenuItem value="UG">Internal Student</MenuItem>
-                        <MenuItem value="PG">External Student</MenuItem>
+                        <MenuItem value="Internal">Internal Student</MenuItem>
+                        <MenuItem value="External">External Student</MenuItem>
                     </TextField>
                 </DialogContent>
                 <DialogActions>
