@@ -184,7 +184,9 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.lectures}
                         onChange={handleChange}
+                        helperText="Lecture per week according to the curriculum."
                     />
+
                     <TextField
                         margin="dense"
                         label="Tutorials"
@@ -194,6 +196,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.tutorials}
                         onChange={handleChange}
+                        helperText="Tutorial per week according to the curriculum."
                     />
                     <TextField
                         margin="dense"
@@ -204,6 +207,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.practicals}
                         onChange={handleChange}
+                        helperText="Practical per week according to the curriculum."
                     />
                     <TextField
                         margin="dense"
@@ -214,6 +218,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.total_theory}
                         onChange={handleChange}
+                        helperText="Total theory classes held in a semester."
                     />
                     <TextField
                         margin="dense"
@@ -224,6 +229,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         required
                         value={content.lab_hours}
                         onChange={handleChange}
+                        helperText="Total lab hours held in a semester."
                     />
                     <TextField
                         margin="dense"
