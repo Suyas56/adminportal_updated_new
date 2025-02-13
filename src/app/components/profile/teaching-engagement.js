@@ -222,7 +222,7 @@ export const AddForm = ({ handleClose, modal }) => {
                     />
                     <TextField
                         margin="dense"
-                        label="Lab Hours"
+                        label="Total Lab Hours"
                         name="lab_hours"
                         type="number"
                         fullWidth
