@@ -10,10 +10,15 @@ export async function GET(request) {
     switch (type) {
       case 'all':
         results = await query(
-          `SELECT * FROM sponsored_projects 
+          `SELECT * FROM sponsored_projects
             ORDER BY end_date DESC`
-        )
-        return NextResponse.json(results)
+        );
+        const consultancy_projects = await query(
+          `SELECT * FROM consultancy_projects
+            ORDER BY start_date DESC`
+        );
+        const data = [...results, ...consultancy_projects];
+        return NextResponse.json(data);
 
       case 'count':
         const countResult = await query(
