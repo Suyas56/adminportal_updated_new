@@ -110,8 +110,14 @@ export async function GET(request) {
 
         // Get data from all faculty-related tables
         for (const table of facultyTables) {
+          let queryString;
+          if (table !== "patents"){
+            queryString=`select * from ${table} where email = ? `
+          }else{
+            queryString=`select * from ipr where email=? and type="Patent"`
+          }
           const tableData = await query(
-            `SELECT * FROM ${table} WHERE email = ?`,
+            queryString,
             [type]
           ).catch(e => {
             console.error(`${table} query error:`, e)
@@ -129,7 +135,7 @@ export async function GET(request) {
             }
             profileData[table] = tableData
           }
-        }
+        } 
 
         return NextResponse.json(profileData)
     }
