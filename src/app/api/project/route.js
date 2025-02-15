@@ -20,25 +20,29 @@ export async function GET(request) {
         const data = [...results, ...consultancy_projects];
         return NextResponse.json(data);
 
-      case 'count':
-        const countResult = await query(
-          `SELECT COUNT(*) as count FROM project`
-        ).catch(error => {
-          console.error('Error fetching project count:', error)
-          return null
-        })
-
-        if (!countResult) {
-          return NextResponse.json(
-            { message: 'Failed to fetch project count' },
-            { status: 500 }
-          )
-        }
-
-        return NextResponse.json({ 
-          projectCount: countResult[0].count 
-        })
-
+        case 'count':
+          let sponsoredCount = await query(
+            `SELECT COUNT(*) as count FROM sponsored_projects`
+          ).catch(error => {
+            console.error('Error fetching sponsored project count:', error);
+            return null;
+          });
+          let consultancyCount = await query(
+            `SELECT COUNT(*) as count FROM consultancy_projects`
+          ).catch(error => {
+            console.error('Error fetching consultancy project count:', error);
+            return null;
+          });
+          if (sponsoredCount === null || consultancyCount === null) {
+            return NextResponse.json(
+              { message: 'Failed to fetch project count' },
+              { status: 500 }
+            );
+          }
+          const totalCount = sponsoredCount[0].count + consultancyCount[0].count;
+          return NextResponse.json({ 
+            projectCount: totalCount 
+          });
       default:
         return NextResponse.json(
           { message: 'Invalid type parameter' },
