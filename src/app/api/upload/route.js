@@ -34,12 +34,19 @@ export async function POST(request) {
 
     // Convert file to buffer
     const buffer = await file.arrayBuffer();
-    
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+    if (!folderId) {
+      return NextResponse.json(
+        { message: 'Google Drive Folder ID is missing from environment variables' },
+        { status: 500 }
+      );
+    }
+
     // Upload to Google Drive
     const driveResponse = await drive.files.create({
       requestBody: {
         name: file.name,
-        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+        parents: [folderId],
       },
       media: {
         mimeType: file.type,
@@ -82,4 +89,4 @@ export const config = {
   api: {
     bodyParser: false
   }
-}; 
+};

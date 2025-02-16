@@ -436,7 +436,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     />
                     <TextField
                         margin="dense"
-                        label="Years Offered"
+                        label="Year Offered"
                         name="years_offered"
                         fullWidth
                         required
