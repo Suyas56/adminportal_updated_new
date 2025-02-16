@@ -1,212 +1,151 @@
+
 'use client'
 
 import { 
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControlLabel,
-  Checkbox,
-  Typography
-} from '@mui/material'
-import { useSession } from 'next-auth/react'
-import React, { useState } from 'react'
-import useRefreshData from '@/custom-hooks/refresh'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { format, parseISO } from 'date-fns'
-import AddIcon from '@mui/icons-material/Add'
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControlLabel,
+    Checkbox
+  } from '@mui/material'
+  
+  import React, { useState } from 'react'
+  
+  import { useSession } from 'next-auth/react';
+  import { Typography } from '@mui/material';
+  import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
+  import { IconButton } from '@mui/material';
+  
+  import useRefreshData from '@/custom-hooks/refresh'
+  import EditIcon from '@mui/icons-material/Edit'
+  import DeleteIcon from '@mui/icons-material/Delete'
+  import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+  import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+  import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+  import { format, parseISO } from 'date-fns'
+  import AddIcon from '@mui/icons-material/Add'
+  import Papa from 'papaparse'
+  import { parse } from 'date-fns';
 
-// Add Form Component
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
-    const initialState = {
-        authors: '',
-        title: '',
-        journal_name: '',
-        volume: '',
-        publication_year: new Date().getFullYear(),
-        pages: '',
-        journal_quartile: '',
-        publication_date: null,
-        student_involved: false,
-        student_details: '',
-        doi_url: ''
-    }
-    const [content, setContent] = useState(initialState)
-    const refreshData = useRefreshData(false)
+    const [bulkJournal, setBulkJournal] = useState([]);
+    const [fileUploaded, setFileUploaded] = useState(false);
+    const [fileName, setFileName] = useState('');
+    const refreshData = useRefreshData()
     const [submitting, setSubmitting] = useState(false)
 
-    const handleChange = (e) => {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
-        setContent({ ...content, [e.target.name]: value })
-    }
+    const handleCSVUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setFileUploaded(true);
+            setFileName(file.name);
+            Papa.parse(file, {
+                complete: (result) => {
+                    const parsedData = result.data.map(row => {
+                        if (row.publication_date) {
+                            // row.publication_date = parse(row.publication_date, 'dd-MM-yyyy', new Date()).toISOString().split("T")[0];
+                            row.publication_date = format(parse(row.publication_date, 'dd-MM-yyyy', new Date()), 'yyyy-MM-dd');
+
+                        }
+                        return row;
+                    });
+                    setBulkJournal(parsedData);
+                },
+                header: true,
+                skipEmptyLines: true
+            });
+        }
+    };
 
     const handleSubmit = async (e) => {
         setSubmitting(true)
         e.preventDefault()
 
         try {
-            const result = await fetch('/api/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'journal_papers',
-                    ...content,
-                    id: Date.now().toString(),
-                    email: session?.user?.email
-                }),
-            })
+            for (let i = 0; i < bulkJournal.length; i++) {
+                await fetch('/api/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'journal_papers',
+                        ...bulkJournal[i],
+                        id: Date.now().toString(),
+                        // publication_date: bulkJournal[i].publication_date 
+                        // ? format(parseISO(bulkJournal[i].publication_date), 'dd-MM-yyyy') 
+                        // : null,
+                        publication_date: bulkJournal[i].publication_date ? new Date(bulkJournal[i].publication_date).toISOString().split("T")[0] : null,
+                        email: session?.user?.email
+                    }),
+                })
+            }
 
-            if (!result.ok) throw new Error('Failed to create')
-            
             handleClose()
             refreshData()
-            setContent(initialState)
+            window.location.reload();
         } catch (error) {
             console.error('Error:', error)
         } finally {
-            window.location.reload();
             setSubmitting(false)
         }
     }
+    const downloadTemplate = () => {
+        
+        const headers = ['authors', 'title', 'journal_name', 'volume', 'publication_year', 'pages', 'journal_quartile', 'publication_date', 'student_involved', 'student_details', 'doi_url'];
+        const csvContent = headers.join(',') + '\n' + 
+'John Doe,AI in Healthcare,International Journal of AI,Spring 2023 Edition,2023,156,Q1,15-06-2023,5,Emily Johnson,https://doi.org/10.1\n' +  
+'Jane Smith,Blockchain in Finance,Journal of FinTech Innovations,Vol A,2022,89,Q2,10-09-2022,0, ,https://doi.org/10.5678';
 
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Journal_Papers.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      };
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
-                <DialogTitle>Add Journal Paper</DialogTitle>
+                <DialogTitle>Upload Journal Papers CSV</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Paper Title"
-                        name="title"
-                        fullWidth
-                        required
-                        value={content.title}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Authors"
-                        name="authors"
-                        fullWidth
-                        required
-                        value={content.authors}
-                        onChange={handleChange}
-                        helperText="Enter names separated by commas"
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Journal Name"
-                        name="journal_name"
-                        fullWidth
-                        required
-                        value={content.journal_name}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Volume"
-                        name="volume"
-                        fullWidth
-                        value={content.volume}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Publication Year"
-                        name="publication_year"
-                        type="number"
-                        fullWidth
-                        required
-                        value={content.publication_year}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Pages"
-                        name="pages"
-                        fullWidth
-                        value={content.pages}
-                        onChange={handleChange}
-                    />
-                    <InputLabel id="quartile">Journal Quartile</InputLabel>
-                    <Select
-                        labelId="quartile"
-                        name="journal_quartile"
-                        value={content.journal_quartile}
-                        onChange={handleChange}
-                        fullWidth
+                    <Button
+                        variant="contained"
+                        component="label"
+                        style={{ backgroundColor: fileUploaded ? 'green' : '' }}
                     >
-                        <MenuItem value="Q1">Q1</MenuItem>
-                        <MenuItem value="Q2">Q2</MenuItem>
-                        <MenuItem value="Q3">Q3</MenuItem>
-                        <MenuItem value="Q4">Q4</MenuItem>
-                    </Select>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            label="Publication Date"
-                            value={content.publication_date ? parseISO(content.publication_date) : null}
-                            onChange={(newValue) => {
-                                setContent({
-                                    ...content,
-                                    publication_date: newValue ? format(newValue, 'yyyy-MM-dd') : null
-                                })
-                            }}
-                            slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+                        {fileUploaded ? `File Uploaded: ${fileName}` : 'Upload CSV'}
+                        <input
+                            type="file"
+                            hidden
+                            accept=".csv"
+                            onChange={handleCSVUpload}
                         />
-                    </LocalizationProvider>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={content.student_involved}
-                                onChange={handleChange}
-                                name="student_involved"
-                            />
-                        }
-                        label="Student Involved"
-                    />
-                    {content.student_involved && (
-                        <TextField
-                            margin="dense"
-                            label="Student Details"
-                            name="student_details"
-                            fullWidth
-                            required
-                            value={content.student_details}
-                            onChange={handleChange}
-                        />
-                    )}
-                    <TextField
-                        margin="dense"
-                        label="DOI URL"
-                        name="doi_url"
-                        fullWidth
-                        value={content.doi_url}
-                        onChange={handleChange}
-                    />
+                    </Button>
+                    <Button 
+            variant="outline" 
+            onClick={downloadTemplate}
+            className="w-full"
+          >
+           
+            Download Template
+          </Button>
+                    {fileUploaded && <Typography variant="body2" color="textSecondary">File "{fileName}" has been uploaded successfully.</Typography>}
+                
                 </DialogContent>
                 <DialogActions>
                     <Button
                         type="submit"
                         color="primary"
-                        disabled={submitting}
+                        disabled={submitting || bulkJournal.length === 0}
                     >
                         {submitting ? 'Submitting...' : 'Submit'}
                     </Button>
@@ -215,17 +154,22 @@ export const AddForm = ({ handleClose, modal }) => {
         </Dialog>
     )
 }
+
+
+
+
+
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession();
     const refreshData = useRefreshData(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // Initialize state with correctly formatted date
+    
     const [content, setContent] = useState({
         ...values,
         publication_date: values.publication_date
             ? new Date(values.publication_date).toISOString().split('T')[0]
-            : '', // Default to an empty string if no date is provided
+            : '', 
     });
 
     const handleChange = (e) => {
@@ -450,7 +394,6 @@ export default function JournalPaperManagement() {
                     throw new Error(errorData.message || 'Failed to delete');
                 }
     
-                // Update the local state to remove the deleted item
                 setPapers((prevPapers) => prevPapers.filter((paper) => paper.id !== id));
             } catch (error) {
                 console.error('Error:', error);
