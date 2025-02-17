@@ -13,10 +13,16 @@ export async function GET(request) {
       case 'all':
         results = await query(
           `SELECT * FROM notices 
-           WHERE notice_type = 'general' 
            ORDER BY timestamp DESC`
         )
         break
+
+      case "tender":
+        results=await query(
+          `SELECT * FROM notices 
+          where notice_type="tender"
+           ORDER BY timestamp DESC`
+        )
 
       case 'whole':
         results = await query(
