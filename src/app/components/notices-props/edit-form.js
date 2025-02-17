@@ -98,7 +98,7 @@ export const EditForm = ({ data, handleClose, modal }) => {
                 category: content.category,
                 updatedAt: Date.now(),
                 updatedBy: session.user.email,
-                attachments: JSON.stringify(attachments),
+                attachments: attachments,
                 deleteArray: deleteArray.current,
                 important: content.important,
                 department: content.department || null,

@@ -25,6 +25,7 @@ import { EditForm } from './notices-props/edit-form'
 import { useSession } from 'next-auth/react'
 import Filter from './common-props/filter'
 import TablePaginationActions from './common-props/TablePaginationActions'
+import ViewDetailsModal from './view-details-modal'
 
 const StyledCard = styled(Card)(({ theme }) => ({
     height: '100%',
@@ -45,6 +46,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
 const Notice = ({ detail }) => {
     const [editModal, setEditModal] = useState(false)
+    const [viewModal, setViewModal] = useState(false)
     const { data: session } = useSession()
     const updatedAt = new Date(detail.updatedAt).toLocaleDateString('en-GB')
     const openDate = new Date(detail.openDate).toLocaleDateString('en-GB')
@@ -93,7 +95,7 @@ const Notice = ({ detail }) => {
                 </CardContent>
                 <CardActions>
                     <Tooltip title="View Details">
-                        <IconButton size="small" color="primary">
+                        <IconButton size="small" color="primary" onClick={() => setViewModal(true)}>
                             <VisibilityIcon />
                         </IconButton>
                     </Tooltip>
@@ -115,6 +117,11 @@ const Notice = ({ detail }) => {
                 data={detail}
                 modal={editModal}
                 handleClose={() => setEditModal(false)}
+            />
+            <ViewDetailsModal
+                open={viewModal}
+                handleClose={() => setViewModal(false)}
+                detail={detail}
             />
         </Grid>
     )
@@ -148,18 +155,29 @@ function DataDisplay({ data: initialData }) {
             .then(data => {
                 const sortedData = [...data].sort((a, b) => 
                     new Date(b.updatedAt) - new Date(a.updatedAt)
-                )
-                setDetails(sortedData)
+                );
+                setDetails(sortedData);
             })
-            .catch(err => console.error('Error fetching notices:', err))
-        } else {
-            const sortedFilterData = [...filterQuery].sort((a, b) => 
-                new Date(b.updatedAt) - new Date(a.updatedAt)
-            )
-            setDetails(sortedFilterData)
+            .catch(err => console.error('Error fetching notices:', err));
+        } else if (filterQuery) {
+            let filteredData = [...initialData];             
+            if (filterQuery.notice_type && filterQuery.notice_type !== 'all') {
+                filteredData = filteredData.filter(notice => notice.notice_type === filterQuery.notice_type);
+            }
+            
+            if (filterQuery.department && filterQuery.department !== 'all') {
+                filteredData = filteredData.filter(notice => notice.department === filterQuery.department);
+            }
+            if (filterQuery.start_date && filterQuery.end_date) {
+                filteredData = filteredData.filter(notice => {
+                    return notice.openDate >= filterQuery.start_date && notice.closeDate <= filterQuery.end_date;
+                });
+            }
+            const sortedFilterData = filteredData.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            setDetails(sortedFilterData);
         }
-    }, [page, rowsPerPage, filterQuery])
-
+    }, [page, rowsPerPage, filterQuery, initialData]);
+    
     return (
         <Box sx={{ p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
