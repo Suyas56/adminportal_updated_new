@@ -52,10 +52,10 @@ export const AddForm = ({ handleClose, modal }) => {
             if (new_attach.length) {
                 const processedAttachments = await handleNewAttachments(new_attach)
                 attachments = processedAttachments.map(attachment => ({
-                    id: Date.now() + Math.random(),
+                    // id: Date.now() + Math.random(),
                     caption: attachment.caption,
                     url: attachment.url,
-                    typeLink: attachment.typeLink
+                    // typeLink: attachment.typeLink
                 }))
             }
 
@@ -70,7 +70,7 @@ export const AddForm = ({ handleClose, modal }) => {
                 timestamp: Date.now(),
                 email: session.user.email,
                 author: session.user.name,
-                attachments: JSON.stringify(attachments),
+                attachments:attachments,
                 important: content.important,
                 department: content.department || null,
                 isDept: content.type === 'department' ? 1 : 0
