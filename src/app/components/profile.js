@@ -7,7 +7,7 @@ import {
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-
+import Link from 'next/link'
 import { EducationManagement } from './profile/education'
 import { AboutYouPage } from './profile/aboutUs'
 import { ExperiencePage } from './profile/experience'
@@ -248,8 +248,13 @@ export default function Profilepage({ details }) {
                         handleClose={() => handleModalClose('profilePic')}
                         modal={openModals.profilePic}
                             />
-
-                            <Button
+                        <div className='flex flex-row gap-4 justify-center items-center'>
+                        {
+                                    detail?.profile?.cv &&(
+                                        <Link href={`${detail?.profile?.cv}`} className='bg-blue-600 text-white px-4 py-2 font-semibold rounded-lg' target='_blank'>View cv</Link>
+                                    )
+                                }
+                        <Button
                                 color="primary"
                                 variant="contained"
                         onClick={() => handleModalOpen('cv')}
@@ -257,6 +262,7 @@ export default function Profilepage({ details }) {
                             >
                         {detail?.profile?.cv ? 'Update CV' : 'Upload CV'}
                             </Button>
+                            </div>
                             <AddCv
                         handleClose={() => handleModalClose('cv')}
                         modal={openModals.cv}
