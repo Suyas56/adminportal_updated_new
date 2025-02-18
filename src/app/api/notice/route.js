@@ -23,6 +23,7 @@ export async function GET(request) {
           where notice_type="tender"
            ORDER BY timestamp DESC`
         )
+        break
 
       case 'whole':
         results = await query(
