@@ -1,39 +1,159 @@
+
 'use client'
 
 import { 
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControlLabel,
-  Checkbox,
-  Typography
-} from '@mui/material'
-import { useSession } from 'next-auth/react'
-import React, { useState } from 'react'
-import useRefreshData from '@/custom-hooks/refresh'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { format, parseISO } from 'date-fns'
-import AddIcon from '@mui/icons-material/Add'
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControlLabel,
+    Checkbox
+  } from '@mui/material'
+  
+  import React, { useState } from 'react'
+  
+  import { useSession } from 'next-auth/react';
+  import { Typography } from '@mui/material';
+  import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
+  import { IconButton } from '@mui/material';
+  
+  import useRefreshData from '@/custom-hooks/refresh'
+  import EditIcon from '@mui/icons-material/Edit'
+  import DeleteIcon from '@mui/icons-material/Delete'
+  import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+  import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+  import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+  import { format, parseISO } from 'date-fns'
+  import AddIcon from '@mui/icons-material/Add'
+  import Papa from 'papaparse'
+  import { parse } from 'date-fns';
 
-// Add Form Component
+export const UplaodCSV = ({ handleClose, modal }) => {
+    const { data: session } = useSession()
+    const [bulkJournal, setBulkJournal] = useState([]);
+    const [fileUploaded, setFileUploaded] = useState(false);
+    const [fileName, setFileName] = useState('');
+    const refreshData = useRefreshData()
+    const [submitting, setSubmitting] = useState(false)
+
+    const handleCSVUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setFileUploaded(true);
+            setFileName(file.name);
+            Papa.parse(file, {
+                complete: (result) => {
+                    const parsedData = result.data.map(row => {
+                        if (row.publication_date) {
+                            // row.publication_date = parse(row.publication_date, 'dd-MM-yyyy', new Date()).toISOString().split("T")[0];
+                            row.publication_date = format(parse(row.publication_date, 'dd-MM-yyyy', new Date()), 'yyyy-MM-dd');
+
+                        }
+                        return row;
+                    });
+                    setBulkJournal(parsedData);
+                },
+                header: true,
+                skipEmptyLines: true
+            });
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        setSubmitting(true)
+        e.preventDefault()
+
+        try {
+            for (let i = 0; i < bulkJournal.length; i++) {
+                await fetch('/api/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'journal_papers',
+                        ...bulkJournal[i],
+                        id: Date.now().toString(),
+                        // publication_date: bulkJournal[i].publication_date 
+                        // ? format(parseISO(bulkJournal[i].publication_date), 'dd-MM-yyyy') 
+                        // : null,
+                        publication_date: bulkJournal[i].publication_date ? new Date(bulkJournal[i].publication_date).toISOString().split("T")[0] : null,
+                        email: session?.user?.email
+                    }),
+                })
+            }
+
+            handleClose()
+            refreshData()
+            window.location.reload();
+        } catch (error) {
+            console.error('Error:', error)
+        } finally {
+            setSubmitting(false)
+        }
+    }
+    const downloadTemplate = () => {
+        
+        const headers = ['authors', 'title', 'journal_name', 'volume', 'publication_year', 'pages', 'journal_quartile', 'publication_date', 'student_involved', 'student_details', 'doi_url'];
+        const csvContent = headers.join(',') + '\n' + 
+'John Doe,AI in Healthcare,International Journal of AI,Spring 2023 Edition,2023,156,Q1,15-06-2023,5,Emily Johnson,https://doi.org/10.1\n' +  
+'Jane Smith,Blockchain in Finance,Journal of FinTech Innovations,Vol A,2022,89,Q2,10-09-2022,0, ,https://doi.org/10.5678';
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Journal_Papers.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      };
+    return (
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle>Upload Journal Papers CSV</DialogTitle>
+                <DialogContent>
+                    <Button
+                        variant="contained"
+                        component="label"
+                        style={{ backgroundColor: fileUploaded ? 'green' : '' }}
+                    >
+                        {fileUploaded ? `File Uploaded: ${fileName}` : 'Upload CSV'}
+                        <input
+                            type="file"
+                            hidden
+                            accept=".csv"
+                            onChange={handleCSVUpload}
+                        />
+                    </Button>
+                    <Button 
+            variant="outline" 
+            onClick={downloadTemplate}
+            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+           
+            Download Template
+          </Button>
+                    {fileUploaded && <Typography variant="body2" color="textSecondary">File "{fileName}" has been uploaded successfully.</Typography>}
+                
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        type="submit"
+                        color="primary"
+                        disabled={submitting || bulkJournal.length === 0}
+                    >
+                        {submitting ? 'Submitting...' : 'Submit'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
+    )
+}
 export const AddForm = ({ handleClose, modal }) => {
     const { data: session } = useSession()
     const initialState = {
@@ -215,17 +335,21 @@ export const AddForm = ({ handleClose, modal }) => {
         </Dialog>
     )
 }
+
+
+
+
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession();
     const refreshData = useRefreshData(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // Initialize state with correctly formatted date
+    
     const [content, setContent] = useState({
         ...values,
         publication_date: values.publication_date
             ? new Date(values.publication_date).toISOString().split('T')[0]
-            : '', // Default to an empty string if no date is provided
+            : '', 
     });
 
     const handleChange = (e) => {
@@ -450,7 +574,6 @@ export default function JournalPaperManagement() {
                     throw new Error(errorData.message || 'Failed to delete');
                 }
     
-                // Update the local state to remove the deleted item
                 setPapers((prevPapers) => prevPapers.filter((paper) => paper.id !== id));
             } catch (error) {
                 console.error('Error:', error);
@@ -458,6 +581,7 @@ export default function JournalPaperManagement() {
             }
         }
     };
+    const [downloadTemplateOpen,setdownloadtemplateOpen] = useState(false);
     
 
     if (loading) return <div>Loading...</div>
@@ -466,13 +590,35 @@ export default function JournalPaperManagement() {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
                 <Typography variant="h6">Journal Papers</Typography>
+                <div className='flex justify-end items-center gap-5'>
                 <Button
                     startIcon={<AddIcon />}
                     variant="contained"
                     onClick={() => setOpenAdd(true)}
+
                 >
-                    Add Journal Paper
+                    add Journal Papers
                 </Button>
+
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    // onClick={() => setOpenAdd(true)}
+                    onClick={() => setdownloadtemplateOpen(true)}
+                >
+                    Upload Journal Excel File
+                </Button>
+
+                    </div>
+                {
+                    downloadTemplateOpen &&(
+                        <UplaodCSV
+                            handleClose={() => setdownloadtemplateOpen(false)}
+                            modal={downloadTemplateOpen}
+                        />
+                    )
+                }
+                
             </div>
             <TableContainer component={Paper}>
                 <Table>
