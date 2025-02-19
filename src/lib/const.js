@@ -13,18 +13,18 @@ export const administrationList = new Map([
 
 export const depList = new Map([
   ['arch', 'Architecture'],
-  ['che', 'Chemistry'],
+  ['che', 'Chemical Science and Technology'],
   ['ce', 'Civil Engineering'],
   ['cse', 'Computer Science and Engineering'],
   ['ee', 'Electrical Engineering'],
   ['ece', 'Electronics and Communication Engineering'],
   ['hss', 'Humanities & Social Sciences'],
-  ['maths', 'Mathematics'],
+  ['maths', 'Mathematics and Computation Technology'],
   ['me', 'Mechanical Engineering'],
-  ['phy', 'Physics'],
+  ['phy', 'Applied Physics and Material Engineering'],
   ['mae', 'Mechatronics and Automation Engineering'],
   ['mse', 'Materials Science and Engineering'],
-  ['chet', 'Chemical Engineering and Technology'],
+  // ['chet', 'Chemical Engineering and Technology'],
   ['officers', 'Officers'],
   ['others', 'Other Employees']
 ])
