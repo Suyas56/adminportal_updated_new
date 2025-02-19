@@ -33,7 +33,7 @@ import {
   import Papa from 'papaparse'
   import { parse } from 'date-fns';
 
-export const AddForm = ({ handleClose, modal }) => {
+export const UplaodCSV = ({ handleClose, modal }) => {
     const { data: session } = useSession()
     const [bulkJournal, setBulkJournal] = useState([]);
     const [fileUploaded, setFileUploaded] = useState(false);
@@ -133,7 +133,7 @@ export const AddForm = ({ handleClose, modal }) => {
                     <Button 
             variant="outline" 
             onClick={downloadTemplate}
-            className="w-full"
+            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
            
             Download Template
@@ -154,7 +154,187 @@ export const AddForm = ({ handleClose, modal }) => {
         </Dialog>
     )
 }
+export const AddForm = ({ handleClose, modal }) => {
+    const { data: session } = useSession()
+    const initialState = {
+        authors: '',
+        title: '',
+        journal_name: '',
+        volume: '',
+        publication_year: new Date().getFullYear(),
+        pages: '',
+        journal_quartile: '',
+        publication_date: null,
+        student_involved: false,
+        student_details: '',
+        doi_url: ''
+    }
+    const [content, setContent] = useState(initialState)
+    const refreshData = useRefreshData(false)
+    const [submitting, setSubmitting] = useState(false)
 
+    const handleChange = (e) => {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+        setContent({ ...content, [e.target.name]: value })
+    }
+
+    const handleSubmit = async (e) => {
+        setSubmitting(true)
+        e.preventDefault()
+
+        try {
+            const result = await fetch('/api/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'journal_papers',
+                    ...content,
+                    id: Date.now().toString(),
+                    email: session?.user?.email
+                }),
+            })
+
+            if (!result.ok) throw new Error('Failed to create')
+            
+            handleClose()
+            refreshData()
+            setContent(initialState)
+        } catch (error) {
+            console.error('Error:', error)
+        } finally {
+            window.location.reload();
+            setSubmitting(false)
+        }
+    }
+
+    return (
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle>Add Journal Paper</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Paper Title"
+                        name="title"
+                        fullWidth
+                        required
+                        value={content.title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Authors"
+                        name="authors"
+                        fullWidth
+                        required
+                        value={content.authors}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Journal Name"
+                        name="journal_name"
+                        fullWidth
+                        required
+                        value={content.journal_name}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Volume"
+                        name="volume"
+                        fullWidth
+                        value={content.volume}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Publication Year"
+                        name="publication_year"
+                        type="number"
+                        fullWidth
+                        required
+                        value={content.publication_year}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Pages"
+                        name="pages"
+                        fullWidth
+                        value={content.pages}
+                        onChange={handleChange}
+                    />
+                    <InputLabel id="quartile">Journal Quartile</InputLabel>
+                    <Select
+                        labelId="quartile"
+                        name="journal_quartile"
+                        value={content.journal_quartile}
+                        onChange={handleChange}
+                        fullWidth
+                    >
+                        <MenuItem value="Q1">Q1</MenuItem>
+                        <MenuItem value="Q2">Q2</MenuItem>
+                        <MenuItem value="Q3">Q3</MenuItem>
+                        <MenuItem value="Q4">Q4</MenuItem>
+                    </Select>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Publication Date"
+                            value={content.publication_date ? parseISO(content.publication_date) : null}
+                            onChange={(newValue) => {
+                                setContent({
+                                    ...content,
+                                    publication_date: newValue ? format(newValue, 'yyyy-MM-dd') : null
+                                })
+                            }}
+                            slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+                        />
+                    </LocalizationProvider>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={content.student_involved}
+                                onChange={handleChange}
+                                name="student_involved"
+                            />
+                        }
+                        label="Student Involved"
+                    />
+                    {content.student_involved && (
+                        <TextField
+                            margin="dense"
+                            label="Student Details"
+                            name="student_details"
+                            fullWidth
+                            required
+                            value={content.student_details}
+                            onChange={handleChange}
+                        />
+                    )}
+                    <TextField
+                        margin="dense"
+                        label="DOI URL"
+                        name="doi_url"
+                        fullWidth
+                        value={content.doi_url}
+                        onChange={handleChange}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        type="submit"
+                        color="primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Submitting...' : 'Submit'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
+    )
+}
 
 
 
@@ -401,6 +581,7 @@ export default function JournalPaperManagement() {
             }
         }
     };
+    const [downloadTemplateOpen,setdownloadtemplateOpen] = useState(false);
     
 
     if (loading) return <div>Loading...</div>
@@ -409,13 +590,35 @@ export default function JournalPaperManagement() {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
                 <Typography variant="h6">Journal Papers</Typography>
+                <div className='flex justify-end items-center gap-5'>
                 <Button
                     startIcon={<AddIcon />}
                     variant="contained"
                     onClick={() => setOpenAdd(true)}
+
                 >
-                    Add Journal Paper
+                    add Journal Papers
                 </Button>
+
+                <Button
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                    // onClick={() => setOpenAdd(true)}
+                    onClick={() => setdownloadtemplateOpen(true)}
+                >
+                    Upload Journal Excel File
+                </Button>
+
+                    </div>
+                {
+                    downloadTemplateOpen &&(
+                        <UplaodCSV
+                            handleClose={() => setdownloadtemplateOpen(false)}
+                            modal={downloadTemplateOpen}
+                        />
+                    )
+                }
+                
             </div>
             <TableContainer component={Paper}>
                 <Table>
