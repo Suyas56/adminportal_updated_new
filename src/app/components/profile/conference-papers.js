@@ -129,8 +129,8 @@ export const UploadCSVConference = ({ handleClose, modal }) => {
                     <Button
                         variant="outlined"
                         onClick={downloadTemplate}
-                        className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        style={{ marginLeft: '10px' }}
+                        className="  w-full bg-blue-500 hover:bg-green-700 text-black font-bold py-2 px-4 rounded"
+                        // style={{ marginLeft: '10px' }}
                     >
                         Download Template
                     </Button>
@@ -531,9 +531,9 @@ export const UploadCSVConference = ({ handleClose, modal }) => {
   
       return (
         <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1 rem' }}>
             <Typography variant="h6">Conference Papers</Typography>
-    
+            <div className='flex justify-end items-center gap-5'>
             <Button
                 startIcon={<AddIcon />}
                 variant="contained"
@@ -549,6 +549,7 @@ export const UploadCSVConference = ({ handleClose, modal }) => {
             >
                 Upload Conference Excel File
             </Button>
+        </div>
         </div>
     
         <div>
