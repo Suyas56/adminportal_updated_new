@@ -121,7 +121,7 @@ export function EducationManagement() {
 }
 
 const degreeOptions = [
-    "PhD", "M.Tech", "B.Tech", "M.Arch", "B.Arch", "BSc", "MSc", "MCA","BE","ME","Post Doc","M.B.A","M.A.","B.Com",'B.J.M.C'
+    "PhD", "M.Tech", "B.Tech", "M.Arch", "B.Arch", "BSc", "MSc", "MCA","BE","ME","Post Doc","M.B.A","M.A.","B.Com",'B.J.M.C',"B.Plan","M.Plan","Research Associate"
 ]
 
 export function AddEducation({ open, onClose, onSuccess }) {
