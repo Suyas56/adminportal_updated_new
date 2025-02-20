@@ -67,9 +67,9 @@ export async function POST(request) {
         const { from: fromIndex, to: toIndex } = body
         results = await query(
           `SELECT * FROM events 
-           ORDER BY openDate DESC 
-           LIMIT 0, 5`, //hardcoded need to fix 
-          [0, 5]
+           ORDER BY timestamp DESC 
+           LIMIT ?, ?`, //hardcoded need to fix 
+          [fromIndex, toIndex]
         )
         break
 

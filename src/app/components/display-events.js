@@ -344,13 +344,14 @@ const DataDisplay = (props) => {
                             handleClose={handleCloseEditModal}
                         />
                     </Grid>
-                ) : (
-                    <Grid item xs={6} sm={2} lg={1}>
-                        <Paper
-                            className={classes.paper}
-                            style={{ textAlign: `center`, cursor: `pointer` }}
-                        ></Paper>{' '}
-                    </Grid>
+                ) : (<>
+                </>
+                    // <Grid item xs={6} sm={2} lg={1}>
+                    //     <Paper
+                    //         className={classes.paper}
+                    //         style={{ textAlign: `center`, cursor: `pointer` }}
+                    //     ></Paper>{' '}
+                    // </Grid>
                 )}
             </React.Fragment>
         )
