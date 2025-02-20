@@ -230,6 +230,7 @@ function EditExperienceDialog({ open, onClose, onSave, experience, session }) {
                         >
                             <MenuItem value="Professor">Professor</MenuItem>
                             <MenuItem value="Associate Professor">Associate Professor</MenuItem>
+                            <MenuItem value="Assistant Professor">Assistant Professor</MenuItem>
                             <MenuItem value="Assistant Professor (Grade 1)">Assistant Professor (Grade 1)</MenuItem>
                             <MenuItem value="Assistant Professor (Grade 2)">Assistant Professor (Grade 2)</MenuItem>
                             <MenuItem value="Sr. Lecturer">Sr. Lecturer</MenuItem>
@@ -238,6 +239,8 @@ function EditExperienceDialog({ open, onClose, onSave, experience, session }) {
                             <MenuItem value="Temporary Faculty">Temporary Faculty</MenuItem>
                             <MenuItem value="Guest Faculty">Guest Faculty</MenuItem>
                             <MenuItem value="Visiting Faculty">Visiting Faculty</MenuItem>
+                            <MenuItem value="Professional Experience">Professional Experience</MenuItem>
+                            <MenuItem value="Industrial Experience">Industrial Experience</MenuItem>
                         </Select>
                     </FormControl>
                     <TextField
