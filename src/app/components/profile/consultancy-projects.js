@@ -135,6 +135,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
+                            required={true}
                         />
                         <DatePicker
                             label="End Date"
@@ -331,6 +332,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
+                            required={true}
                         />
                        
                     </LocalizationProvider>

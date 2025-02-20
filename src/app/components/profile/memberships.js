@@ -102,6 +102,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             value={content.start}
                             onChange={(newValue) => setContent({ ...content, start: newValue })}
                             renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
+                            required={true}
                         />
                         <DatePicker
                             label="End Date"

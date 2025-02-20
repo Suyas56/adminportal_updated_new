@@ -256,7 +256,7 @@ function EditExperienceDialog({ open, onClose, onSave, experience, session }) {
                         InputLabelProps={{ shrink: true }}
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        required
+                        required={true}
                     />
                     <TextField
                         fullWidth
