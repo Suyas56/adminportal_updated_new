@@ -183,6 +183,7 @@ export const EditForm = ({ data, handleClose, modal }) => {
                         InputLabelProps={{
                             shrink: true,
                         }}
+                        required={true}
                     />
                     <TextField
                         margin="dense"

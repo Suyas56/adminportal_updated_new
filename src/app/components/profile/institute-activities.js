@@ -208,6 +208,7 @@ export default function InstituteActivityManagement() {
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" size="medium" />
                                 )}
+                                required={true}
                             />
                             <DatePicker
                                 label="End Date"
@@ -338,6 +339,7 @@ export default function InstituteActivityManagement() {
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" size="medium" />
                                 )}
+                                required={true}
                             />
                             <DatePicker
                                 label="End Date"

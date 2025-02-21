@@ -25,8 +25,136 @@ import {
   import EditIcon from '@mui/icons-material/Edit'
   import DeleteIcon from '@mui/icons-material/Delete'
   import AddIcon from '@mui/icons-material/Add'
+  import Papa from 'papaparse'
   
-  // Add Form Component
+export const UploadCSVConference = ({ handleClose, modal }) => {
+    const { data: session } = useSession();
+    const [bulkConference, setBulkConference] = useState([]);
+    const [fileUploaded, setFileUploaded] = useState(false);
+    const [fileName, setFileName] = useState('');
+    const refreshData = useRefreshData();
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleCSVUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setFileUploaded(true);
+            setFileName(file.name);
+            Papa.parse(file, {
+                complete: (result) => {
+                    const parsedData = result.data
+                        .filter(row => row.conference_year && row.conference_year.trim() !== '')
+                        .map(row => {
+                            row.conference_year = parseInt(row.conference_year);
+                            return row;
+                        });
+                    
+                    console.log("Parsed Data:", parsedData); // Debugging log
+                    setBulkConference(parsedData);
+                },
+                header: true,
+                skipEmptyLines: true
+            });
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (bulkConference.length === 0) {
+            console.error('No data to submit');
+            return;
+        }
+
+        setSubmitting(true);
+
+        try {
+            for (let i = 0; i < bulkConference.length; i++) {
+                await fetch('/api/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'conference_papers',
+                        ...bulkConference[i],
+                        id: Date.now().toString(),
+                        email: session?.user?.email
+                    }),
+                });
+            }
+
+            handleClose();
+            refreshData();
+            window.location.reload();
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const downloadTemplate = () => {
+        const headers = ['title','authors' , 'conference_name', 'location', 'conference_year', 'pages', 'indexing', 'foreign_author', 'student_involved', 'doi'];
+        const csvContent = headers.join(',') + '\n' +
+'AI in Robotics,John Doe,International Conference on AI,New York,2023,156,Scopus,Yes,5,10.1234/abcd\n' +
+'Jane Smith,Blockchain Innovations,Global FinTech Conference,London,2022,89,Web of Science,No,,10.5678/efgh';
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Conference_Papers.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    };
+
+    return (
+        <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
+            <form onSubmit={handleSubmit}>
+                <DialogTitle>Upload Conference Papers CSV</DialogTitle>
+                <DialogContent>
+                    <Button
+                        variant="contained"
+                        component="label"
+                        style={{ backgroundColor: fileUploaded ? 'green' : '' }}
+                    >
+                        {fileUploaded ? `File Uploaded: ${fileName}` : 'Upload CSV'}
+                        <input
+                            type="file"
+                            hidden
+                            accept=".csv"
+                            onChange={handleCSVUpload}
+                        />
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        onClick={downloadTemplate}
+                        className="  w-full bg-blue-500 hover:bg-green-700 text-black font-bold py-2 px-4 rounded"
+                        // style={{ marginLeft: '10px' }}
+                    >
+                        Download Template
+                    </Button>
+                    {fileUploaded && <Typography variant="body2" color="textSecondary">File "{fileName}" has been uploaded successfully.</Typography>}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        type="submit"
+                        color="primary"
+                        variant="contained"
+                        disabled={submitting || bulkConference.length === 0}
+                    >
+                        {submitting ? 'Submitting...' : 'Submit'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
+    );
+};
+
+
+
+
+  
   export const AddForm = ({ handleClose, modal }) => {
       const { data: session } = useSession()
       const initialState = {
@@ -398,53 +526,76 @@ import {
               }
           }
       }
-  
+  const [downloadTemplateOpen,setdownloadtemplateOpen] = useState(false);
       if (loading) return <div>Loading...</div>
   
       return (
-          <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-                  <Typography variant="h6">Conference Papers</Typography>
-                  <Button
-                      startIcon={<AddIcon />}
-                      variant="contained"
-                      onClick={() => setOpenAdd(true)}
-                  >
-                      Add Conference Paper
-                  </Button>
-              </div>
-              <TableContainer component={Paper}>
+        <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1 rem' }}>
+            <Typography variant="h6">Conference Papers</Typography>
+            <div className='flex justify-end items-center gap-5'>
+            <Button
+                startIcon={<AddIcon />}
+                variant="contained"
+                onClick={() => setOpenAdd(true)}
+            >
+                Add Conference Paper
+            </Button>
+    
+            <Button
+                startIcon={<AddIcon />}
+                variant="contained"
+                onClick={() => setdownloadtemplateOpen(true)}
+            >
+                Upload Conference Excel File
+            </Button>
+        </div>
+        </div>
+    
+        <div>
+            {downloadTemplateOpen && (
+                <UploadCSVConference
+                    handleClose={() => setdownloadtemplateOpen(false)}
+                    modal={downloadTemplateOpen}
+                />
+            )}
+        </div>
+   
+    
+
+<TableContainer component={Paper}>
                   <Table>
                       <TableHead>
                           <TableRow>
-                              <TableCell>Title</TableCell>
-                              <TableCell>Authors</TableCell>
-                              <TableCell>Conference</TableCell>
-                              <TableCell>Location</TableCell>
-                              {/* <TableCell>Year</TableCell> */}
-                              <TableCell>Pages</TableCell>
-                              <TableCell>Indexing</TableCell>
-                              <TableCell>Foreign Author</TableCell>
-                              <TableCell>Student Involved</TableCell>
-                              <TableCell>DOI</TableCell>
-                              <TableCell>Year</TableCell>
-                              <TableCell align="right">Actions</TableCell>
-                          </TableRow>
-                      </TableHead>
-                      <TableBody>
-                          {papers?.map((paper) => (
-                              <TableRow key={paper.id}>
-                                  <TableCell>{paper.title}</TableCell>
-                                  <TableCell>{paper.authors}</TableCell>
+                            <TableCell>Title</TableCell>
+                            <TableCell>Authors</TableCell>
+                            <TableCell>Conference</TableCell>
+                            <TableCell>Location</TableCell>
+                            <TableCell>Year</TableCell>
+                            <TableCell>Pages</TableCell>
+                            <TableCell>Indexing</TableCell>
+                            <TableCell>Foreign Author</TableCell>
+                            <TableCell>Student Involved</TableCell>
+                            <TableCell>DOI</TableCell>
+                            <TableCell align="right">Actions</TableCell>
+                            </TableRow>
+                            </TableHead>
+                            <TableBody>
+                            {papers?.map((paper) => (
+                            <TableRow key={paper.id}>
+                            <TableCell>{paper.title}</TableCell>
+                            <TableCell>{paper.authors}</TableCell>
+                                  {/* <TableCell>{paper.authors}</TableCell> */}
                                   <TableCell>{paper.conference_name}</TableCell>
                                   <TableCell>{paper.location}</TableCell>
-                                  {/* <TableCell>{paper.yea}</TableCell> */}
+                                  {/* <TableCell>{paper.year}</TableCell> */}
+                                  <TableCell>{paper.conference_year}</TableCell>
                                   <TableCell>{paper.pages}</TableCell>
                                   <TableCell>{paper.indexing}</TableCell>
                                   <TableCell>{paper.foreign_author}</TableCell>
                                   <TableCell>{paper.student_involved}</TableCell>
                                   <TableCell>{paper.doi}</TableCell>
-                                  <TableCell>{paper.conference_year}</TableCell>
+                                  {/* <TableCell>{paper.conference_year}</TableCell> */}
                                   
                                   <TableCell align="right">
                                       <IconButton 

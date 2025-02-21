@@ -122,6 +122,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
+                            required={true}
                         />
                     </LocalizationProvider>
                     <TextField
@@ -324,6 +325,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
+                            required={true}
                         />
                     </LocalizationProvider>
                     <TextField
