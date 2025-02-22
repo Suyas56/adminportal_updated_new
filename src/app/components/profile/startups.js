@@ -17,6 +17,8 @@ import {
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
+import { enGB } from 'date-fns/locale';
+
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -101,13 +103,14 @@ export const AddForm = ({ handleClose, modal }) => {
                         value={content.incubation_place}
                         onChange={handleChange}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
                             label="Registration Date"
                             value={content.registration_date}
                             onChange={(newValue) => 
                                 setContent({ ...content, registration_date: newValue})
                             }
+                             format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -240,11 +243,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.incubation_place || ''}
                         onChange={handleChange}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
                             label="Registration Date"
                             value={content.registration_date ? new Date(content.registration_date) : null}
                             onChange={handleDateChange}
+                             format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}

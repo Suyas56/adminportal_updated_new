@@ -19,6 +19,7 @@ import {
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
+import { enGB } from 'date-fns/locale';
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -135,10 +136,21 @@ export default function InstituteActivityManagement() {
             setContent({ ...content, [e.target.name]: e.target.value })
         }
 
+        const formatDateToMySQL = (date) => {
+            if (!date) return null;
+        
+            // Ensure date is a string before calling split
+            const dateStr = typeof date === 'string' ? date : date.toLocaleDateString(); // Convert to string if it's not already
+        
+            // Split the date string into [day, month, year] (assuming the format is 'DD/MM/YYYY')
+            const [day, month, year] = dateStr.split('/');
+            return `${year}-${month}-${day} 00:00:00`; // Return MySQL datetime format 'YYYY-MM-DD 00:00:00'
+        };
+        
         const handleSubmit = async (e) => {
-            setSubmitting(true)
-            e.preventDefault()
-
+            setSubmitting(true);
+            e.preventDefault();
+        
             try {
                 const result = await fetch('/api/create', {
                     method: 'POST',
@@ -146,32 +158,34 @@ export default function InstituteActivityManagement() {
                     body: JSON.stringify({
                         type: 'institute_activities',
                         ...content,
-                        start_date: content.start_date 
-                            ? new Date(content.start_date).toISOString().split('T')[0]
+                        start_date: content.start_date
+                            ? formatDateToMySQL(content.start_date)  // Use the formatted start date
                             : null,
-                        end_date: content.end_date?content.end_date === "Continue"?"Continue"
-                            : new Date(content.end_date).toISOString().split('T')[0]
+                        end_date: content.end_date
+                            ? content.end_date === "Continue"
+                                ? "Continue"
+                                : formatDateToMySQL(content.end_date)  // Use the formatted end date
                             : null,
                         id: Date.now().toString(),
                         email: session?.user?.email,
                     }),
-                })
-
-                if (!result.ok) throw new Error('Failed to create')
-                
-                handleClose()
-                setContent(initialState)
-                showToast('Institute activity added successfully!')
-                refreshData()
-                window.location.reload()
+                });
+        
+                if (!result.ok) throw new Error('Failed to create');
+        
+                handleClose();
+                setContent(initialState);
+                showToast('Institute activity added successfully!');
+                refreshData();
+                window.location.reload();
             } catch (error) {
-                console.error('Error:', error)
-                showToast('Failed to add institute activity', 'error')
+                console.error('Error:', error);
+                showToast('Failed to add institute activity', 'error');
             } finally {
-                
-                setSubmitting(false)
+                setSubmitting(false);
             }
-        }
+        };
+        
 
         return (
             <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
@@ -198,13 +212,14 @@ export default function InstituteActivityManagement() {
                             onChange={handleChange}
                             size="medium"
                         />
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns } adapterLocale={enGB}>
                             <DatePicker
                                 label="Start Date"
                                 value={content.start_date}
                                 onChange={(newValue) => 
                                     setContent({ ...content, start_date: newValue})
                                 }
+                                format="dd/MM/yyyy"
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" size="medium" />
                                 )}
@@ -216,6 +231,7 @@ export default function InstituteActivityManagement() {
                                 onChange={(newValue) =>
                                     setContent({ ...content, end_date: newValue })
                                 }
+                                format="dd/MM/yyyy"
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" size="medium" />
                                 )}
@@ -326,7 +342,7 @@ export default function InstituteActivityManagement() {
                             onChange={handleChange}
                             size="medium"
                         />
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                             <DatePicker
                                 label="Start Date"
                                 value={content.start_date}
@@ -336,6 +352,7 @@ export default function InstituteActivityManagement() {
                                         start_date: newValue
                                     }))
                                 }}
+                                 format="dd/MM/yyyy"
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" size="medium" />
                                 )}

@@ -20,6 +20,8 @@ import {
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
+import { enGB } from 'date-fns/locale';
+
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -68,9 +70,8 @@ export const AddForm = ({ handleClose, modal }) => {
                     start_date: content.start_date 
                         ? new Date(content.start_date).toISOString().split('T')[0]
                         : null,
-                    end_date: content.end_date
-                        ? new Date(content.end_date).toISOString().split('T')[0]
-                        : null,
+                    end_date: content.end_date==="Continue"?"continue"
+                        : new Date(content.end_date).toISOString().split('T')[0],
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
@@ -122,7 +123,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         value={content.financial_outlay}
                         onChange={handleChange}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}> 
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
@@ -132,38 +133,45 @@ export const AddForm = ({ handleClose, modal }) => {
                                     start_date: newValue
                                 }))
                             }}
+                            
+                            format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
                             required={true}
                         />
-                        <DatePicker
-                            label="End Date"
-                            value={content.end_date}
-                            onChange={(newValue) => {
-                                setContent(prev => ({
-                                    ...prev,
-                                    end_date: newValue
-                                }))
-                            }}
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
-                        />
-                          <FormControlLabel
-                                                    control={
-                                                        <Checkbox
-                                                            checked={content.end_date === "Continue"}
-                                                            onChange={(e) =>
-                                                                setContent({
-                                                                    ...content,
-                                                                    end_date: e.target.checked ? "Continue" : null,
-                                                                })
-                                                            }
-                                                        />
-                                                    }
-                                                    label="Continue"
-                                                />
+    {content.end_date !== "Continue" && (
+    <DatePicker
+        label="End Date"
+        value={content.end_date}
+        onChange={(newValue) => {
+            setContent((prev) => ({
+                ...prev,
+                end_date: newValue,
+            }));
+        }}
+        renderInput={(params) => (
+            <TextField {...params} fullWidth margin="dense" />
+        )}
+    />
+)}
+    <FormControlLabel
+    control={
+        <Checkbox
+            checked={content.end_date === "Continue"}
+            onChange={(e) =>
+                setContent({
+                    ...content,
+                    end_date: e.target.checked ? "Continue" : null, // or set to "" if you prefer empty string
+                })
+            }
+        />
+    }
+    label="Continue"
+/>
+
+
+
                     </LocalizationProvider>
                     <TextField
                         margin="dense"
@@ -319,7 +327,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                         }}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
                             label="Start Date"
                             value={content.start_date}
@@ -329,6 +337,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                                     start_date: newValue
                                 }))
                             }}
+                             format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
