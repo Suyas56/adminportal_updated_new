@@ -19,6 +19,8 @@ import {
   Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
+import { enGB } from 'date-fns/locale';
+
 import React, { useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
@@ -136,13 +138,14 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Trademark">Trademark</MenuItem>
                         <MenuItem value="Industrial Design">Industrial Design</MenuItem>
                     </Select>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
                             label="Registration Date"
                             value={content.registration_date}
                             onChange={(newValue) => 
                                 setContent({ ...content, registration_date: newValue})
                             }
+                             format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -153,6 +156,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             onChange={(newValue) => 
                                 setContent({ ...content, publication_date: newValue})
                             }
+                             format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -163,6 +167,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             onChange={(newValue) => 
                                 setContent({ ...content, grant_date: newValue})
                             }
+                                format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -285,13 +290,14 @@ export const EditForm = ({ handleClose, modal, values }) => {
             </Select>
 
             {/* Date Pickers for Registration, Publication, and Grant Dates */}
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                 <DatePicker
                     label="Registration Date"
                     value={new Date(content.registration_date)}
                     onChange={(newValue) => 
                         setContent({ ...content, registration_date: newValue })
                     }
+                     format="dd/MM/yyyy"
                     renderInput={(params) => (
                         <TextField {...params} fullWidth margin="dense" />
                     )}
@@ -302,6 +308,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     onChange={(newValue) => 
                         setContent({ ...content, publication_date: newValue })
                     }
+                     format="dd/MM/yyyy"
                     renderInput={(params) => (
                         <TextField {...params} fullWidth margin="dense" />
                     )}
@@ -312,6 +319,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     onChange={(newValue) => 
                         setContent({ ...content, grant_date: newValue })
                     }
+                        format="dd/MM/yyyy"
                     renderInput={(params) => (
                         <TextField {...params} fullWidth margin="dense" />
                     )}

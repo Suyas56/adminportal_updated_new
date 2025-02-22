@@ -20,6 +20,8 @@ import {
     Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
+import { enGB } from 'date-fns/locale';
+
 import React, { useEffect, useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
@@ -136,6 +138,8 @@ export const AddForm = ({ handleClose, modal }) => {
                             onChange={(newValue) =>
                                 setContent({ ...content, start_date: newValue })
                             }
+                            format="dd/MM/yyyy"
+
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -148,6 +152,8 @@ export const AddForm = ({ handleClose, modal }) => {
                                 setContent({ ...content, end_date: newValue })
                             }
                             disabled={isContinuing}
+                            format="dd/MM/yyyy"
+                            Consultancy
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -328,13 +334,14 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                         }}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
                             label="Start Date"
                             value={new Date(content.start_date)}
                             onChange={(newValue) =>
                                 setContent({ ...content, start_date: newValue })
                             }
+                             format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
