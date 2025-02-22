@@ -51,51 +51,48 @@ export const AddForm = ({ handleClose, modal }) => {
         setContent({ ...content, [e.target.name]: e.target.value })
     }
 
+    const formatDateToUTC = (date) => {
+        if (!date) return null;
+        const dateObj = new Date(date);
+        return new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())).toISOString().split('T')[0];
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
-    
+
         try {
-            // Construct the request payload
             const requestBody = {
                 id: Date.now().toString(),
                 email: session?.user?.email?.trim() || '',
                 title: content.title?.trim() || '',
-                type:'ipr',
+                type: 'ipr',
                 iprtype: content.type?.trim() || '',
-                registration_date: content.registration_date
-                    ? new Date(content.registration_date).toISOString().split('T')[0]
-                    : null,
-                publication_date: content.publication_date
-                    ? new Date(content.publication_date).toISOString().split('T')[0]
-                    : null,
-                grant_date: content.grant_date
-                    ? new Date(content.grant_date).toISOString().split('T')[0]
-                    : null,
+                registration_date: formatDateToUTC(content.registration_date),
+                publication_date: formatDateToUTC(content.publication_date),
+                grant_date: formatDateToUTC(content.grant_date),
                 grant_no: content.grant_no?.trim() || '',
                 applicant_name: content.applicant_name?.trim() || '',
                 inventors: content.inventors?.trim() || '',
             };
-    
-            // Ensure required fields are filled
+
             if (!requestBody.email || !requestBody.title || !requestBody.type) {
                 alert('Please fill out all required fields.');
                 setSubmitting(false);
                 return;
             }
-    
-            // Make the API call
+
             const response = await fetch('/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody),
             });
-    
+
             if (response.ok) {
                 console.log('Record created successfully');
                 handleClose();
                 refreshData();
-                setContent(initialState); // Reset form state
+                setContent(initialState);
             } else {
                 const errorData = await response.json();
                 alert(`Failed to create record: ${errorData.message || 'Unknown error'}`);
@@ -104,11 +101,9 @@ export const AddForm = ({ handleClose, modal }) => {
             console.error('An unexpected error occurred:', error);
             alert('An unexpected error occurred. Please try again.');
         } finally {
-            window.location.reload()
             setSubmitting(false);
         }
     };
-    
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
@@ -145,7 +140,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             onChange={(newValue) => 
                                 setContent({ ...content, registration_date: newValue})
                             }
-                             format="dd/MM/yyyy"
+                            format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -156,7 +151,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             onChange={(newValue) => 
                                 setContent({ ...content, publication_date: newValue})
                             }
-                             format="dd/MM/yyyy"
+                            format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -167,7 +162,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             onChange={(newValue) => 
                                 setContent({ ...content, grant_date: newValue})
                             }
-                                format="dd/MM/yyyy"
+                            format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -226,10 +221,16 @@ export const EditForm = ({ handleClose, modal, values }) => {
         setContent({ ...content, [e.target.name]: e.target.value })
     }
 
+    const formatDateToUTC = (date) => {
+        if (!date) return null;
+        const dateObj = new Date(date);
+        return new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())).toISOString().split('T')[0];
+    };
+
     const handleSubmit = async (e) => {
-        setSubmitting(true)
-        e.preventDefault()
-        // const formattedPatentDate = new Date(content.patent_date).toISOString().split('T')[0]
+        e.preventDefault();
+        setSubmitting(true);
+
         try {
             const result = await fetch('/api/update', {
                 method: 'PUT',
@@ -238,139 +239,126 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     ...content,
                     type: 'ipr',
                     email: session?.user?.email,
-                    iprtype:content.type,
-                    registration_date:new Date(content.registration_date).toISOString().split('T')[0],
-                    publication_date:new Date(content.publication_date).toISOString().split("T")[0],
-                    grant_date:new Date(content.grant_date).toISOString().split("T")[0]
+                    iprtype: content.type,
+                    registration_date: formatDateToUTC(content.registration_date),
+                    publication_date: formatDateToUTC(content.publication_date),
+                    grant_date: formatDateToUTC(content.grant_date)
                 }),
-            })
+            });
 
-            if (!result.ok) throw new Error('Failed to update')
-            
-            handleClose()
-            refreshData()
+            if (!result.ok) throw new Error('Failed to update');
+
+            handleClose();
+            refreshData();
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Error:', error);
         } finally {
-            window.location.reload();
-            setSubmitting(false)
+            setSubmitting(false);
         }
-    }
+    };
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
-    <form onSubmit={handleSubmit}>
-        <DialogTitle>Edit IPR</DialogTitle>
-        <DialogContent>
-            {/* Title Field */}
-            <TextField
-                margin="dense"
-                label="Title"
-                name="title"
-                fullWidth
-                required
-                value={content.title}
-                onChange={handleChange}
-            />
-            
-            {/* IPR Type Field */}
-            <InputLabel id="type">IPR Type</InputLabel>
-            <Select
-                labelId="type"
-                name="type"
-                value={content.type}
-                onChange={handleChange}
-                fullWidth
-                required
-            >
-                <MenuItem value="Patent">Patent</MenuItem>
-                <MenuItem value="Copyright">Copyright</MenuItem>
-                <MenuItem value="Trademark">Trademark</MenuItem>
-                <MenuItem value="Industrial Design">Industrial Design</MenuItem>
-            </Select>
-
-            {/* Date Pickers for Registration, Publication, and Grant Dates */}
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
-                <DatePicker
-                    label="Registration Date"
-                    value={new Date(content.registration_date)}
-                    onChange={(newValue) => 
-                        setContent({ ...content, registration_date: newValue })
-                    }
-                     format="dd/MM/yyyy"
-                    renderInput={(params) => (
-                        <TextField {...params} fullWidth margin="dense" />
-                    )}
-                />
-                <DatePicker
-                    label="Publication Date"
-                    value={new Date(content.publication_date)}
-                    onChange={(newValue) => 
-                        setContent({ ...content, publication_date: newValue })
-                    }
-                     format="dd/MM/yyyy"
-                    renderInput={(params) => (
-                        <TextField {...params} fullWidth margin="dense" />
-                    )}
-                />
-                <DatePicker
-                    label="Grant Date"
-                    value={new Date(content.grant_date)}
-                    onChange={(newValue) => 
-                        setContent({ ...content, grant_date: newValue })
-                    }
-                        format="dd/MM/yyyy"
-                    renderInput={(params) => (
-                        <TextField {...params} fullWidth margin="dense" />
-                    )}
-                />
-            </LocalizationProvider>
-
-            {/* Grant Number */}
-            <TextField
-                margin="dense"
-                label="Grant Number"
-                name="grant_no"
-                fullWidth
-                value={content.grant_no}
-                onChange={handleChange}
-            />
-
-            {/* Applicant Name */}
-            <TextField
-                margin="dense"
-                label="Applicant Name"
-                name="applicant_name"
-                fullWidth
-                required
-                value={content.applicant_name}
-                onChange={handleChange}
-            />
-
-            {/* Inventors Field */}
-            <TextField
-                margin="dense"
-                label="Inventors"
-                name="inventors"
-                fullWidth
-                required
-                value={content.inventors}
-                onChange={handleChange}
-                helperText="Enter names separated by commas"
-            />
-        </DialogContent>
-        <DialogActions>
-            <Button
-                type="submit"
-                color="primary"
-                disabled={submitting}
-            >
-                {submitting ? 'Saving...' : 'Save'}
-            </Button>
-        </DialogActions>
-    </form>
-</Dialog>
-
+            <form onSubmit={handleSubmit}>
+                <DialogTitle>Edit IPR</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Title"
+                        name="title"
+                        fullWidth
+                        required
+                        value={content.title}
+                        onChange={handleChange}
+                    />
+                    <InputLabel id="type">IPR Type</InputLabel>
+                    <Select
+                        labelId="type"
+                        name="type"
+                        value={content.type}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    >
+                        <MenuItem value="Patent">Patent</MenuItem>
+                        <MenuItem value="Copyright">Copyright</MenuItem>
+                        <MenuItem value="Trademark">Trademark</MenuItem>
+                        <MenuItem value="Industrial Design">Industrial Design</MenuItem>
+                    </Select>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
+                        <DatePicker
+                            label="Registration Date"
+                            value={new Date(content.registration_date)}
+                            onChange={(newValue) => 
+                                setContent({ ...content, registration_date: newValue })
+                            }
+                            format="dd/MM/yyyy"
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                        <DatePicker
+                            label="Publication Date"
+                            value={new Date(content.publication_date)}
+                            onChange={(newValue) => 
+                                setContent({ ...content, publication_date: newValue })
+                            }
+                            format="dd/MM/yyyy"
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                        <DatePicker
+                            label="Grant Date"
+                            value={new Date(content.grant_date)}
+                            onChange={(newValue) => 
+                                setContent({ ...content, grant_date: newValue })
+                            }
+                            format="dd/MM/yyyy"
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth margin="dense" />
+                            )}
+                        />
+                    </LocalizationProvider>
+                    <TextField
+                        margin="dense"
+                        label="Grant Number"
+                        name="grant_no"
+                        fullWidth
+                        value={content.grant_no}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Applicant Name"
+                        name="applicant_name"
+                        fullWidth
+                        required
+                        value={content.applicant_name}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Inventors"
+                        name="inventors"
+                        fullWidth
+                        required
+                        value={content.inventors}
+                        onChange={handleChange}
+                        helperText="Enter names separated by commas"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        type="submit"
+                        color="primary"
+                        disabled={submitting}
+                    >
+                        {submitting ? 'Saving...' : 'Save'}
+                    </Button>
+                </DialogActions>
+            </form>
+        </Dialog>
     )
 }
 
@@ -424,7 +412,6 @@ export default function IPRManagement() {
                 
                 if (!response.ok) throw new Error('Failed to delete')
                 refreshData()
-            window.location.reload()
             } catch (error) {
                 console.error('Error:', error)
             }
