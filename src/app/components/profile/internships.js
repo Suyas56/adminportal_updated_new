@@ -62,6 +62,12 @@ export const AddForm = ({ handleClose, modal }) => {
         setContent({ ...content, [e.target.name]: e.target.value })
     }
 
+    const formatDateToUTC = (date) => {
+        if (!date) return null;
+        const dateObj = new Date(date);
+        return new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())).toISOString().split('T')[0];
+    };
+
     const handleSubmit = async (e) => {
         setSubmitting(true)
         e.preventDefault()
@@ -74,12 +80,8 @@ export const AddForm = ({ handleClose, modal }) => {
                   type: 'internships',
                   ...content,
                   // Format start_date and end_date to 'YYYY-MM-DD' for DATE or 'YYYY-MM-DD HH:MM:SS' for DATETIME
-                  start_date: content.start_date
-                    ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                    : null,
-                  end_date: content.end_date
-                    ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                    : null,
+                  start_date: formatDateToUTC(content.start_date),
+                  end_date: formatDateToUTC(content.end_date),
                   id: Date.now().toString(),
                   email: session?.user?.email,
                 }),
@@ -233,6 +235,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
         setContent({ ...content, [e.target.name]: e.target.value })
     }
 
+    const formatDateToUTC = (date) => {
+        if (!date) return null;
+        const dateObj = new Date(date);
+        return new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())).toISOString().split('T')[0];
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSubmitting(true)
@@ -245,12 +253,8 @@ export const EditForm = ({ handleClose, modal, values }) => {
                     type: 'internships',
                     ...content,
                     // Format dates before sending to API
-                    start_date: content.start_date 
-                        ? new Date(content.start_date).toISOString().split('T')[0]
-                        : null,
-                    end_date: content.end_date
-                        ? new Date(content.end_date).toISOString().split('T')[0]
-                        : null,
+                    start_date: formatDateToUTC(content.start_date),
+                    end_date: formatDateToUTC(content.end_date),
                     email: session?.user?.email
                 }),
             })
