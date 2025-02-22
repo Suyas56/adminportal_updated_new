@@ -45,7 +45,7 @@ export const UplaodCSV = ({ handleClose, modal }) => {
     const handleCSVUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
-            // console.log("Selected File:", file);
+            console.log("Selected File:", file);
             setFileUploaded(true);
             setFileName(file.name);
             Papa.parse(file, {
@@ -53,27 +53,37 @@ export const UplaodCSV = ({ handleClose, modal }) => {
                     // console.log("Raw Parsed Data:", result.data);
                     const parsedData = result.data.map(row => {
                         if (row.publication_date) {
-                            // console.log("Before Parsing:", row.publication_date);
+                            console.log("Before Parsing:", row.publication_date);
     
                             const trimmedDate = row.publication_date.trim();
                             let parsedDate = null;
                             const formatsToTry = ['d/M/yyyy', 'dd/MM/yyyy'];
     
                             for (const dateFormat of formatsToTry) {
-                                parsedDate = parse(trimmedDate, dateFormat, new Date());
-                                if (!isNaN(parsedDate)) break;
+                                const tempDate = parse(trimmedDate, dateFormat, new Date());
+                                if (!isNaN(tempDate.getTime())) { 
+                                    parsedDate = tempDate;
+                                    break;
+                                }
                             }
     
-                            if (isNaN(parsedDate)) {
+                            if (!parsedDate) {
                                 console.error("Invalid Date Found:", trimmedDate);
+                                const jsDate = new Date(trimmedDate);
+                                if (!isNaN(jsDate.getTime())) {
+                                    row.publication_date = jsDate.toISOString().split("T")[0];
+                                } else {
+                                    row.publication_date = null;
+                                    console.error("Failed to parse date:", trimmedDate);
+                                }
                             } else {
                                 row.publication_date = format(parsedDate, 'yyyy-MM-dd'); 
-                                // console.log("After Parsing:", row.publication_date);
+                                console.log("After Parsing:", row.publication_date);
                             }
                         }
                         return row;
                     });
-                    // console.log("Processed Data:", parsedData);
+                    console.log("Processed Data:", parsedData);
                     setBulkJournal(parsedData);
                 },
                 header: true,
@@ -115,12 +125,19 @@ export const UplaodCSV = ({ handleClose, modal }) => {
         }
     }
     const downloadTemplate = () => {
-        
-        const headers = ['authors', 'title', 'journal_name', 'volume', 'publication_year', 'pages', 'journal_quartile', 'publication_date', 'student_involved', 'student_details', 'doi_url'];
-        const csvContent = headers.join(',') + '\n' + 
-'John Doe,AI in Healthcare,International Journal of AI,Spring 2023 Edition,2023,156,Q1,15-06-2023,5,Emily Johnson,https://doi.org/10.1\n' +  
-'Jane Smith,Blockchain in Finance,Journal of FinTech Innovations,Vol A,2022,89,Q2,10-09-2022,0, ,https://doi.org/10.5678';
-
+        const headers = [
+            "authors", "title", "journal_name", "volume", "publication_year",
+            "pages", "journal_quartile", "publication_date", "student_involved",
+            "student_details", "doi_url"
+        ];
+        const rows = [
+            ['John Doe', 'AI in Healthcare', 'International Journal of AI', 'Spring 2023 Edition', '2023', '156', 'Q1', '15/06/2023', '1', 'Emily Johnson', 'https://doi.org/10.1'],
+            ['Jane Smith', 'Blockchain in Finance', 'Journal of FinTech Innovations', 'Vol A', '2022', '89', 'Q2', '10/09/2022', '0', '', 'https://doi.org/10.5678']
+        ];
+        const csvContent = [
+            headers.join(','), 
+            ...rows.map(row => row.map(value => `"${value}"`).join(','))
+        ].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -130,7 +147,7 @@ export const UplaodCSV = ({ handleClose, modal }) => {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-      };
+    };
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
