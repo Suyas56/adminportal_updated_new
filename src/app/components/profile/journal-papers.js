@@ -21,7 +21,8 @@ import {
   import { Typography } from '@mui/material';
   import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
   import { IconButton } from '@mui/material';
-  
+  import { enGB } from 'date-fns/locale';
+
   import useRefreshData from '@/custom-hooks/refresh'
   import EditIcon from '@mui/icons-material/Edit'
   import DeleteIcon from '@mui/icons-material/Delete'
@@ -138,6 +139,11 @@ export const UplaodCSV = ({ handleClose, modal }) => {
            
             Download Template
           </Button>
+          <Typography variant="body2" color="textSecondary" style={{ marginTop: '8px' }}>
+    * In the "Student Involved" field, enter <strong>1</strong> if a student is involved; otherwise, enter <strong>0</strong>.
+</Typography>
+
+          
                     {fileUploaded && <Typography variant="body2" color="textSecondary">File "{fileName}" has been uploaded successfully.</Typography>}
                 
                 </DialogContent>
@@ -279,14 +285,14 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Q3">Q3</MenuItem>
                         <MenuItem value="Q4">Q4</MenuItem>
                     </Select>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
                             label="Publication Date"
                             value={content.publication_date ? parseISO(content.publication_date) : null}
                             onChange={(newValue) => {
                                 setContent({
                                     ...content,
-                                    publication_date: newValue ? format(newValue, 'yyyy-MM-dd') : null
+                                    publication_date: newValue ? format(newValue, 'dd-MM-yyyy') : null
                                 })
                             }}
                             slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
@@ -468,11 +474,14 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <MenuItem value="Q3">Q3</MenuItem>
                         <MenuItem value="Q4">Q4</MenuItem>
                     </Select>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
+
                             label="Publication Date"
+
                             value={content.publication_date ? new Date(content.publication_date) : null}
                             onChange={handleDateChange}
+                             format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}

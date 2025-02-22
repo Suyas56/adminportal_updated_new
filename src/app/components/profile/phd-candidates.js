@@ -20,6 +20,8 @@ import {
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import React, { useState } from 'react'
+import { enGB } from 'date-fns/locale';
+
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -191,22 +193,28 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Discontinued">Discontinued</MenuItem> */}
                     </Select>
                     { (
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                         <DatePicker
-                            label="Completion Year"
-                            value={content.completion_year ? parseISO(content.completion_year) : null}
-                            onChange={(date) => handleChange({ target: { name: "completion_year", value: date.toISOString().split("T")[0] } })}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    margin="dense"
-                                    fullWidth
-                                    required
-                                    name="completion_year"
-                                    onChange={handleChange}
-                                />
-                            )}
-                        />
+    label="Completion Year"
+    value={content.completion_year ? parseISO(content.completion_year) : null}
+    onChange={(date) => handleChange({ 
+        target: { 
+            name: "completion_year", 
+            value: date.toLocaleDateString('en-CA')
+        } 
+    })}
+    format="dd/MM/yyyy"
+    renderInput={(params) => (
+        <TextField
+            {...params}
+            margin="dense"
+            fullWidth
+            required
+            name="completion_year"
+            onChange={handleChange}
+        />
+    )}
+/>
                     </LocalizationProvider>                  
                     )}
                 </DialogContent>

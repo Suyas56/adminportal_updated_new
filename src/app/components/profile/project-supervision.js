@@ -19,6 +19,8 @@ import {
   Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
+import { enGB } from 'date-fns/locale';
+
 import React, { useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import EditIcon from '@mui/icons-material/Edit'
@@ -147,13 +149,14 @@ export const AddForm = ({ handleClose, modal }) => {
                         onChange={handleChange}
                         helperText="Enter names separated by commas Name1, Name2, etc."
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
                             <DatePicker
                                 label="Start Date"
                                 value={content.start_date}
                                 onChange={(newValue) => 
                                     setContent({ ...content, start_date: newValue})
                                 }
+                                format="dd/MM/yyyy"
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" size="medium" />
                                 )}
@@ -165,6 +168,7 @@ export const AddForm = ({ handleClose, modal }) => {
                                 onChange={(newValue) =>
                                     setContent({ ...content, end_date: newValue })
                                 }
+                                format="dd/MM/yyyy"
                                 renderInput={(params) => (
                                     <TextField {...params} fullWidth margin="dense" size="medium" />
                                 )}
