@@ -50,8 +50,8 @@ export const UplaodCSV = ({ handleClose, modal }) => {
                 complete: (result) => {
                     const parsedData = result.data.map(row => {
                         if (row.publication_date) {
-                            // row.publication_date = parse(row.publication_date, 'dd-MM-yyyy', new Date()).toISOString().split("T")[0];
-                            row.publication_date = format(parse(row.publication_date, 'dd-MM-yyyy', new Date()), 'yyyy-MM-dd');
+                            row.publication_date = parse(row.publication_date, 'dd-MM-yyyy', new Date());
+                            // row.publication_date = format(parse(row.publication_date, 'dd-MM-yyyy', new Date()), 'dd-MM-yyyy);
 
                         }
                         return row;
@@ -145,7 +145,7 @@ export const UplaodCSV = ({ handleClose, modal }) => {
                     <Button
                         type="submit"
                         color="primary"
-                        disabled={submitting || bulkJournal.length === 0}
+                        // disabled={submitting || bulkJournal.length === 0}
                     >
                         {submitting ? 'Submitting...' : 'Submit'}
                     </Button>
