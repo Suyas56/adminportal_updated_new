@@ -29,7 +29,7 @@ import Loading from '../common/Loading'
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import AddIcon from '@mui/icons-material/Add'
-
+import { format } from 'date-fns';
 // Add formatDate helper function at the top
 const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -57,12 +57,19 @@ export const AddForm = ({ handleClose, modal }) => {
     const handleChange = (e) => {
         setContent({ ...content, [e.target.name]: e.target.value })
     }
+    const formatDateToMySQL = (date) => {
+        if (!date) return null;
+        const [day, month, year] = date.split('/');
+        return `${year}-${month}-${day} 00:00:00`;
+      };
 
     const handleSubmit = async (e) => {
         setSubmitting(true)
         e.preventDefault()
 
         try {
+            const formattedStartDate = format(content.start_date, 'yyyy-MM-dd');
+            const formattedEndDate = content.end_date ? format(content.end_date, 'yyyy-MM-dd') : null;
             const result = await fetch('/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -71,10 +78,10 @@ export const AddForm = ({ handleClose, modal }) => {
                   ...content,
                   // Format start_date and end_date to 'YYYY-MM-DD' for DATE or 'YYYY-MM-DD HH:MM:SS' for DATETIME
                   start_date: content.start_date 
-                    ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                    ? formatDateToMySQL(new Date(content.start_date).toLocaleDateString().split("T")[0])  // Format as 'YYYY-MM-DD'
                     : null,
                   end_date: content.end_date?content.end_date === "Continue"?"Continue"
-                    : new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
+                    : formatDateToMySQL(new Date(content.end_date).toLocaleDateString().split("T")[0])  // Format as 'YYYY-MM-DD'
                     : null,
                   id: Date.now().toString(),
                   email: session?.user?.email,
@@ -94,6 +101,8 @@ export const AddForm = ({ handleClose, modal }) => {
             setSubmitting(false)
         }
     }
+
+
 
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
@@ -122,9 +131,10 @@ export const AddForm = ({ handleClose, modal }) => {
                         size="medium"
                     />
                     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
+                        
                         <DatePicker
                             label="Start Date"
-                            value={content.start_date}
+                           value={content.start_date}
                             onChange={(newValue) => 
                                 setContent({ ...content, start_date: newValue})
                             }
@@ -144,6 +154,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
+                            
                         />
                         <FormControlLabel
                             control={
@@ -193,39 +204,44 @@ export const EditForm = ({ handleClose, modal, values }) => {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setSubmitting(true)
-
+        setSubmitting(true);
+        e.preventDefault();
+    
         try {
-            const result = await fetch('/api/update', {
-                method: 'PUT',
+            const formatToISODate = (date) => {
+                if (!date) return null;
+                return new Date(date).toLocaleDateString('en-CA', { timeZone: 'UTC' }); // 'YYYY-MM-DD' format
+            };
+    
+            const result = await fetch('/api/create', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'department_activities',
                     ...content,
-                    // Format dates before sending to API
-                    start_date: content.start_date 
-                        ? new Date(content.start_date).toISOString().split('T')[0]
-                        : null,
-                    end_date: content.end_date?content.end_date === "Continue"?"Continue"
-                    : new Date(content.end_date).toISOString().split('T')[0]
-                    : null,
-                    email: session?.user?.email
+                    start_date: formatToISODate(content.start_date),
+                    end_date: content.end_date === "Continue" 
+                        ? "Continue" 
+                        : formatToISODate(content.end_date),
+                    id: Date.now().toString(),
+                    email: session?.user?.email,
                 }),
-            })
-
-            if (!result.ok) throw new Error('Failed to update')
-            
-            handleClose()
-            refreshData()
-            window.location.reload()
+            });
+    
+            if (!result.ok) throw new Error('Failed to create');
+    
+            handleClose();
+            refreshData();
+            setContent(initialState);
+            window.location.reload();
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Error:', error);
         } finally {
-            setSubmitting(false)
+            setSubmitting(false);
         }
-    }
-
+    };
+    
+    
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>

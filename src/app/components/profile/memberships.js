@@ -16,6 +16,7 @@ import {
   Typography
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
+import { enGB } from 'date-fns/locale'
 import React, { useState } from 'react'
 import useRefreshData from '@/custom-hooks/refresh'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
@@ -96,11 +97,12 @@ export const AddForm = ({ handleClose, modal }) => {
                         value={content.membership_society}
                         onChange={handleChange}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB} >
                         <DatePicker
                             label="Start Date"
                             value={content.start}
                             onChange={(newValue) => setContent({ ...content, start: newValue })}
+                             format="dd/MM/yyyy"
                             renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
                             required={true}
                         />
@@ -109,6 +111,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             value={content.end === "Continue" ? null : content.end}
                             onChange={(newValue) => setContent({ ...content, end: newValue })}
                             disabled={content.end === "Continue"}
+                            format="dd/MM/yyyy"
                             renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
                         />
                         <FormControlLabel
@@ -220,11 +223,12 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         value={content.membership_society}
                         onChange={handleChange}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB} >
                         <DatePicker
                             label="Start Date"
                             value={new Date(content.start)}
                             onChange={(newValue) => setContent({ ...content, start: newValue })}
+                              format="dd/MM/yyyy"
                             renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
                         />
                         <DatePicker
@@ -236,6 +240,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             }
                             onChange={(newValue) => handleEndDateChange(newValue)}
                             disabled={content.end === "Continue"}
+                            format="dd/MM/yyyy"
                             renderInput={(params) => <TextField {...params} fullWidth margin="dense" />}
                         />
 

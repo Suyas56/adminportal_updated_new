@@ -196,7 +196,8 @@ export const AddForm = ({ handleClose, modal }) => {
                     type: 'journal_papers',
                     ...content,
                     id: Date.now().toString(),
-                    email: session?.user?.email
+                    email: session?.user?.email,
+                    publication_date: content.publication_date ? new Date(content.publication_date).toISOString().split("T")[0] : null,
                 }),
             })
 
@@ -260,7 +261,7 @@ export const AddForm = ({ handleClose, modal }) => {
                         name="publication_year"
                         type="number"
                         fullWidth
-                        required
+                        required={true}
                         value={content.publication_year}
                         onChange={handleChange}
                     />
@@ -286,17 +287,22 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Q4">Q4</MenuItem>
                     </Select>
                     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
-                        <DatePicker
-                            label="Publication Date"
-                            value={content.publication_date ? parseISO(content.publication_date) : null}
-                            onChange={(newValue) => {
-                                setContent({
-                                    ...content,
-                                    publication_date: newValue ? format(newValue, 'dd-MM-yyyy') : null
-                                })
-                            }}
-                            slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
-                        />
+
+<DatePicker
+    label="Publication Date"
+    value={
+        content.publication_date
+            ? parse(content.publication_date, 'dd-MM-yyyy', new Date())
+            : null
+    }
+    onChange={(newValue) => {
+        setContent({
+            ...content,
+            publication_date: newValue ? format(newValue, 'dd-MM-yyyy') : null
+        })
+    }}
+    slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+/>
                     </LocalizationProvider>
                     <FormControlLabel
                         control={
@@ -475,7 +481,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <MenuItem value="Q4">Q4</MenuItem>
                     </Select>
                     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
-                        <DatePicker
+                        {/* <DatePicker
 
                             label="Publication Date"
 
@@ -485,7 +491,20 @@ export const EditForm = ({ handleClose, modal, values }) => {
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
-                        />
+                        /> */}
+
+
+<DatePicker
+        label="Publication Date"
+        value={content.publication_date ? parse(content.publication_date, 'dd-MM-yyyy', new Date()) : null}
+        onChange={(newValue) => {
+            setContent({
+                ...content,
+                publication_date: newValue ? format(newValue, 'dd-MM-yyyy') : null
+            });
+        }}
+        slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+    />
                     </LocalizationProvider>
                     <FormControlLabel
                         control={

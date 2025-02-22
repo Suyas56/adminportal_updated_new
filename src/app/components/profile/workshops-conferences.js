@@ -52,56 +52,54 @@ export const AddForm = ({ handleClose, modal }) => {
     }
 
     const handleSubmit = async (e) => {
-        setSubmitting(true)
-        e.preventDefault()
+        setSubmitting(true);
+        e.preventDefault();
 
         try {
             console.log('Sending data:', {
                 type: 'workshops_conferences',
                 ...content,
                 start_date: content.start_date
-                    ? new Date(content.start_date).toISOString().split('T')[0]
+                    ? new Date(content.start_date).toLocaleDateString('en-CA') // YYYY-MM-DD
                     : null,
                 end_date: content.end_date
-                    ? new Date(content.end_date).toISOString().split('T')[0]
+                    ? new Date(content.end_date).toLocaleDateString('en-CA')
                     : null,
                 id: Date.now().toString(),
                 email: session?.user?.email,
             });
-            
+    
             const result = await fetch('/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  type: 'workshops_conferences',
-                  ...content,
-                  // Format start_date and end_date to 'YYYY-MM-DD' for DATE or 'YYYY-MM-DD HH:MM:SS' for DATETIME
-                  start_date: content.start_date 
-                    ? new Date(content.start_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                    : null,
-                  end_date: content.end_date 
-                    ? new Date(content.end_date).toISOString().split('T')[0]  // Format as 'YYYY-MM-DD'
-                    : null,
-                  id: Date.now().toString(),
-                  email: session?.user?.email,
+                    type: 'workshops_conferences',
+                    ...content,
+                    start_date: content.start_date
+                        ? new Date(content.start_date).toLocaleDateString('en-CA')
+                        : null,
+                    end_date: content.end_date
+                        ? new Date(content.end_date).toLocaleDateString('en-CA')
+                        : null,
+                    id: Date.now().toString(),
+                    email: session?.user?.email,
                 }),
-              });
-              
-
-            if (!result.ok) throw new Error('Failed to create')
-
-            handleClose()
-            refreshData()
-            setContent(initialState)
-            alert('Workshop/Conference added successfully')
-            window.location.reload()
+            });
+    
+            if (!result.ok) throw new Error('Failed to create');
+    
+            handleClose();
+            refreshData();
+            setContent(initialState);
+            alert('Workshop/Conference added successfully');
+            window.location.reload();
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Error:', error);
         } finally {
-            setSubmitting(false)
+            setSubmitting(false);
         }
-    }
-
+    };
+    
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>

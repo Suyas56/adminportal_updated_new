@@ -70,9 +70,8 @@ export const AddForm = ({ handleClose, modal }) => {
                     start_date: content.start_date 
                         ? new Date(content.start_date).toISOString().split('T')[0]
                         : null,
-                    end_date: content.end_date
-                        ? new Date(content.end_date).toISOString().split('T')[0]
-                        : null,
+                    end_date: content.end_date==="Continue"?"continue"
+                        : new Date(content.end_date).toISOString().split('T')[0],
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
@@ -141,33 +140,38 @@ export const AddForm = ({ handleClose, modal }) => {
                             )}
                             required={true}
                         />
-                        <DatePicker
-                            label="End Date"
-                            value={content.end_date}
-                            onChange={(newValue) => {
-                                setContent(prev => ({
-                                    ...prev,
-                                    end_date: newValue
-                                }))
-                            }}
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
-                        />
-                          <FormControlLabel
-                                                    control={
-                                                        <Checkbox
-                                                            checked={content.end_date === "Continue"}
-                                                            onChange={(e) =>
-                                                                setContent({
-                                                                    ...content,
-                                                                    end_date: e.target.checked ? "Continue" : null,
-                                                                })
-                                                            }
-                                                        />
-                                                    }
-                                                    label="Continue"
-                                                />
+    {content.end_date !== "Continue" && (
+    <DatePicker
+        label="End Date"
+        value={content.end_date}
+        onChange={(newValue) => {
+            setContent((prev) => ({
+                ...prev,
+                end_date: newValue,
+            }));
+        }}
+        renderInput={(params) => (
+            <TextField {...params} fullWidth margin="dense" />
+        )}
+    />
+)}
+    <FormControlLabel
+    control={
+        <Checkbox
+            checked={content.end_date === "Continue"}
+            onChange={(e) =>
+                setContent({
+                    ...content,
+                    end_date: e.target.checked ? "Continue" : null, // or set to "" if you prefer empty string
+                })
+            }
+        />
+    }
+    label="Continue"
+/>
+
+
+
                     </LocalizationProvider>
                     <TextField
                         margin="dense"
