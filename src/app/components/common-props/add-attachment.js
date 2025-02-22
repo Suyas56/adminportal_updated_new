@@ -3,8 +3,23 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import { Delete } from '@material-ui/icons'
 import { FormControlLabel, Checkbox } from '@mui/material'
-
+import { useEffect } from 'react'
 export const AddAttachments = ({ attachments, setAttachments, limit }) => {
+
+    useEffect(() => {
+        if (attachments.length === 0) {
+            setAttachments([
+                {
+                    id: Date.now(),
+                    caption: "",
+                    url: undefined,
+                    value: undefined,
+                    typeLink: false,
+                },
+            ]);
+        }
+    }, []);
+
     function handleChange(i, event) {
         const values = [...attachments]
         values[i].caption = event.target.value
