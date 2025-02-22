@@ -32,7 +32,7 @@ import {
   import { format, parseISO } from 'date-fns'
   import AddIcon from '@mui/icons-material/Add'
   import Papa from 'papaparse'
-  import { parse } from 'date-fns';
+  import { parse,isValid } from 'date-fns';
 
 export const UplaodCSV = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -45,18 +45,35 @@ export const UplaodCSV = ({ handleClose, modal }) => {
     const handleCSVUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
+            // console.log("Selected File:", file);
             setFileUploaded(true);
             setFileName(file.name);
             Papa.parse(file, {
                 complete: (result) => {
+                    // console.log("Raw Parsed Data:", result.data);
                     const parsedData = result.data.map(row => {
                         if (row.publication_date) {
-                            row.publication_date = parse(row.publication_date, 'dd-MM-yyyy', new Date());
-                            // row.publication_date = format(parse(row.publication_date, 'dd-MM-yyyy', new Date()), 'dd-MM-yyyy);
-
+                            // console.log("Before Parsing:", row.publication_date);
+    
+                            const trimmedDate = row.publication_date.trim();
+                            let parsedDate = null;
+                            const formatsToTry = ['d/M/yyyy', 'dd/MM/yyyy'];
+    
+                            for (const dateFormat of formatsToTry) {
+                                parsedDate = parse(trimmedDate, dateFormat, new Date());
+                                if (!isNaN(parsedDate)) break;
+                            }
+    
+                            if (isNaN(parsedDate)) {
+                                console.error("Invalid Date Found:", trimmedDate);
+                            } else {
+                                row.publication_date = format(parsedDate, 'yyyy-MM-dd'); 
+                                // console.log("After Parsing:", row.publication_date);
+                            }
                         }
                         return row;
                     });
+                    // console.log("Processed Data:", parsedData);
                     setBulkJournal(parsedData);
                 },
                 header: true,
@@ -71,6 +88,7 @@ export const UplaodCSV = ({ handleClose, modal }) => {
 
         try {
             for (let i = 0; i < bulkJournal.length; i++) {
+                // console.log(bulkJournal[i])
                 await fetch('/api/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -671,11 +689,11 @@ export default function JournalPaperManagement() {
                                 <TableCell>{paper.journal_name}</TableCell>
                                 <TableCell>{paper.volume}</TableCell>
                                 <TableCell>{paper.publication_year}</TableCell>
-                                <TableCell>{new Date(paper.publication_date).toLocaleDateString('en-GB', {
+                                <TableCell>{paper.publication_date? new Date(paper.publication_date).toLocaleDateString('en-GB', {
                                             day: 'numeric',
                                             month: 'short',
                                             year: 'numeric'
-                                        })}</TableCell>
+                                        }):"-"}</TableCell>
                                 <TableCell>{paper.journal_quartile}</TableCell>
                                 <TableCell style={{ wordBreak: 'break-word' }}>{paper.doi_url}</TableCell>
                                 <TableCell align="right">
