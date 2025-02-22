@@ -224,7 +224,7 @@ const DataDisplay = (props) => {
     }
 
     const Event = ({ detail }) => {
-        let openDate = new Date(detail.timestamp)
+        let openDate = new Date(detail.openDate)
         let dd = openDate.getDate()
         let mm = openDate.getMonth() + 1
         let yyyy = openDate.getFullYear()
