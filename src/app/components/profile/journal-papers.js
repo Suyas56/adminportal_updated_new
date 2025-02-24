@@ -1,4 +1,3 @@
-
 'use client'
 
 import { 
@@ -13,26 +12,26 @@ import {
     InputLabel,
     FormControlLabel,
     Checkbox
-  } from '@mui/material'
-  
-  import React, { useState } from 'react'
-  
-  import { useSession } from 'next-auth/react';
-  import { Typography } from '@mui/material';
-  import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
-  import { IconButton } from '@mui/material';
-  import { enGB } from 'date-fns/locale';
+} from '@mui/material'
 
-  import useRefreshData from '@/custom-hooks/refresh'
-  import EditIcon from '@mui/icons-material/Edit'
-  import DeleteIcon from '@mui/icons-material/Delete'
-  import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-  import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-  import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-  import { format, parseISO } from 'date-fns'
-  import AddIcon from '@mui/icons-material/Add'
-  import Papa from 'papaparse'
-  import { parse,isValid } from 'date-fns';
+import React, { useState } from 'react'
+
+import { useSession } from 'next-auth/react';
+import { Typography } from '@mui/material';
+import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
+import { IconButton } from '@mui/material';
+import { enGB } from 'date-fns/locale';
+
+import useRefreshData from '@/custom-hooks/refresh'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { format, parseISO } from 'date-fns'
+import AddIcon from '@mui/icons-material/Add'
+import Papa from 'papaparse'
+import { parse, isValid } from 'date-fns'
 
 export const UplaodCSV = ({ handleClose, modal }) => {
     const { data: session } = useSession()
@@ -45,35 +44,44 @@ export const UplaodCSV = ({ handleClose, modal }) => {
     const handleCSVUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
-            // console.log("Selected File:", file);
+            console.log("Selected File:", file);
             setFileUploaded(true);
             setFileName(file.name);
             Papa.parse(file, {
                 complete: (result) => {
-                    // console.log("Raw Parsed Data:", result.data);
                     const parsedData = result.data.map(row => {
                         if (row.publication_date) {
-                            // console.log("Before Parsing:", row.publication_date);
-    
+                            console.log("Before Parsing:", row.publication_date);
+
                             const trimmedDate = row.publication_date.trim();
                             let parsedDate = null;
                             const formatsToTry = ['d/M/yyyy', 'dd/MM/yyyy'];
-    
+
                             for (const dateFormat of formatsToTry) {
-                                parsedDate = parse(trimmedDate, dateFormat, new Date());
-                                if (!isNaN(parsedDate)) break;
+                                const tempDate = parse(trimmedDate, dateFormat, new Date());
+                                if (!isNaN(tempDate.getTime())) { 
+                                    parsedDate = tempDate;
+                                    break;
+                                }
                             }
-    
-                            if (isNaN(parsedDate)) {
+
+                            if (!parsedDate) {
                                 console.error("Invalid Date Found:", trimmedDate);
+                                const jsDate = new Date(trimmedDate);
+                                if (!isNaN(jsDate.getTime())) {
+                                    row.publication_date = jsDate.toISOString().split("T")[0];
+                                } else {
+                                    row.publication_date = null;
+                                    console.error("Failed to parse date:", trimmedDate);
+                                }
                             } else {
                                 row.publication_date = format(parsedDate, 'yyyy-MM-dd'); 
-                                // console.log("After Parsing:", row.publication_date);
+                                console.log("After Parsing:", row.publication_date);
                             }
                         }
                         return row;
                     });
-                    // console.log("Processed Data:", parsedData);
+                    console.log("Processed Data:", parsedData);
                     setBulkJournal(parsedData);
                 },
                 header: true,
@@ -88,7 +96,6 @@ export const UplaodCSV = ({ handleClose, modal }) => {
 
         try {
             for (let i = 0; i < bulkJournal.length; i++) {
-                // console.log(bulkJournal[i])
                 await fetch('/api/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -96,9 +103,6 @@ export const UplaodCSV = ({ handleClose, modal }) => {
                         type: 'journal_papers',
                         ...bulkJournal[i],
                         id: Date.now().toString(),
-                        // publication_date: bulkJournal[i].publication_date 
-                        // ? format(parseISO(bulkJournal[i].publication_date), 'dd-MM-yyyy') 
-                        // : null,
                         publication_date: bulkJournal[i].publication_date ? new Date(bulkJournal[i].publication_date).toISOString().split("T")[0] : null,
                         email: session?.user?.email
                     }),
@@ -115,12 +119,19 @@ export const UplaodCSV = ({ handleClose, modal }) => {
         }
     }
     const downloadTemplate = () => {
-        
-        const headers = ['authors', 'title', 'journal_name', 'volume', 'publication_year', 'pages', 'journal_quartile', 'publication_date', 'student_involved', 'student_details', 'doi_url'];
-        const csvContent = headers.join(',') + '\n' + 
-'John Doe,AI in Healthcare,International Journal of AI,Spring 2023 Edition,2023,156,Q1,15-06-2023,5,Emily Johnson,https://doi.org/10.1\n' +  
-'Jane Smith,Blockchain in Finance,Journal of FinTech Innovations,Vol A,2022,89,Q2,10-09-2022,0, ,https://doi.org/10.5678';
-
+        const headers = [
+            "authors", "title", "journal_name", "volume", "publication_year",
+            "pages", "journal_quartile", "publication_date", "student_involved",
+            "student_details", "doi_url"
+        ];
+        const rows = [
+            ['John Doe', 'AI in Healthcare', 'International Journal of AI', 'Spring 2023 Edition', '2023', '156', 'Q1', '15/06/2023', '1', 'Emily Johnson', 'https://doi.org/10.1'],
+            ['Jane Smith', 'Blockchain in Finance', 'Journal of FinTech Innovations', 'Vol A', '2022', '89', 'Q2', '10/09/2022', '0', '', 'https://doi.org/10.5678']
+        ];
+        const csvContent = [
+            headers.join(','), 
+            ...rows.map(row => row.map(value => `"${value}"`).join(','))
+        ].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -130,7 +141,7 @@ export const UplaodCSV = ({ handleClose, modal }) => {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-      };
+    };
     return (
         <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>
             <form onSubmit={handleSubmit}>
@@ -150,26 +161,22 @@ export const UplaodCSV = ({ handleClose, modal }) => {
                         />
                     </Button>
                     <Button 
-            variant="outline" 
-            onClick={downloadTemplate}
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-           
-            Download Template
-          </Button>
-          <Typography variant="body2" color="textSecondary" style={{ marginTop: '8px' }}>
-    * In the "Student Involved" field, enter <strong>1</strong> if a student is involved; otherwise, enter <strong>0</strong>.
-</Typography>
-
-          
+                        variant="outline" 
+                        onClick={downloadTemplate}
+                        className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Download Template
+                    </Button>
+                    <Typography variant="body2" color="textSecondary" style={{ marginTop: '8px' }}>
+                        * In the "Student Involved" field, enter <strong>1</strong> if a student is involved; otherwise, enter <strong>0</strong>.
+                    </Typography>
                     {fileUploaded && <Typography variant="body2" color="textSecondary">File "{fileName}" has been uploaded successfully.</Typography>}
-                
                 </DialogContent>
                 <DialogActions>
                     <Button
                         type="submit"
                         color="primary"
-                        // disabled={submitting || bulkJournal.length === 0}
+                        disabled={submitting || bulkJournal.length === 0}
                     >
                         {submitting ? 'Submitting...' : 'Submit'}
                     </Button>
@@ -305,22 +312,17 @@ export const AddForm = ({ handleClose, modal }) => {
                         <MenuItem value="Q4">Q4</MenuItem>
                     </Select>
                     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
-
-<DatePicker
-    label="Publication Date"
-    value={
-        content.publication_date
-            ? parse(content.publication_date, 'dd-MM-yyyy', new Date())
-            : null
-    }
-    onChange={(newValue) => {
-        setContent({
-            ...content,
-            publication_date: newValue ? format(newValue, 'dd-MM-yyyy') : null
-        })
-    }}
-    slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
-/>
+                        <DatePicker
+                            label="Publication Date"
+                            value={content.publication_date ? parse(content.publication_date, 'yyyy-MM-dd', new Date()) : null}
+                            onChange={(newValue) => {
+                                setContent({
+                                    ...content,
+                                    publication_date: newValue ? format(newValue, 'yyyy-MM-dd') : null
+                                })
+                            }}
+                            slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+                        />
                     </LocalizationProvider>
                     <FormControlLabel
                         control={
@@ -366,15 +368,11 @@ export const AddForm = ({ handleClose, modal }) => {
     )
 }
 
-
-
-
 export const EditForm = ({ handleClose, modal, values }) => {
     const { data: session } = useSession();
     const refreshData = useRefreshData(false);
     const [submitting, setSubmitting] = useState(false);
 
-    
     const [content, setContent] = useState({
         ...values,
         publication_date: values.publication_date
@@ -499,30 +497,17 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <MenuItem value="Q4">Q4</MenuItem>
                     </Select>
                     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
-                        {/* <DatePicker
-
+                        <DatePicker
                             label="Publication Date"
-
-                            value={content.publication_date ? new Date(content.publication_date) : null}
-                            onChange={handleDateChange}
-                             format="dd/MM/yyyy"
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth margin="dense" />
-                            )}
-                        /> */}
-
-
-<DatePicker
-        label="Publication Date"
-        value={content.publication_date ? parse(content.publication_date, 'dd-MM-yyyy', new Date()) : null}
-        onChange={(newValue) => {
-            setContent({
-                ...content,
-                publication_date: newValue ? format(newValue, 'dd-MM-yyyy') : null
-            });
-        }}
-        slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
-    />
+                            value={content.publication_date ? parse(content.publication_date, 'yyyy-MM-dd', new Date()) : null}
+                            onChange={(newValue) => {
+                                setContent({
+                                    ...content,
+                                    publication_date: newValue ? format(newValue, 'yyyy-MM-dd') : null
+                                });
+                            }}
+                            slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+                        />
                     </LocalizationProvider>
                     <FormControlLabel
                         control={
@@ -566,7 +551,6 @@ export const EditForm = ({ handleClose, modal, values }) => {
         </Dialog>
     );
 };
-
 
 // Main Component
 export default function JournalPaperManagement() {

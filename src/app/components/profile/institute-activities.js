@@ -139,12 +139,12 @@ export default function InstituteActivityManagement() {
         const formatDateToMySQL = (date) => {
             if (!date) return null;
         
-            // Ensure date is a string before calling split
-            const dateStr = typeof date === 'string' ? date : date.toLocaleDateString(); // Convert to string if it's not already
-        
-            // Split the date string into [day, month, year] (assuming the format is 'DD/MM/YYYY')
-            const [day, month, year] = dateStr.split('/');
-            return `${year}-${month}-${day} 00:00:00`; // Return MySQL datetime format 'YYYY-MM-DD 00:00:00'
+            const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day} 00:00:00`;
         };
         
         const handleSubmit = async (e) => {
@@ -291,10 +291,20 @@ export default function InstituteActivityManagement() {
             setContent({ ...content, [e.target.name]: e.target.value })
         }
 
+        const formatDateToMySQL = (date) => {
+            if (!date) return null;
+        
+            const dateObj = typeof date === 'string' ? new Date(date) : date;
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day} 00:00:00`;
+        };
+        
         const handleSubmit = async (e) => {
-            e.preventDefault()
-            setSubmitting(true)
-
+            e.preventDefault();
+            setSubmitting(true);
+        
             try {
                 const result = await fetch('/api/update', {
                     method: 'PUT',
@@ -302,30 +312,31 @@ export default function InstituteActivityManagement() {
                     body: JSON.stringify({
                         type: 'institute_activities',
                         ...content,
-                        // Format dates before sending to API
-                        start_date: content.start_date 
-                            ? new Date(content.start_date).toISOString().split('T')[0]
+                        start_date: content.start_date
+                            ? formatDateToMySQL(content.start_date) 
                             : null,
-                        end_date: content.end_date?content.end_date === "Continue"?"Continue"
-                            : new Date(content.end_date).toISOString().split('T')[0]
+                        end_date: content.end_date
+                            ? content.end_date === "Continue"
+                                ? "Continue"
+                                : formatDateToMySQL(content.end_date) 
                             : null,
                         email: session?.user?.email
                     }),
-                })
-
-                if (!result.ok) throw new Error('Failed to update')
-                
-                handleClose()
-                showToast('Institute activity updated successfully!')
-                refreshData()
-                window.location.reload()
+                });
+        
+                if (!result.ok) throw new Error('Failed to update');
+        
+                handleClose();
+                showToast('Institute activity updated successfully!');
+                refreshData();
             } catch (error) {
-                console.error('Error:', error)
-                showToast('Failed to update institute activity', 'error')
+                console.error('Error:', error);
+                showToast('Failed to update institute activity', 'error');
             } finally {
-                setSubmitting(false)
+                setSubmitting(false);
             }
-        }
+        };
+        
 
         return (
             <Dialog open={modal} onClose={handleClose} maxWidth="md" fullWidth>

@@ -46,6 +46,12 @@ export const AddForm = ({ handleClose, modal }) => {
         setContent({ ...content, [e.target.name]: e.target.value })
     }
 
+    const formatDateToUTC = (date) => {
+        if (!date) return null;
+        const dateObj = new Date(date);
+        return new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())).toISOString().split('T')[0];
+    };
+
     const handleSubmit = async (e) => {
         setSubmitting(true)
         e.preventDefault()
@@ -57,15 +63,11 @@ export const AddForm = ({ handleClose, modal }) => {
                 body: JSON.stringify({
                     type: 'startups',
                     ...content,
-                    // Ensure the date is in 'YYYY-MM-DD' format (without time)
-                    registration_date: content.registration_date
-                        ? new Date(content.registration_date).toISOString().split('T')[0] // This ensures only 'YYYY-MM-DD'
-                        : null,
+                    registration_date: formatDateToUTC(content.registration_date),
                     id: Date.now().toString(),
                     email: session?.user?.email
                 }),
             });
-            
 
             if (!result.ok) throw new Error('Failed to create')
             
@@ -110,7 +112,7 @@ export const AddForm = ({ handleClose, modal }) => {
                             onChange={(newValue) => 
                                 setContent({ ...content, registration_date: newValue})
                             }
-                             format="dd/MM/yyyy"
+                            format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
@@ -173,15 +175,10 @@ export const EditForm = ({ handleClose, modal, values }) => {
         setContent({ ...content, [name]: value });
     };
 
-    const handleDateChange = (newValue) => {
-        try {
-            const dateValue = newValue
-                ? new Date(newValue).toISOString().split('T')[0]
-                : null;
-            setContent({ ...content, registration_date: dateValue });
-        } catch (error) {
-            console.error('Error parsing date:', error);
-        }
+    const formatDateToUTC = (date) => {
+        if (!date) return null;
+        const dateObj = new Date(date);
+        return new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())).toISOString().split('T')[0];
     };
 
     const handleSubmit = async (e) => {
@@ -199,9 +196,7 @@ export const EditForm = ({ handleClose, modal, values }) => {
                 body: JSON.stringify({
                     type: 'startups',
                     ...content,
-                    registration_date: content.registration_date
-                        ? new Date(content.registration_date).toISOString().split('T')[0]
-                        : null,
+                    registration_date: formatDateToUTC(content.registration_date),
                     email: session.user.email,
                 }),
             });
@@ -247,8 +242,10 @@ export const EditForm = ({ handleClose, modal, values }) => {
                         <DatePicker
                             label="Registration Date"
                             value={content.registration_date ? new Date(content.registration_date) : null}
-                            onChange={handleDateChange}
-                             format="dd/MM/yyyy"
+                            onChange={(newValue) => {
+                                setContent({ ...content, registration_date: newValue });
+                            }}
+                            format="dd/MM/yyyy"
                             renderInput={(params) => (
                                 <TextField {...params} fullWidth margin="dense" />
                             )}
